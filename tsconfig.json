@@ -1,0 +1,32 @@
+{
+    "compilerOptions": {
+        /* Output */
+        "target": "ES2022",
+        "module": "CommonJS",
+        "lib": ["ES2023"],
+        "outDir": "dist",
+        "rootDir": "src",
+        "declaration": true,
+        "sourceMap": true,
+        "resolveJsonModule": true,
+
+        /* Module resolution */
+        /* node10 is deprecated in TS6 — full migration to "nodenext" requires .js extensions on all relative imports. */
+        /* Set ignoreDeprecations to acknowledge this and suppress the error until that migration is done (before TS7). */
+        "moduleResolution": "node10",
+        "ignoreDeprecations": "6.0",
+        "esModuleInterop": true,
+
+        /* Strictness */
+        "strict": true,
+        "noImplicitOverride": true,
+        "noUncheckedSideEffectImports": true,
+
+        /* Interop / misc */
+        "experimentalDecorators": true,
+        "skipLibCheck": true,
+        "forceConsistentCasingInFileNames": true
+    },
+    "include": ["src/**/*.ts"],
+    "exclude": ["node_modules", "**/*.spec.ts"]
+}
