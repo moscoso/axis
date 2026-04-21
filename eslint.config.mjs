@@ -23,7 +23,7 @@ export default [
             '@typescript-eslint/no-empty-object-type': 'off',
             '@typescript-eslint/no-unused-vars': 'warn',
             'array-bracket-spacing': 'warn',
-            'comma-dangle': 'warn',
+            'comma-dangle': 'off',
             'indent': 'off',
             'multiline-ternary': 'off',
             'no-tabs': 'off',
