@@ -4,6 +4,7 @@
 	"description": "TypeScript object models for AXIS: Light & Dark Elemental Dominion",
 	"main": "dist/index.js",
 	"scripts": {
+		"board": "ts-node --project scripts/tsconfig.json scripts/printBoard.ts",
 		"build": "tsc",
 		"compile": "tsc",
 		"develop": "tsc --watch",
