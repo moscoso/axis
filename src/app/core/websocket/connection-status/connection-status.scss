@@ -1,0 +1,26 @@
+:host {
+    color: white;
+    text-align: right;
+    position: absolute;
+    right: 0;
+    top: 100px;
+}
+
+.medium-latency {
+    color: yellow;
+}
+
+.high-latency {
+    color: red;
+}
+
+.socket-connection {
+    float: right;
+    width: 30px;
+    height: 30px;
+}
+
+.disconnected {
+    width: 50px;
+    height: 50px;
+}

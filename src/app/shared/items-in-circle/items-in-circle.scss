@@ -1,0 +1,32 @@
+:host {
+    --d: 6.5em;
+    --rel: 1;
+    --tan: 0.41;
+    --r: calc(0.5 * (1 + var(--rel)) * var(--d) / var(--tan));
+    --s: calc(2 * var(--r) + var(--d));
+
+    .container {
+        position: absolute;
+        top: 0;
+        width: 100vw;
+        height: 100vh;
+    }
+
+    .container a {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        margin: calc(-0.5 * var(--d));
+        width: var(--d);
+        height: var(--d);
+        --az: calc(var(--i) * 1turn / var(--m));
+        transform:
+            rotate(var(--az))
+            translate(var(--r))
+            rotate(calc(-1 * var(--az)));
+    }
+
+    img {
+        max-width: 100%;
+    }
+}

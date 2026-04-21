@@ -1,0 +1,42 @@
+<form [formGroup]="form" (ngSubmit)="onSubmit()">
+    <mat-form-field>
+        <mat-label for="email">Email</mat-label>
+        <input matInput
+               type="email"
+               [formControl]="email"
+               name="email"
+               autocomplete="email"
+               required
+               enterkeyhint="next" />
+        @if (email.hasError('required') || email.hasError('email')) {
+            <mat-error>Please enter a valid email</mat-error>
+        }
+    </mat-form-field>
+
+    <mat-form-field>
+        <mat-label for="password">Password</mat-label>
+        <input matInput
+               [type]="hidePassword() ? 'password' : 'text'"
+               [formControl]="password"
+               name="password"
+               autocomplete="current-password"
+               required
+               enterkeyhint="done" />
+        <button mat-icon-button matSuffix type="button" (click)="toggleHidePassword()"
+                [attr.aria-label]="hidePassword() ? 'Show password' : 'Hide password'">
+            <mat-icon [fontIcon]="hidePassword() ? 'visibility_off' : 'visibility'"></mat-icon>
+        </button>
+        @if (password.hasError('required')) {
+            <mat-error>Please enter your password</mat-error>
+        }
+        @if (password.hasError('maxlength')) {
+            <mat-error>Password must be a maximum of 128 characters</mat-error>
+        }
+    </mat-form-field>
+
+    <button mat-fab type="submit" class="submit-btn" [class.invalid]="!form.valid">
+        <mat-icon>arrow_forward</mat-icon>
+    </button>
+</form>
+<hr />
+<button mat-raised-button (click)="guestLogin()" class="guest-btn">Continue as Guest</button>

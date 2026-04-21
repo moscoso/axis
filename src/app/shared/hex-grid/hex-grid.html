@@ -1,0 +1,9 @@
+<div class="container">
+    @for (_ of rows; track $index) {
+        <div class="row">
+            @for (_ of cellsPerRow; track $index) {
+                <div class="hexagon"></div>
+            }
+        </div>
+    }
+</div>

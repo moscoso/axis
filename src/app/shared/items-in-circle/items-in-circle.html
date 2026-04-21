@@ -1,0 +1,7 @@
+<div class="container" [style.--m]="count()">
+    @for (item of items(); track $index) {
+        <a [href]="item.href ?? null" [style.--i]="$index">
+            <img [src]="item.src" [alt]="item.alt" />
+        </a>
+    }
+</div>

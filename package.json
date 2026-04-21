@@ -29,6 +29,8 @@
     "@ngrx/store": "^21.1.0",
     "@ngrx/store-devtools": "^21.1.0",
     "animate.css": "^4.1.1",
+    "axis-models": "file:../axis-models",
+    "events": "^3.3.0",
     "howler": "^2.2.4",
     "ngx-socket-io": "^4.10.0",
     "normalize.css": "^8.0.1",
