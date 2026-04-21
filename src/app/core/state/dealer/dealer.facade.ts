@@ -7,6 +7,7 @@ import {
     Game,
     PlayerSide,
     PlayerState,
+    Seat,
     Table,
     TableCommand,
     TableEvent,
@@ -14,7 +15,12 @@ import {
 import { firstValueFrom, map, Observable } from 'rxjs';
 import { DealerActions } from './dealer.actions';
 import { selectDealerState, selectGame } from './dealer.feature';
-import { selectPlayer, selectUserAsPlayer, selectUserIsSeated } from './dealer.selector';
+import {
+    selectPlayer,
+    selectUserAsPlayer,
+    selectUserIsSeated,
+    selectUserSeat,
+} from './dealer.selector';
 import { DealerState } from './dealer.state';
 
 @Injectable({ providedIn: 'root' })
@@ -99,6 +105,10 @@ export class DealerFacade {
 
     selectUserAsPlayer(): Observable<PlayerState | undefined> {
         return this.store.select(selectUserAsPlayer);
+    }
+
+    selectUserSeat(): Observable<Seat | null> {
+        return this.store.select(selectUserSeat);
     }
 
     selectUserIsSeated(): Observable<boolean> {

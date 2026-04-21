@@ -1,0 +1,16 @@
+<header>
+    <span class="side">{{ side() }}</span>
+    <span class="count">{{ cards().length }}</span>
+</header>
+<div class="cards">
+    @for (c of cards(); track c.id) {
+        <app-card
+            [card]="c"
+            [selectable]="selectable()"
+            [selected]="isSelected(c)"
+            (click)="onPick(c)">
+        </app-card>
+    } @empty {
+        <div class="empty">No cards</div>
+    }
+</div>

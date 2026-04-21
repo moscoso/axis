@@ -1,0 +1,18 @@
+<div class="wrap">
+    <header>
+        <h2>AXIS</h2>
+        <p>Light &amp; Dark Elemental Dominion</p>
+    </header>
+
+    <div class="seats">
+        <app-seat [seat]="seatA()" [seatIndex]="0"></app-seat>
+        <span class="vs">vs</span>
+        <app-seat [seat]="seatB()" [seatIndex]="1"></app-seat>
+    </div>
+
+    @if (userIsSeated()) {
+        <app-side-selector [current]="mySidePreference()"></app-side-selector>
+    }
+
+    <p class="status" [attr.data-status]="status()">{{ statusMessage() }}</p>
+</div>

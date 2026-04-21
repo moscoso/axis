@@ -1,0 +1,31 @@
+<div class="backdrop" aria-hidden="true"></div>
+
+<div class="modal" role="dialog" aria-modal="true" aria-labelledby="victory-title">
+    <header>
+        <div class="banner">Victory</div>
+        <h2 id="victory-title">
+            <span class="side">{{ winner() }}</span>
+            <span class="wins">wins</span>
+        </h2>
+        <p class="reason">{{ reasonLabel() }}</p>
+        <p class="summary">{{ reasonSummary() }}</p>
+    </header>
+
+    @if (showTallies()) {
+        <section class="tallies">
+            <div class="tally" data-side="light">
+                <span class="label">Light</span>
+                <span class="value">{{ lightFlux() }}</span>
+            </div>
+            <div class="vs">vs</div>
+            <div class="tally" data-side="dark">
+                <span class="label">Dark</span>
+                <span class="value">{{ darkFlux() }}</span>
+            </div>
+        </section>
+    }
+
+    <footer>
+        <button type="button" class="close" (click)="onClose()">Dismiss</button>
+    </footer>
+</div>

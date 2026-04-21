@@ -1,0 +1,13 @@
+:host {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1em;
+    height: 1em;
+    font-size: var(--glyph-size, 1rem);
+    line-height: 1;
+}
+
+:host([data-kind="flux"])  { color: #b8d4ff; }
+:host([data-kind="force"]) { color: #ff9069; }
+:host([data-kind="draw"])  { color: #f2e36a; }

@@ -1,0 +1,22 @@
+<div class="pile discard" [class.empty]="!hasDiscard()">
+    <span class="label">Discard</span>
+    <span class="count">{{ discardSize() }}</span>
+</div>
+
+<div class="display">
+    @for (c of cards(); track c.id) {
+        <app-card
+            [card]="c"
+            [size]="cardSize()"
+            [selectable]="selectable()"
+            (click)="onPick(c)">
+        </app-card>
+    } @empty {
+        <div class="placeholder">Display empty</div>
+    }
+</div>
+
+<div class="pile deck" [class.empty]="!hasDeck()">
+    <span class="label">Deck</span>
+    <span class="count">{{ deckSize() }}</span>
+</div>

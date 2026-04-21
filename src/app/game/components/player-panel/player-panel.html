@@ -1,0 +1,21 @@
+<header>
+    @if (photoURL()) {
+        <img class="avatar" [src]="photoURL()" [alt]="name()" draggable="false" />
+    } @else {
+        <span class="avatar placeholder">{{ initial() }}</span>
+    }
+    <div class="who">
+        <span class="side">{{ side() }}</span>
+        <span class="name">{{ name() }}</span>
+    </div>
+</header>
+
+<div class="cruxes">
+    @for (el of controlledElements(); track el) {
+        <span class="crux" [attr.data-element]="el" [attr.aria-label]="el + ' crux'">
+            {{ elementSymbol(el) }}
+        </span>
+    } @empty {
+        <span class="no-cruxes">no cruxes</span>
+    }
+</div>

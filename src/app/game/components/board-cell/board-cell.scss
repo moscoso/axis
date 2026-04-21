@@ -1,0 +1,85 @@
+:host {
+    position: relative;
+    display: block;
+    aspect-ratio: 1;
+    border-radius: 6px;
+    box-sizing: border-box;
+    background: var(--cell-bg, #0b0f1a);
+    overflow: hidden;
+    box-shadow:
+        inset 0 0 0 1px rgba(255, 255, 255, 0.08),
+        inset 0 0 16px rgba(0, 0, 0, 0.4);
+    transition: transform 150ms ease, box-shadow 150ms ease, filter 150ms ease;
+}
+
+:host([data-element="fire"]) {
+    --cell-bg: radial-gradient(circle at 50% 50%, #5a1d14 0%, #2a0d08 80%);
+    --cell-accent: #ff6a3d;
+}
+:host([data-element="earth"]) {
+    --cell-bg: radial-gradient(circle at 50% 50%, #1f4a2a 0%, #0a1c10 80%);
+    --cell-accent: #6ed26a;
+}
+:host([data-element="air"]) {
+    --cell-bg: radial-gradient(circle at 50% 50%, #4a3e1a 0%, #1a160a 80%);
+    --cell-accent: #f2e36a;
+}
+:host([data-element="water"]) {
+    --cell-bg: radial-gradient(circle at 50% 50%, #1a3a6a 0%, #08142a 80%);
+    --cell-accent: #6abeff;
+}
+
+:host([data-has-crux="true"]) {
+    box-shadow:
+        inset 0 0 0 2px rgba(255, 240, 180, 0.55),
+        inset 0 0 24px rgba(255, 240, 180, 0.15),
+        0 0 20px rgba(255, 240, 180, 0.1);
+}
+
+:host(.selectable) {
+    cursor: pointer;
+}
+
+:host(.selectable:hover) {
+    filter: brightness(1.5);
+    transform: scale(1.03);
+}
+
+:host(.selected) {
+    box-shadow:
+        inset 0 0 0 3px #fff,
+        0 0 28px rgba(255, 255, 255, 0.35);
+    z-index: 1;
+}
+
+.glyphs {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 3px;
+    padding: 6px;
+    align-content: flex-start;
+    opacity: 0.7;
+    --glyph-size: 1.1rem;
+}
+
+.crux {
+    position: absolute;
+    bottom: 6px;
+    right: 8px;
+    color: rgba(255, 240, 180, 0.95);
+    font-size: 1.6rem;
+    line-height: 1;
+    pointer-events: none;
+    text-shadow: 0 0 12px rgba(255, 240, 180, 0.6);
+}
+
+.rune {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    --rune-size: 3em;
+    font-size: 1.1rem;
+}

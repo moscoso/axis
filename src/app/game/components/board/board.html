@@ -1,0 +1,17 @@
+@if (rows().length === 0) {
+    <div class="empty">Awaiting setup…</div>
+} @else {
+    <div class="grid">
+        @for (row of rows(); track $index) {
+            @for (cell of row; track cell.position.col) {
+                <app-board-cell
+                    [cell]="cell"
+                    [zone]="zoneFor(cell.zoneId)"
+                    [selectable]="selectable() && cell.rune === null"
+                    [selected]="isSelected(cell.position)"
+                    (click)="onCellClick(cell.position)">
+                </app-board-cell>
+            }
+        }
+    </div>
+}

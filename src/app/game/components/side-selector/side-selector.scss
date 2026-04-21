@@ -1,0 +1,60 @@
+:host {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.label {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.25em;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.options {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+button {
+    padding: 0.5rem 1rem;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.04);
+    color: rgba(255, 255, 255, 0.85);
+    font-size: 0.85rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 120ms, border-color 120ms, color 120ms;
+}
+
+button:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+button:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+button.active[data-side="light"] {
+    background: #f5efe0;
+    color: #1a1a1a;
+    border-color: #f5efe0;
+}
+
+button.active[data-side="dark"] {
+    background: #b19cff;
+    color: #1a0f3a;
+    border-color: #b19cff;
+}
+
+button.active[data-side="random"] {
+    background: rgba(255, 255, 255, 0.85);
+    color: #0b0f1a;
+    border-color: rgba(255, 255, 255, 0.85);
+}
