@@ -18,6 +18,8 @@
 	"author": "Chris Moscoso",
 	"license": "ISC",
 	"dependencies": {
+		"@moscoso/models": "file:../models",
+		"events": "^3.3.0",
 		"short-uuid": "^6.0.3"
 	},
 	"//": "overrides: mocha@11.x ships serialize-javascript@^6 and diff@^7, both vulnerable. Remove overrides once mocha bumps its own deps. Check: npm show mocha@latest dependencies",
