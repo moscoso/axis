@@ -5,6 +5,7 @@
 	"main": "dist/index.js",
 	"scripts": {
 		"board": "ts-node --project scripts/tsconfig.json scripts/printBoard.ts",
+		"bot:smoke": "ts-node --project scripts/tsconfig.json scripts/botSmoke.ts",
 		"build": "tsc",
 		"compile": "tsc",
 		"develop": "tsc --watch",

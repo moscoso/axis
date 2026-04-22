@@ -1,4 +1,5 @@
 export * from './Game';
+export * from './simulateCommand';
 export * from './GameCommand';
 export * from './GameOptions';
 export * from './GameSeed';
