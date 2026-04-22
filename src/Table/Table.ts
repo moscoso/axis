@@ -1,4 +1,5 @@
 import { User } from '@moscoso/models';
+import { DEFAULT_OPTIONS, GameOptions } from '../Game/GameOptions';
 
 export type TableStatus = 'waiting' | 'ready' | 'in-progress' | 'finished';
 
@@ -24,6 +25,8 @@ export interface Table {
 	/** The two seats — a {@link Seat} when occupied, null when empty. */
 	seats: [Seat | null, Seat | null];
 	status: TableStatus;
+	/** Tunable rules for games launched from this table. */
+	options: GameOptions;
 	createdAt: number;
 	updatedAt: number;
 }
@@ -32,6 +35,7 @@ export const INIT_TABLE_STATE: Table = {
 	id: '',
 	seats: [null, null],
 	status: 'waiting',
+	options: DEFAULT_OPTIONS,
 	createdAt: 0,
 	updatedAt: 0,
 };

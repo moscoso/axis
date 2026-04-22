@@ -4,6 +4,7 @@ import { GameEvent, RuneInscribed } from '../../GameEvent/GameEvent';
 import {
 	CAN_ACTIVATE,
 	CAN_PAY,
+	HAS_NO_PENDING_DRAWS,
 	IS_CELL_EMPTY,
 	IS_PHASE,
 	IS_PLAYERS_TURN,
@@ -29,7 +30,14 @@ export class InscribeRune implements GameCommand<InscribeRuneParams> {
 		const { game, player, target, paidCardIds, chosenActivations } = this.params;
 
 		const error = validateGame(
-			[IS_PLAYERS_TURN, IS_PHASE('main-turn'), IS_CELL_EMPTY, CAN_PAY, CAN_ACTIVATE],
+			[
+				IS_PLAYERS_TURN,
+				IS_PHASE('main-turn'),
+				HAS_NO_PENDING_DRAWS,
+				IS_CELL_EMPTY,
+				CAN_PAY,
+				CAN_ACTIVATE,
+			],
 			{ game, player, target, paidCardIds, chosenActivations }
 		);
 		if (error) return failGameCommand(error);

@@ -4,6 +4,7 @@ export enum GameErrorType {
 	CellHasCrux = 'A Crux stands on this cell — runes cannot be inscribed here',
 	CellIsOccupied = 'Cell is already occupied',
 	GameIsOver = 'The game is already over',
+	HasPendingDraws = 'Resolve pending draws before taking another action',
 	InsufficientPayment = 'Insufficient payment for this cell',
 	InvalidActivationCount = 'Invalid number of glyph activations',
 	InvalidDrawSelection = 'Invalid card selected from the display',
@@ -26,6 +27,7 @@ export class GameError extends AppError<GameErrorType> {
 	static CellHasCrux()                           { return new GameError(GameErrorType.CellHasCrux); }
 	static CellIsOccupied()                        { return new GameError(GameErrorType.CellIsOccupied); }
 	static GameIsOver()                            { return new GameError(GameErrorType.GameIsOver); }
+	static HasPendingDraws()                       { return new GameError(GameErrorType.HasPendingDraws); }
 	static InsufficientPayment(d?: string)         { return new GameError(GameErrorType.InsufficientPayment, d); }
 	static InvalidActivationCount(d?: string)      { return new GameError(GameErrorType.InvalidActivationCount, d); }
 	static InvalidDrawSelection(d?: string)        { return new GameError(GameErrorType.InvalidDrawSelection, d); }

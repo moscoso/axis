@@ -57,6 +57,7 @@ export class StartGame implements GameCommand<StartGameParams> {
 			display,
 			lightPlayer,
 			darkPlayer,
+			options:     table.options,
 			createdAt:   Date.now(),
 		};
 

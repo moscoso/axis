@@ -3,6 +3,7 @@ import { Card } from '../Card/Card';
 import { PlayerMap, PlayerSide } from '../Player/Player';
 import { Position, Zone } from '../Zone/Zone';
 import { Glyph } from '../Glyph/Glyph';
+import { DEFAULT_OPTIONS, GameOptions } from './GameOptions';
 
 export type GamePhase = 'setup' | 'starting-draft' | 'main-turn' | 'game-over';
 
@@ -61,11 +62,21 @@ export interface Game {
 	display: Card[];
 
 	/**
-	 * Number of draw activations the active player still needs to resolve.
-	 * Set by {@link RuneInscribed} and decremented by {@link CardDrawnFromDisplay}.
-	 * When > 0, only DrawFromDisplay is valid.
+	 * Number of ◇ activation draws the active player still needs to resolve,
+	 * queued by {@link RuneInscribed}. Decremented on {@link CardDrawn}.
 	 */
 	pendingDraws: number;
+
+	/**
+	 * Draws that were granted to the active player at the START of their turn
+	 * (see {@link GameOptions.startOfTurnDraws}). Resolved the same way as
+	 * `pendingDraws` but via a separate counter so the "end-turn after last
+	 * draw" logic only triggers on the ◇-activation branch.
+	 */
+	pendingStartOfTurnDraws: number;
+
+	/** The frozen-in options this game was started with. */
+	options: GameOptions;
 
 	/** Set when a victory condition is met */
 	winner: PlayerSide | null;
@@ -93,6 +104,8 @@ const INIT_STATE: Game = {
 	discard: [],
 	display: [],
 	pendingDraws: 0,
+	pendingStartOfTurnDraws: 0,
+	options: DEFAULT_OPTIONS,
 	winner: null,
 	winReason: null,
 	createdAt: 0,

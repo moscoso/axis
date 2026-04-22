@@ -1,12 +1,14 @@
 import { UserID } from '@moscoso/models';
 import { Card } from '../../Card/Card';
 import { BoardCell } from '../Game';
+import { GameOptions } from '../GameOptions';
 import { Zone } from '../../Zone/Zone';
 
 /**
  * A {@link GameSeed} captures everything needed to reproduce the exact starting
- * state of an AXIS game — board layout, deck order, side assignment, and the
- * moment the game was created. Each game begins from a unique seed.
+ * state of an AXIS game — board layout, deck order, side assignment, rules in
+ * effect, and the moment the game was created. Each game begins from a unique
+ * seed.
  */
 export interface GameSeed {
 	board:       BoardCell[][];
@@ -17,5 +19,7 @@ export interface GameSeed {
 	display:     Card[];
 	lightPlayer: UserID;
 	darkPlayer:  UserID;
+	/** House-rule knobs snapshotted from the table at start time. */
+	options:     GameOptions;
 	createdAt:   number;
 }

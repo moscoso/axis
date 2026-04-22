@@ -35,10 +35,13 @@ export class DrawCard implements GameCommand<DrawCardParams> {
 		const error = validateGame([IS_PLAYERS_TURN, IS_PHASE('main-turn')], { game, player });
 		if (error) return failGameCommand(error);
 
-		// pendingDraws === 0 → this is the player's main action and should end the turn.
-		// pendingDraws === 1 → resolving the last queued draw; end the turn.
-		// pendingDraws  > 1 → still more queued draws to resolve; do NOT end the turn.
-		const shouldEndTurn = game.pendingDraws <= 1;
+		// End-turn rules:
+		//   - Any start-of-turn freebies still queued → never end the turn
+		//     (the main action still hasn't happened).
+		//   - Otherwise: pendingDraws === 0 (main action Draw) or === 1 (last ◇
+		//     activation) both end the turn. > 1 means more ◇ draws to go.
+		const shouldEndTurn =
+			game.pendingStartOfTurnDraws === 0 && game.pendingDraws <= 1;
 		const commands: GameCommand[] = [];
 
 		if (params.from === 'display') {

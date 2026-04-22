@@ -1,6 +1,7 @@
 export * from './CanActivate';
 export * from './CanPay';
 export * from './GamePrecondition';
+export * from './HasNoPendingDraws';
 export * from './HasPendingDraws';
 export * from './IsCellEmpty';
 export * from './IsNotGameOver';
