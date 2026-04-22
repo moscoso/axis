@@ -1,11 +1,13 @@
-<div class="glyphs">
-    @for (g of glyphs(); track $index) {
-        <app-glyph [symbol]="g"></app-glyph>
-    }
-</div>
+@if (!rune()) {
+    <div class="glyphs">
+        @for (g of glyphs(); track $index) {
+            <app-glyph [symbol]="g"></app-glyph>
+        }
+    </div>
+}
 
 @if (cell().hasCrux) {
-    <div class="crux" aria-label="Crux">✦</div>
+    <div class="crux" [attr.aria-label]="'Crux of ' + element()">{{ cruxSymbol() }}</div>
 }
 
 @if (rune(); as r) {

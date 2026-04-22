@@ -1,13 +1,17 @@
 import { Action, createFeature, createReducer, on } from '@ngrx/store';
 import { Game, Table } from 'axis-models';
 import { DealerActions } from './dealer.actions';
-import { DealerState, INIT_DEALER } from './dealer.state';
+import { DealerState, EventLogEntry, INIT_DEALER } from './dealer.state';
 
 /** Any dispatched action may piggy-back a fresh snapshot attached by the socket layer. */
 interface SnapshotAction extends Action {
     game?: Game;
     table?: Table;
+    eventNumber?: number;
+    timestamp?: Date | string | number;
 }
+
+const MAX_LOG_ENTRIES = 50;
 
 /**
  * The dealer reducer merges socket-delivered game + table snapshots into the
@@ -34,19 +38,42 @@ const dealerReducer = createReducer<DealerState>(
 
 /**
  * A fall-through reducer that applies `game`/`table` snapshots piggy-backed onto
- * any dispatched {@link GameEvent} or {@link TableEvent}. Mirrors the pattern
- * from starwars-pwa where socket events arrive with a fresh snapshot attached.
+ * any dispatched {@link GameEvent} or {@link TableEvent}. Also appends a log
+ * entry for any action that carries an axis-models-shaped event payload
+ * (`eventNumber` + `type`), bounded to the most recent MAX_LOG_ENTRIES.
  */
 function applyEventSnapshots(state: DealerState, action: Action): DealerState {
     const event = action as SnapshotAction;
-    if (!event.game && !event.table) {
+    const hasSnapshot = !!event.game || !!event.table;
+    const isEvent = typeof event.eventNumber === 'number' && typeof event.type === 'string';
+    if (!hasSnapshot && !isEvent) {
         return state;
     }
-    return {
+
+    const next: DealerState = {
         ...state,
         game: event.game ?? state.game,
         table: event.table ?? state.table,
     };
+
+    if (isEvent) {
+        const entry: EventLogEntry = {
+            id: event.eventNumber!,
+            type: event.type!,
+            at: toEpochMs(event.timestamp),
+        };
+        next.events = [...state.events, entry].slice(-MAX_LOG_ENTRIES);
+    }
+
+    return next;
+}
+
+function toEpochMs(ts: Date | string | number | undefined): number {
+    if (ts === undefined) return Date.now();
+    if (ts instanceof Date) return ts.getTime();
+    if (typeof ts === 'number') return ts;
+    const parsed = Date.parse(ts);
+    return Number.isNaN(parsed) ? Date.now() : parsed;
 }
 
 export const dealerFeature = createFeature({
@@ -68,4 +95,5 @@ export const {
     selectSelectedAbility,
     selectResourceDiff,
     selectVictoryScreenClosed,
+    selectEvents,
 } = dealerFeature;

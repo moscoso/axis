@@ -70,6 +70,7 @@
             <section class="board-stage">
                 <app-board
                     [game]="g"
+                    [player]="mySide()"
                     [selectable]="canInscribe()"
                     [selectedCell]="selectedCell()"
                     (cellClicked)="onCellClick($event)">
@@ -107,6 +108,7 @@
                 (cancel)="onCancelInscribe()"
                 (activationChanged)="onActivationChanged($event)">
             </app-action-panel>
+            <app-event-log></app-event-log>
         </aside>
     </div>
 } @else {

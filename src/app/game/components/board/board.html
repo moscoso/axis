@@ -9,7 +9,11 @@
                     [zone]="zoneFor(cell.zoneId)"
                     [selectable]="selectable() && cell.rune === null"
                     [selected]="isSelected(cell.position)"
-                    (click)="onCellClick(cell.position)">
+                    [dim]="selectable() && !isAffordable(cell.position)"
+                    [inCross]="isInCross(cell.position)"
+                    (click)="onCellClick(cell.position)"
+                    (mouseenter)="onCellHover(cell.position)"
+                    (mouseleave)="onCellLeave(cell.position)">
                 </app-board-cell>
             }
         }

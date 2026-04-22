@@ -29,6 +29,7 @@ import { ActionPanel } from './components/action-panel/action-panel';
 import { Board } from './components/board/board';
 import { CardDisplay } from './components/card-display/card-display';
 import { DraftOverlay } from './components/draft-overlay/draft-overlay';
+import { EventLog } from './components/event-log/event-log';
 import { Hand } from './components/hand/hand';
 import { Lobby } from './components/lobby/lobby';
 import { PlayerPanel } from './components/player-panel/player-panel';
@@ -45,6 +46,7 @@ import { VictoryModal } from './components/victory-modal/victory-modal';
         CardDisplay,
         ConnectionStatus,
         DraftOverlay,
+        EventLog,
         Hand,
         HexGrid,
         Lobby,
