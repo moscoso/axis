@@ -108,3 +108,50 @@ export function getZoneAuraScore(state: Game, player: PlayerSide): number {
 export function getFinalScore(state: Game, player: PlayerSide): number {
 	return getTotalFluxScore(state, player) + getZoneAuraScore(state, player);
 }
+
+/**
+ * Fast predicate: does `player` have at least one legal move in the current
+ * main-turn state? A cheap alternative to enumerating every move — checks
+ * draw availability, then whether any empty non-crux cell is affordable by
+ * the top-payment-value cards in hand (capped at the cell's base cost).
+ *
+ * Returns false outside main-turn, for the non-active player, or when a game
+ * has already ended.
+ */
+export function hasAnyLegalMove(state: Game, player: PlayerSide): boolean {
+	if (state.phase !== 'main-turn') return false;
+	if (state.winner !== null) return false;
+	if (state.currentTurn !== player) return false;
+
+	if (state.display.length > 0 || state.deck.length > 0) return true;
+
+	// Display and deck are both empty. A pending-draw state here is a dead-end —
+	// the player cannot inscribe until draws are resolved and there's nothing
+	// to draw.
+	if (state.pendingDraws > 0 || state.pendingStartOfTurnDraws > 0) return false;
+
+	const hand = state.players[player].hand;
+	const controlled = getControlledElements(state, player);
+	const sortedValues = hand
+		.map(card => getCardPaymentValue(card, controlled))
+		.sort((a, b) => b - a);
+
+	for (let r = 0; r < state.board.length; r++) {
+		for (let c = 0; c < state.board[r].length; c++) {
+			const cell = state.board[r][c];
+			if (cell.rune !== null) continue;
+			if (cell.hasCrux) continue;
+
+			const position: Position = { row: r, col: c };
+			const discountedCost = getDiscountedCost(state, player, position);
+			if (discountedCost === 0) return true;
+
+			const baseCost = getBaseCost(cell);
+			const limit = Math.min(baseCost, sortedValues.length);
+			let sum = 0;
+			for (let i = 0; i < limit; i++) sum += sortedValues[i];
+			if (sum >= discountedCost) return true;
+		}
+	}
+	return false;
+}
