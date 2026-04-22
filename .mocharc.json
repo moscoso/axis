@@ -1,0 +1,6 @@
+{
+	"check-leaks": false,
+	"extension": ["ts"],
+	"require": ["ts-node"],
+	"reporter": "nyan"
+}
