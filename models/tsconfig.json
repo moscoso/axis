@@ -4,6 +4,7 @@
         "target": "ES2022",
         "module": "CommonJS",
         "lib": ["ES2023"],
+        "types": ["node"],
         "outDir": "dist",
         "rootDir": "src",
         "declaration": true,
