@@ -1,0 +1,26 @@
+<header class="title">Flux</header>
+
+<section class="totals" [attr.data-leader]="totalLeader()">
+    <div class="side" data-side="light">
+        <span class="label">Light</span>
+        <span class="value">{{ lightTotal() }}</span>
+    </div>
+    <span class="diff" [attr.data-sign]="totalLeader()">
+        {{ formatDiff(totalDiff()) }}
+    </span>
+    <div class="side" data-side="dark">
+        <span class="label">Dark</span>
+        <span class="value">{{ darkTotal() }}</span>
+    </div>
+</section>
+
+<section class="cruxes" aria-label="Per-Crux flux on row and column lines">
+    @for (c of cruxes(); track c.element) {
+        <div class="crux-row" [attr.data-element]="c.element" [attr.data-leader]="c.leader" [attr.data-control]="c.control">
+            <span class="el" [attr.aria-label]="c.element + ' crux'">{{ c.symbol }}</span>
+            <span class="num light">{{ c.light }}</span>
+            <span class="diff">{{ formatDiff(c.diff) }}</span>
+            <span class="num dark">{{ c.dark }}</span>
+        </div>
+    }
+</section>

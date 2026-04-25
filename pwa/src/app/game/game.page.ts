@@ -31,6 +31,7 @@ import { Board } from './components/board/board';
 import { CardDisplay } from './components/card-display/card-display';
 import { DraftOverlay } from './components/draft-overlay/draft-overlay';
 import { EventLog } from './components/event-log/event-log';
+import { FluxScoreboard } from './components/flux-scoreboard/flux-scoreboard';
 import { Hand } from './components/hand/hand';
 import { Lobby } from './components/lobby/lobby';
 import { PlayerPanel } from './components/player-panel/player-panel';
@@ -48,6 +49,7 @@ import { VictoryModal } from './components/victory-modal/victory-modal';
         ConnectionStatus,
         DraftOverlay,
         EventLog,
+        FluxScoreboard,
         Hand,
         HexGrid,
         Lobby,

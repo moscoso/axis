@@ -107,6 +107,7 @@
                 [compact]="true"
                 (cardSelected)="onDisplayCardPicked($event)">
             </app-card-display>
+            <app-flux-scoreboard [game]="g"></app-flux-scoreboard>
             <app-action-panel
                 [game]="g"
                 [player]="mySide()"
