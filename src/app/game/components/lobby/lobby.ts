@@ -1,23 +1,14 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { SidePreference, Table, clientTableCommand } from 'axis-models';
-import { firstValueFrom } from 'rxjs';
+import { SidePreference, Table } from 'axis-models';
 import { AuthFacade } from '../../../core/state/auth/auth.facade';
-import { DealerFacade } from '../../../core/state/dealer/dealer.facade';
-import { ToastService } from '../../../shared/toast/toast.service';
-import { WebsocketService } from '../../../core/websocket/websocket.service';
 import { Seat } from '../seat/seat';
 import { SideSelector } from '../side-selector/side-selector';
-
-/** Server-side test room with a HeuristicBot pre-seated in seat 1. */
-const BOT_TEST_ROOM = 'bot-test';
 
 @Component({
     selector: 'app-lobby',
     standalone: true,
-    imports: [MatButtonModule, MatIconModule, Seat, SideSelector],
+    imports: [Seat, SideSelector],
     templateUrl: './lobby.html',
     styleUrls: ['./lobby.scss'],
     changeDetection: ChangeDetectionStrategy.OnPush,
@@ -26,9 +17,6 @@ export class Lobby {
     readonly table = input.required<Table>();
 
     private readonly auth = inject(AuthFacade);
-    private readonly dealer = inject(DealerFacade);
-    private readonly socket = inject(WebsocketService);
-    private readonly toast = inject(ToastService);
     private readonly userId = toSignal(this.auth.selectUserID(), { initialValue: 'unknown' });
 
     readonly seatA = computed(() => this.table().seats[0]);
@@ -50,8 +38,8 @@ export class Lobby {
         switch (this.status()) {
             case 'waiting':
                 return this.userIsSeated()
-                    ? 'Waiting for another player…'
-                    : 'Click a seat to join — or play against the AI.';
+                    ? 'Waiting for another player — or add a bot to the empty seat.'
+                    : 'Click a seat to join, or add a bot to fill one.';
             case 'ready':
                 return 'Both seats filled — starting soon.';
             case 'in-progress':
@@ -62,25 +50,4 @@ export class Lobby {
                 return '';
         }
     });
-
-    /**
-     * Switches the client to the server's permanent `bot-test` room (where seat
-     * 1 is pre-occupied by the HeuristicBot) and seats the user in seat 0. The
-     * server's BotRunner picks up from there and drives the bot's turns.
-     */
-    async onPlayVsAI(): Promise<void> {
-        try {
-            const id = await this.auth.getUserID();
-            const info = await firstValueFrom(this.auth.selectUserInfo());
-            const user = {
-                id,
-                name: info?.displayName || info?.email?.split('@')[0] || 'Player',
-                photoURL: info?.photoURL ?? '',
-            };
-            this.socket.switchRoom(BOT_TEST_ROOM);
-            this.dealer.signalAsHost(clientTableCommand('JoinTable', { user }));
-        } catch (error) {
-            this.toast.failed('Could not start AI game', (error as Error)?.message);
-        }
-    }
 }

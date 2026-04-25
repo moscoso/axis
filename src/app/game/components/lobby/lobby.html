@@ -12,17 +12,6 @@
 
     @if (userIsSeated()) {
         <app-side-selector [current]="mySidePreference()"></app-side-selector>
-    } @else {
-        <div class="ai-row">
-            <button mat-flat-button
-                    color="accent"
-                    type="button"
-                    class="ai-button"
-                    (click)="onPlayVsAI()">
-                <mat-icon>smart_toy</mat-icon>
-                Play vs AI
-            </button>
-        </div>
     }
 
     <p class="status" [attr.data-status]="status()">{{ statusMessage() }}</p>

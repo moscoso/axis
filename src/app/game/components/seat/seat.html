@@ -15,13 +15,24 @@
         </div>
     </div>
 } @else {
-    <button mat-stroked-button
-            type="button"
-            class="join-btn"
-            [disabled]="!canJoin()"
-            (click)="onJoin()">
-        <mat-icon>event_seat</mat-icon>
-        <span>Seat {{ seatIndex() + 1 }}</span>
-        <span class="cta">Join</span>
-    </button>
+    <div class="empty">
+        <button mat-stroked-button
+                type="button"
+                class="join-btn"
+                [disabled]="!canJoin()"
+                (click)="onJoin()">
+            <mat-icon>event_seat</mat-icon>
+            <span>Seat {{ seatIndex() + 1 }}</span>
+            <span class="cta">Join</span>
+        </button>
+        <button mat-stroked-button
+                type="button"
+                class="bot-btn"
+                color="accent"
+                [disabled]="!canAddBot()"
+                (click)="onAddBot()">
+            <mat-icon>smart_toy</mat-icon>
+            <span class="cta">Add Bot</span>
+        </button>
+    </div>
 }
