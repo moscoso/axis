@@ -76,8 +76,15 @@ export function recomputeZones(state: Game): Zone[] {
 	});
 }
 
+/**
+ * True when every inscribable cell has a Rune. Crux cells count as "filled"
+ * because they can never be inscribed on (`IS_CELL_EMPTY` rejects them), so
+ * holding the rest of the predicate hostage to them would make this forever
+ * false. Used by the winner reducer to declare last-rune the moment the
+ * board is finished, regardless of whatever cards are still in the deck.
+ */
 export function isBoardFull(state: Game): boolean {
-	return state.board.every(row => row.every(cell => cell.rune !== null));
+	return state.board.every(row => row.every(cell => cell.hasCrux || cell.rune !== null));
 }
 
 export function getTotalFluxScore(state: Game, player: PlayerSide): number {
