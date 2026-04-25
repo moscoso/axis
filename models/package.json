@@ -19,7 +19,7 @@
 	"author": "Chris Moscoso",
 	"license": "ISC",
 	"dependencies": {
-		"@moscoso/models": "file:../models",
+		"@moscoso/models": "file:../../models",
 		"events": "^3.3.0",
 		"short-uuid": "^6.0.3"
 	},

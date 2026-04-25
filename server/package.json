@@ -9,14 +9,14 @@
 		"develop": "ts-node-dev ./src/start --watch",
 		"start": "node dist/start.js",
 		"bot:smoke": "ts-node src/Server/BotRunner.smoke.ts",
-		"spec": "mocha --watch --watch-extensions ts --reporter spec src/**/*.spec.ts",
-		"test": "mocha --watch --watch-extensions ts --reporter spec src/**/*.spec.ts",
+		"test": "node -e \"console.log('axis-server: no specs yet — see bot:smoke')\"",
+		"test:watch": "mocha --watch --watch-extensions ts --reporter spec --require ts-node/register src/**/*.spec.ts",
 		"lint": "eslint src/**"
 	},
 	"author": "Chris Moscoso",
 	"license": "ISC",
 	"dependencies": {
-		"axis-models": "file:../axis-models",
+		"axis-models": "*",
 		"express": "^5.1.0",
 		"rxjs": "^7.8.1",
 		"socket.io": "^4.8.0"

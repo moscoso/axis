@@ -9,10 +9,37 @@
     ],
     "scripts": {
         "build": "npm run build --workspaces --if-present",
-        "test": "npm run test --workspaces --if-present",
-        "lint": "npm run lint --workspaces --if-present",
+        "build:models": "npm run build -w axis-models",
+        "build:server": "npm run build -w axis-server",
+        "build:pwa": "npm run build -w axis-pwa",
+
+        "develop": "concurrently -k -n models,server,pwa -c cyan,green,magenta \"npm run develop:models\" \"npm run develop:server\" \"npm run develop:pwa\"",
+        "develop:models": "npm run develop -w axis-models",
         "develop:server": "npm run develop -w axis-server",
-        "start:pwa": "npm start -w axis-pwa"
+        "develop:pwa": "npm run develop -w axis-pwa",
+
+        "start": "concurrently -k -n server,pwa -c green,magenta \"npm run start:server\" \"npm run start:pwa\"",
+        "start:server": "npm run start -w axis-server",
+        "start:pwa": "npm run serve-prod -w axis-pwa",
+
+        "test": "npm run test --workspaces --if-present",
+        "test:models": "npm run test -w axis-models",
+        "test:server": "npm run test -w axis-server",
+        "test:pwa": "npm run test -w axis-pwa",
+
+        "lint": "npm run lint --workspaces --if-present",
+        "lint:models": "npm run lint -w axis-models",
+        "lint:server": "npm run lint -w axis-server",
+
+        "bot:smoke": "npm run bot:smoke -w axis-models",
+        "bot:smoke:server": "npm run bot:smoke -w axis-server",
+        "board": "npm run board -w axis-models",
+
+        "clean": "rm -rf models/dist server/dist pwa/dist pwa/.angular",
+        "fresh": "npm run clean && rm -rf node_modules && npm install"
     },
-    "license": "ISC"
+    "license": "ISC",
+    "devDependencies": {
+        "concurrently": "^9.2.1"
+    }
 }
