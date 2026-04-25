@@ -1,0 +1,17 @@
+node_modules/
+dist/
+build/
+.angular/
+.DS_Store
+*.log
+.env
+.env.local
+
+# editor / tooling
+.vscode/
+.idea/
+.claude/
+
+# build artifacts
+coverage/
+*.tsbuildinfo
