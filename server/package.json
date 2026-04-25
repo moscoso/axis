@@ -1,0 +1,40 @@
+{
+	"name": "axis-server",
+	"version": "0.0.1",
+	"description": "A websocket server for AXIS: Light & Dark Elemental Dominion",
+	"main": "dist/start.js",
+	"scripts": {
+		"compile": "tsc",
+		"build": "tsc",
+		"develop": "ts-node-dev ./src/start --watch",
+		"start": "node dist/start.js",
+		"bot:smoke": "ts-node src/Server/BotRunner.smoke.ts",
+		"spec": "mocha --watch --watch-extensions ts --reporter spec src/**/*.spec.ts",
+		"test": "mocha --watch --watch-extensions ts --reporter spec src/**/*.spec.ts",
+		"lint": "eslint src/**"
+	},
+	"author": "Chris Moscoso",
+	"license": "ISC",
+	"dependencies": {
+		"axis-models": "file:../axis-models",
+		"express": "^5.1.0",
+		"rxjs": "^7.8.1",
+		"socket.io": "^4.8.0"
+	},
+	"devDependencies": {
+		"@types/express": "^5.0.0",
+		"@types/chai": "^5.2.0",
+		"@types/mocha": "^10.0.10",
+		"@types/node": "^22.0.0",
+		"@typescript-eslint/eslint-plugin": "^8.0.0",
+		"@typescript-eslint/parser": "^8.0.0",
+		"chai": "^5.1.0",
+		"eslint": "^9.0.0",
+		"eslint-plugin-import": "^2.31.0",
+		"eslint-plugin-n": "^17.0.0",
+		"eslint-plugin-promise": "^7.2.0",
+		"mocha": "^11.0.0",
+		"ts-node-dev": "^2.0.0",
+		"typescript": "^5.8.0"
+	}
+}
