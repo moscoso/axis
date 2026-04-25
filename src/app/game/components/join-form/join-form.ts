@@ -6,7 +6,7 @@ import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { clientTableCommand } from 'axis-models';
-import { firstValueFrom, map } from 'rxjs';
+import { firstValueFrom, map, take } from 'rxjs';
 import { AuthFacade } from '../../../core/state/auth/auth.facade';
 import { DealerFacade } from '../../../core/state/dealer/dealer.facade';
 import { ToastService } from '../../../shared/toast/toast.service';
@@ -48,14 +48,18 @@ export class JoinForm {
 
     constructor() {
         // Pre-populate the name control once a suggested name resolves.
-        const sub = this.auth
+        // `take(1)` auto-unsubscribes after the first emission — the previous
+        // `sub.unsubscribe()` self-reference hit a TDZ error because NgRx
+        // selectors emit synchronously on subscribe, before `const sub` is
+        // initialized.
+        this.auth
             .selectUserInfo()
+            .pipe(take(1))
             .subscribe(info => {
                 const suggested = info?.displayName ?? info?.email?.split('@')[0] ?? '';
                 if (suggested && !this.name.value) {
                     this.name.setValue(suggested);
                 }
-                sub.unsubscribe();
             });
     }
 

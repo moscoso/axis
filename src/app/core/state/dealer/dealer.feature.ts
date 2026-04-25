@@ -21,7 +21,13 @@ const MAX_LOG_ENTRIES = 50;
  */
 const dealerReducer = createReducer<DealerState>(
     INIT_DEALER,
-    on(DealerActions.deltaUpdated, (state, { game, table }) => ({ ...state, game, table })),
+    on(DealerActions.deltaUpdated, (state, { game, table }) => ({
+        ...state,
+        // Server may send undefined for an unknown room — keep current state in
+        // that case rather than nulling out the store.
+        game: game ?? state.game,
+        table: table ?? state.table,
+    })),
     on(DealerActions.cancelDeclare, state => ({
         ...state,
         declaredCardToPlay: undefined,

@@ -56,9 +56,14 @@ export class WebsocketService {
         socket.on('connect', () =>
             WebsocketService.socket.emit('SyncRequested', { roomID: this.currentRoomID })
         );
-        socket.on('DeltaUpdate', (payload: { game: any; table: any }) =>
-            this.dealer.receivedDeltaEvent(payload.game, payload.table)
-        );
+        socket.on('DeltaUpdate', (payload: { game: any; table: any }) => {
+            const roomDoesNotExistOnServer = !payload.game && !payload.table;
+            if (roomDoesNotExistOnServer) {
+                this.toast.failed(`Room "${this.currentRoomID}" not found on server`);
+                return;
+            }
+            this.dealer.receivedDeltaEvent(payload.game, payload.table);
+        });
         socket.fromEvent('GameUpdate').subscribe((update: any) => {
             update.events.forEach((event: any) => this.dealer.receivedGameEvent(event, update.game));
         });
