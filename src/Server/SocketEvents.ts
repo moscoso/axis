@@ -1,4 +1,4 @@
-import { GameEvent, GameState, Table, TableEvent } from 'axis-models';
+import { GameEvent, Game, Table, TableEvent } from 'axis-models';
 
 export interface ServerToClientEvents {
 	ServerError: (message: string) => void;
@@ -20,5 +20,5 @@ export interface SocketData {
 	age: number;
 }
 
-export interface GameUpdate  { events: GameEvent[];  game: GameState; }
+export interface GameUpdate  { events: GameEvent[];  game: Game; }
 export interface TableUpdate { events: TableEvent[]; table: Table;    }

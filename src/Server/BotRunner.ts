@@ -1,7 +1,7 @@
 import {
 	Bot,
 	Dealer,
-	GameState,
+	Game,
 	HeuristicBot,
 	PlayerSide,
 	RandomBot,
@@ -126,7 +126,7 @@ export class BotRunner {
 }
 
 /** The side whose turn it is to act, accounting for the draft phase. */
-function whoActs(state: GameState): PlayerSide | null {
+function whoActs(state: Game): PlayerSide | null {
 	if (state.phase === 'starting-draft') return 'dark';
 	if (state.phase === 'main-turn') return state.currentTurn;
 	return null;
