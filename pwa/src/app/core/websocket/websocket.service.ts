@@ -1,5 +1,5 @@
 import { ApplicationRef, inject, Injectable } from '@angular/core';
-import { Game, GameCommand, INIT_GAME_STATE, TableCommand, gameReducer } from 'axis-models';
+import { GameCommand, TableCommand } from 'axis-models';
 import { Observable } from 'rxjs';
 import { ToastService } from '../../shared/toast/toast.service';
 import { DealerFacade } from '../state/dealer/dealer.facade';
@@ -16,18 +16,6 @@ export class WebsocketService {
      *  and emitters read from this rather than a const so a single switch
      *  redirects all subsequent traffic without re-plumbing every dispatcher. */
     private currentRoomID: string = DEFAULT_ROOM_ID;
-
-    /**
-     * Running mirror of the latest authoritative {@link Game} snapshot, kept in
-     * sync with the store via DeltaUpdate / GameUpdate. We use it as the
-     * starting state for client-side replay through {@link gameReducer} so we
-     * can dispatch each individual event with its OWN intermediate snapshot
-     * — otherwise every event in a batch would carry the same end-of-batch
-     * state and NgRx devtools time travel through actions would all show the
-     * final game (board "stuck", everything else apparently changing because
-     * it's keyed off action type, not game payload).
-     */
-    private latestGame: Game = INIT_GAME_STATE;
 
     private readonly appRef = inject(ApplicationRef);
     private readonly dealer = inject(DealerFacade);
@@ -74,18 +62,10 @@ export class WebsocketService {
                 this.toast.failed(`Room "${this.currentRoomID}" not found on server`);
                 return;
             }
-            if (payload.game) this.latestGame = payload.game;
             this.dealer.receivedDeltaEvent(payload.game, payload.table);
         });
         socket.fromEvent('GameUpdate').subscribe((update: any) => {
-            // Replay each event through gameReducer locally so the dispatched
-            // action carries its own per-event game snapshot. Without this,
-            // every event in a batch shares `update.game` (the END state),
-            // and NgRx time travel collapses the board to the final position.
-            update.events.forEach((event: any) => {
-                this.latestGame = gameReducer(event, this.latestGame);
-                this.dealer.receivedGameEvent(event, this.latestGame);
-            });
+            update.events.forEach((event: any) => this.dealer.receivedGameEvent(event, update.game));
         });
         socket.on('TableUpdate', (payload: any) => {
             payload.events.forEach((event: any) => this.dealer.receivedTableEvent(event, payload.table));
