@@ -1,0 +1,124 @@
+:host {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: stretch;
+    gap: 0.4rem;
+    width: 100%;
+    height: 100%;
+    min-height: 180px;
+    color: rgba(255, 255, 255, 0.9);
+    font-family: var(--font-display);
+}
+
+.end {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.1rem;
+    flex: 0 0 auto;
+
+    .label {
+        font-size: 0.6rem;
+        text-transform: uppercase;
+        letter-spacing: 0.25em;
+        font-weight: 700;
+    }
+
+    .limit {
+        font-size: 0.9rem;
+        font-weight: 900;
+        font-variant-numeric: tabular-nums;
+        opacity: 0.8;
+    }
+}
+
+.end[data-side="dark"]  { color: #b19cff; text-shadow: 0 0 12px rgba(177, 156, 255, 0.35); }
+.end[data-side="light"] { color: #f5efe0; text-shadow: 0 0 12px rgba(245, 239, 224, 0.4); }
+
+.track {
+    position: relative;
+    flex: 1 1 auto;
+    width: 22px;
+    min-height: 0;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    box-shadow:
+        inset 0 0 12px rgba(0, 0, 0, 0.5),
+        0 0 24px rgba(150, 120, 255, 0.1);
+}
+
+/**
+ * Gradient flips with perspective so the user's own color (the side at the
+ * BOTTOM label) is always at the bottom of the track.
+ */
+.track[data-perspective="light"] {
+    background: linear-gradient(
+        to bottom,
+        rgba(80, 60, 160, 0.55) 0%,
+        rgba(40, 40, 60, 0.35) 50%,
+        rgba(220, 210, 180, 0.55) 100%
+    );
+}
+
+.track[data-perspective="dark"] {
+    background: linear-gradient(
+        to bottom,
+        rgba(220, 210, 180, 0.55) 0%,
+        rgba(40, 40, 60, 0.35) 50%,
+        rgba(80, 60, 160, 0.55) 100%
+    );
+}
+
+/**
+ * One notch per integer value from −8 to +8 (17 total). Positioned absolutely
+ * via inline `top: N%`; short horizontal ticks that jut out from the track
+ * edges. The center notch (value 0) is heavier.
+ */
+.notch {
+    position: absolute;
+    left: -3px;
+    right: -3px;
+    height: 1px;
+    background: rgba(255, 255, 255, 0.25);
+    transform: translateY(-50%);
+    pointer-events: none;
+}
+
+.notch.major {
+    left: -5px;
+    right: -5px;
+    height: 2px;
+    background: rgba(255, 255, 255, 0.55);
+}
+
+.marker {
+    position: absolute;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid rgba(0, 0, 0, 0.65);
+    background: #fff;
+    color: #000;
+    font-size: 0.85rem;
+    font-weight: 900;
+    font-variant-numeric: tabular-nums;
+    transition: top 400ms cubic-bezier(0.2, 0.8, 0.2, 1);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.55), 0 0 0 4px rgba(255, 255, 255, 0.05);
+}
+
+.track[data-leading="light"] .marker {
+    background: #f5efe0;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.55), 0 0 18px rgba(245, 239, 224, 0.55);
+}
+
+.track[data-leading="dark"] .marker {
+    background: #b19cff;
+    color: #1a0f3a;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.55), 0 0 18px rgba(177, 156, 255, 0.6);
+}

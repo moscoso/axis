@@ -1,0 +1,8 @@
+<div class="phase">{{ phaseLabel() }}</div>
+@if (showTurn()) {
+    <div class="turn">
+        <span class="dot"></span>
+        <span class="side">{{ currentTurn() }}</span>
+        <span class="caption">to act</span>
+    </div>
+}

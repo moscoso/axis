@@ -1,0 +1,87 @@
+:host {
+    --card-bg: #1a2236;
+    --card-fg: #f0f2ff;
+    --card-border: rgba(255, 255, 255, 0.15);
+    --card-glow: rgba(255, 255, 255, 0.1);
+
+    display: inline-block;
+    width: var(--card-w, 104px);
+    height: var(--card-h, 152px);
+    border-radius: 12px;
+    background: var(--card-bg);
+    color: var(--card-fg);
+    border: 2px solid var(--card-border);
+    box-shadow:
+        0 4px 12px rgba(0, 0, 0, 0.55),
+        inset 0 1px 0 rgba(255, 255, 255, 0.08),
+        0 0 24px var(--card-glow);
+    transition: transform 150ms ease, box-shadow 150ms ease, border-color 150ms ease;
+    user-select: none;
+    font-family: var(--font-display);
+}
+
+:host([data-size="sm"]) { --card-w: 72px;  --card-h: 104px; font-size: 0.8rem;  border-radius: 10px; }
+:host([data-size="md"]) { --card-w: 104px; --card-h: 152px; font-size: 1rem; }
+:host([data-size="lg"]) { --card-w: 144px; --card-h: 208px; font-size: 1.15rem; border-radius: 14px; }
+
+:host([data-element="fire"]) {
+    --card-bg: radial-gradient(circle at 50% 30%, #8a2415 0%, #3a0d0d 70%);
+    --card-border: #ff6a3d;
+    --card-glow: rgba(255, 106, 61, 0.3);
+}
+:host([data-element="earth"]) {
+    --card-bg: radial-gradient(circle at 50% 30%, #3a6b3a 0%, #0f2a18 70%);
+    --card-border: #6ed26a;
+    --card-glow: rgba(110, 210, 106, 0.25);
+}
+:host([data-element="air"]) {
+    --card-bg: radial-gradient(circle at 50% 30%, #8a7a2a 0%, #2a2a1a 70%);
+    --card-border: #f2e36a;
+    --card-glow: rgba(242, 227, 106, 0.25);
+}
+:host([data-element="water"]) {
+    --card-bg: radial-gradient(circle at 50% 30%, #1a509a 0%, #0d1f3a 70%);
+    --card-border: #6abeff;
+    --card-glow: rgba(106, 190, 255, 0.28);
+}
+
+:host(.selectable) { cursor: pointer; }
+:host(.selectable:hover) {
+    transform: translateY(-6px) scale(1.03);
+    box-shadow:
+        0 10px 22px rgba(0, 0, 0, 0.6),
+        inset 0 1px 0 rgba(255, 255, 255, 0.12),
+        0 0 36px var(--card-glow);
+}
+:host(.selected) {
+    transform: translateY(-10px) scale(1.05);
+    box-shadow:
+        0 0 0 3px #fff,
+        0 14px 28px rgba(0, 0, 0, 0.6),
+        0 0 48px var(--card-glow);
+}
+
+.card-inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    gap: 0.5em;
+    padding: 0.5em;
+    box-sizing: border-box;
+}
+
+.glyph {
+    font-size: 3.2em;
+    line-height: 1;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
+}
+
+.label {
+    text-transform: uppercase;
+    letter-spacing: 0.25em;
+    font-weight: 600;
+    opacity: 0.85;
+    font-size: 0.75em;
+}

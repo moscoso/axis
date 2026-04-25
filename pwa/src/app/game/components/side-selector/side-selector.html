@@ -1,0 +1,14 @@
+<span class="label">Play as</span>
+<div class="options" role="radiogroup" aria-label="Side preference">
+    @for (opt of options; track opt.value) {
+        <button type="button"
+                [attr.data-side]="opt.value"
+                [class.active]="isCurrent(opt.value)"
+                [disabled]="disabled()"
+                role="radio"
+                [attr.aria-checked]="isCurrent(opt.value)"
+                (click)="select(opt.value)">
+            {{ opt.label }}
+        </button>
+    }
+</div>

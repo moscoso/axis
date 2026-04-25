@@ -1,0 +1,115 @@
+:host {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 100;
+    display: flex;
+    justify-content: center;
+    padding: 0.75rem;
+    pointer-events: none;
+}
+
+.panel {
+    pointer-events: auto;
+    width: min(100%, 1100px);
+    padding: 1rem 1.5rem;
+    border-radius: 14px;
+    background:
+        linear-gradient(180deg, rgba(20, 24, 48, 0.96) 0%, rgba(6, 10, 24, 0.98) 100%);
+    border: 1px solid rgba(177, 156, 255, 0.35);
+    box-shadow:
+        0 -8px 40px rgba(0, 0, 0, 0.6),
+        0 0 40px rgba(177, 156, 255, 0.12);
+    color: #fff;
+    backdrop-filter: blur(10px);
+    display: grid;
+    grid-template-columns: minmax(220px, 1fr) auto auto;
+    align-items: center;
+    column-gap: 1.5rem;
+}
+
+header {
+    min-width: 0;
+
+    h2 {
+        margin: 0;
+        font-family: var(--font-display);
+        font-weight: 700;
+        font-size: 1.1rem;
+        letter-spacing: 0.3em;
+        text-transform: uppercase;
+        color: #fff;
+    }
+
+    p {
+        margin: 0.15rem 0 0;
+        color: rgba(255, 255, 255, 0.55);
+        font-size: 0.85rem;
+    }
+}
+
+.cards {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.empty {
+    color: rgba(255, 255, 255, 0.5);
+    font-style: italic;
+    margin: 0;
+    padding: 0.5rem 1rem;
+}
+
+footer {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.4rem;
+
+    .count {
+        font-size: 0.8rem;
+        color: rgba(255, 255, 255, 0.7);
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+    }
+
+    .submit {
+        padding: 0.65rem 1.4rem;
+        background: #6ed26a;
+        color: #0b0f1a;
+        border: none;
+        border-radius: 6px;
+        font-family: var(--font-display);
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        cursor: pointer;
+        transition: transform 120ms ease, box-shadow 120ms ease;
+    }
+
+    .submit:not(:disabled):hover {
+        transform: translateY(-1px);
+        box-shadow: 0 6px 16px rgba(110, 210, 106, 0.35);
+    }
+
+    .submit:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+    }
+}
+
+@media (max-width: 860px) {
+    .panel {
+        grid-template-columns: 1fr;
+        row-gap: 0.75rem;
+    }
+
+    footer {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+    }
+}

@@ -1,0 +1,136 @@
+@let g = game();
+@let t = table();
+
+<app-hex-grid class="bg"></app-hex-grid>
+
+<app-connection-status></app-connection-status>
+
+<header class="top">
+    <h1>AXIS</h1>
+    @if (!inLobby()) {
+        <app-turn-indicator [currentTurn]="currentTurn()" [phase]="phase()"></app-turn-indicator>
+    }
+    <div class="top-actions">
+        @if (!inLobby()) {
+            <button mat-stroked-button
+                    type="button"
+                    [disabled]="!canDraw() || deckSize() === 0"
+                    (click)="onDrawFromDeck()">
+                Draw from deck
+            </button>
+            <button mat-flat-button
+                    color="primary"
+                    type="button"
+                    [disabled]="!isMyTurn() || !inMainTurn()"
+                    (click)="onEndTurn()">
+                End turn
+            </button>
+        }
+        <app-user-badge></app-user-badge>
+        <app-logout-button></app-logout-button>
+    </div>
+</header>
+
+@if (inLobby()) {
+    @if (t) {
+        <app-lobby [table]="t"></app-lobby>
+    } @else {
+        <div class="loading">Connecting…</div>
+    }
+} @else if (g) {
+    <div class="content">
+        <aside class="rift-rail">
+            <app-player-panel
+                [side]="opponentSide()"
+                [seat]="topSeat()"
+                [zones]="zones()"
+                [isActive]="currentTurn() === opponentSide() && inMainTurn()">
+            </app-player-panel>
+            <app-rift-track [value]="rift()" [perspective]="mySide()"></app-rift-track>
+            <app-player-panel
+                [side]="mySide()"
+                [seat]="bottomSeat()"
+                [zones]="zones()"
+                [isActive]="isMyTurn() && inMainTurn()">
+            </app-player-panel>
+        </aside>
+
+        <main class="arena">
+            <section class="top-hand">
+                @if (topPlayer(); as p) {
+                    <app-hand
+                        [player]="p"
+                        [selectable]="false"
+                        [selectedIds]="emptyIds"
+                        (cardSelected)="onHandCardPicked($event)">
+                    </app-hand>
+                }
+            </section>
+
+            <section class="board-stage">
+                <app-board
+                    [game]="g"
+                    [player]="mySide()"
+                    [selectable]="canInscribe()"
+                    [selectedCell]="selectedCell()"
+                    (cellClicked)="onCellClick($event)">
+                </app-board>
+            </section>
+
+            <section class="bottom-hand">
+                @if (bottomPlayer(); as p) {
+                    <app-hand
+                        [player]="p"
+                        [selectable]="canInscribe()"
+                        [selectedIds]="paidCardIds()"
+                        (cardSelected)="onHandCardPicked($event)">
+                    </app-hand>
+                }
+            </section>
+        </main>
+
+        <aside class="side-rail">
+            <app-card-display
+                [cards]="display()"
+                [deckSize]="deckSize()"
+                [discardSize]="discardSize()"
+                [selectable]="canDraw()"
+                [compact]="true"
+                (cardSelected)="onDisplayCardPicked($event)">
+            </app-card-display>
+            <app-action-panel
+                [game]="g"
+                [player]="mySide()"
+                [target]="selectedCell()"
+                [paidCardIds]="paidCardIds()"
+                [chosenActivations]="chosenActivations()"
+                (confirm)="onConfirmInscribe()"
+                (cancel)="onCancelInscribe()"
+                (activationChanged)="onActivationChanged($event)">
+            </app-action-panel>
+            <app-event-log></app-event-log>
+        </aside>
+    </div>
+} @else {
+    <div class="loading">Loading game…</div>
+}
+
+@if (isDrafting() && g) {
+    <app-draft-overlay
+        [cards]="display()"
+        [mySide]="mySide()"
+        (draftSubmitted)="onDraftSubmitted($event)">
+    </app-draft-overlay>
+}
+
+@if (showVictory() && winner(); as w) {
+    @if (winReason(); as reason) {
+        <app-victory-modal
+            [winner]="w"
+            [reason]="reason"
+            [lightFlux]="lightFlux()"
+            [darkFlux]="darkFlux()"
+            (close)="onDismissVictory()">
+        </app-victory-modal>
+    }
+}

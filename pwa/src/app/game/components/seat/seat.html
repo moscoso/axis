@@ -1,0 +1,38 @@
+@if (occupant(); as user) {
+    <div class="occupied">
+        @if (user.photoURL) {
+            <img class="avatar" [src]="user.photoURL" [alt]="user.name" draggable="false" />
+        } @else {
+            <div class="avatar placeholder">{{ user.name.charAt(0).toUpperCase() }}</div>
+        }
+        <div class="details">
+            <span class="name">{{ user.name }}</span>
+            @if (sidePreference(); as pref) {
+                <span class="side" [attr.data-side]="pref">{{ pref }}</span>
+            } @else {
+                <span class="side pending">no side yet</span>
+            }
+        </div>
+    </div>
+} @else {
+    <div class="empty">
+        <button mat-stroked-button
+                type="button"
+                class="join-btn"
+                [disabled]="!canJoin()"
+                (click)="onJoin()">
+            <mat-icon>event_seat</mat-icon>
+            <span>Seat {{ seatIndex() + 1 }}</span>
+            <span class="cta">Join</span>
+        </button>
+        <button mat-stroked-button
+                type="button"
+                class="bot-btn"
+                color="accent"
+                [disabled]="!canAddBot()"
+                (click)="onAddBot()">
+            <mat-icon>smart_toy</mat-icon>
+            <span class="cta">Add Bot</span>
+        </button>
+    </div>
+}

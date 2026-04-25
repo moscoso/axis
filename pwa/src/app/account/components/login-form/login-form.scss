@@ -1,0 +1,23 @@
+:host {
+    color: white;
+
+    button[mat-icon-button] {
+        cursor: pointer;
+    }
+
+    .invalid {
+        filter: opacity(50%);
+    }
+
+    .submit-btn,
+    .guest-btn {
+        display: block;
+        margin: 0 auto;
+    }
+
+    form {
+        display: flex;
+        flex-direction: column;
+        margin: 10px;
+    }
+}

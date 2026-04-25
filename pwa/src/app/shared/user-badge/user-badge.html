@@ -1,0 +1,8 @@
+@if (name()) {
+    @if (photoURL()) {
+        <img class="avatar" [src]="photoURL()" [alt]="name()" draggable="false" />
+    } @else {
+        <span class="avatar placeholder">{{ initial() }}</span>
+    }
+    <span class="name">{{ name() }}</span>
+}

@@ -1,0 +1,11 @@
+<h4>Event Log</h4>
+<ul>
+    @for (e of entries(); track e.id) {
+        <li>
+            <span class="time">{{ formatTime(e.at) }}</span>
+            <span class="type">{{ e.type }}</span>
+        </li>
+    } @empty {
+        <li class="empty">No events yet.</li>
+    }
+</ul>

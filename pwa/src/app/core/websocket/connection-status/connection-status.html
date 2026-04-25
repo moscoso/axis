@@ -1,0 +1,11 @@
+@if (connected()) {
+    @if (hasLatency()) {
+        <span [class]="latencyClass()">{{ latency() }} ms</span>
+    }
+    <img class="socket-connection" draggable="false" src="assets/icon/connected.png" alt="connected" />
+} @else {
+    <img class="socket-connection disconnected"
+         draggable="false"
+         src="assets/icon/disconnected.png"
+         alt="disconnected" />
+}

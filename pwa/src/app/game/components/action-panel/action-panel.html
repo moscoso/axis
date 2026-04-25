@@ -1,0 +1,44 @@
+@if (target(); as t) {
+    <header>
+        <span class="label">Inscribe</span>
+        <span class="target">({{ t.row }}, {{ t.col }})</span>
+    </header>
+
+    <div class="stat-row">
+        <span>Cost</span>
+        <strong>{{ discountedCost() }}</strong>
+    </div>
+    <div class="stat-row" [class.short]="!canPay()" [class.ok]="canPay()">
+        <span>Paid</span>
+        <strong>{{ paymentValue() }}</strong>
+    </div>
+
+    @if (paidCardIds().size === 0) {
+        <p class="hint">Click cards in your hand to pay.</p>
+    } @else if (!canPay()) {
+        <p class="hint warn">Need more payment — keep adding cards.</p>
+    }
+
+    <section class="activations">
+        <h5>Activations ({{ totalActivations() }} / {{ paymentValue() }})</h5>
+        @for (row of activationRows(); track row.glyph) {
+            <div class="row">
+                <app-glyph [symbol]="row.glyph"></app-glyph>
+                <div class="controls">
+                    <button type="button" (click)="decrement(row)" [disabled]="row.chosen === 0">−</button>
+                    <span class="count">{{ row.chosen }} / {{ row.max }}</span>
+                    <button type="button" (click)="increment(row)" [disabled]="row.chosen >= row.max">+</button>
+                </div>
+            </div>
+        } @empty {
+            <p class="empty">Cell has no printed glyphs.</p>
+        }
+    </section>
+
+    <footer>
+        <button type="button" class="cancel" (click)="onCancel()">Cancel</button>
+        <button type="button" class="confirm" (click)="onConfirm()" [disabled]="!canConfirm()">Inscribe</button>
+    </footer>
+} @else {
+    <p class="hint">Click an empty cell to begin inscribing.</p>
+}

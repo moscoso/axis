@@ -1,0 +1,32 @@
+<div class="panel" role="dialog" aria-modal="false" [attr.aria-label]="title()">
+    <header>
+        <h2>{{ title() }}</h2>
+        <p>{{ subtitle() }}</p>
+    </header>
+
+    <div class="cards">
+        @for (c of cards(); track c.id) {
+            <app-card
+                [card]="c"
+                size="md"
+                [selectable]="isDark()"
+                [selected]="isSelected(c)"
+                (click)="onCardClick(c)">
+            </app-card>
+        } @empty {
+            <p class="empty">No cards in display.</p>
+        }
+    </div>
+
+    @if (isDark()) {
+        <footer>
+            <span class="count">{{ selected().size }} / 2 selected</span>
+            <button type="button"
+                    class="submit"
+                    [disabled]="!canSubmit()"
+                    (click)="onSubmit()">
+                Confirm pick
+            </button>
+        </footer>
+    }
+</div>

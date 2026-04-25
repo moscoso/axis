@@ -1,0 +1,20 @@
+<div class="end" [attr.data-side]="topSide()">
+    <span class="label">{{ topSide() }}</span>
+    <span class="limit">{{ topLimit() }}</span>
+</div>
+
+<div class="track" [attr.data-leading]="sideLeading()" [attr.data-perspective]="perspective()">
+    @for (n of notches(); track $index) {
+        <div class="notch" [class.major]="n.major" [style.top.%]="n.top"></div>
+    }
+    <div class="marker" [style.top.%]="position()">
+        <span class="value">
+            @if (value() > 0) { +{{ value() }} } @else { {{ value() }} }
+        </span>
+    </div>
+</div>
+
+<div class="end" [attr.data-side]="bottomSide()">
+    <span class="limit">{{ bottomLimit() }}</span>
+    <span class="label">{{ bottomSide() }}</span>
+</div>

@@ -1,0 +1,294 @@
+import {
+    ChangeDetectionStrategy,
+    Component,
+    computed,
+    effect,
+    inject,
+    signal,
+} from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { MatButtonModule } from '@angular/material/button';
+import {
+    Card as CardModel,
+    Glyph as GlyphSymbol,
+    INIT_GAME_STATE,
+    INIT_TABLE_STATE,
+    PlayerSide,
+    Position,
+    Seat,
+    clientGameCommand,
+} from 'axis-models';
+import { LogoutButton } from '../account/components/logout-button/logout-button';
+import { AuthFacade } from '../core/state/auth/auth.facade';
+import { DealerFacade } from '../core/state/dealer/dealer.facade';
+import { ConnectionStatus } from '../core/websocket/connection-status/connection-status';
+import { WebsocketService } from '../core/websocket/websocket.service';
+import { HexGrid } from '../shared/hex-grid/hex-grid';
+import { UserBadge } from '../shared/user-badge/user-badge';
+import { ActionPanel } from './components/action-panel/action-panel';
+import { Board } from './components/board/board';
+import { CardDisplay } from './components/card-display/card-display';
+import { DraftOverlay } from './components/draft-overlay/draft-overlay';
+import { EventLog } from './components/event-log/event-log';
+import { Hand } from './components/hand/hand';
+import { Lobby } from './components/lobby/lobby';
+import { PlayerPanel } from './components/player-panel/player-panel';
+import { RiftTrack } from './components/rift-track/rift-track';
+import { TurnIndicator } from './components/turn-indicator/turn-indicator';
+import { VictoryModal } from './components/victory-modal/victory-modal';
+
+@Component({
+    selector: 'app-game-page',
+    standalone: true,
+    imports: [
+        ActionPanel,
+        Board,
+        CardDisplay,
+        ConnectionStatus,
+        DraftOverlay,
+        EventLog,
+        Hand,
+        HexGrid,
+        Lobby,
+        LogoutButton,
+        MatButtonModule,
+        PlayerPanel,
+        RiftTrack,
+        TurnIndicator,
+        UserBadge,
+        VictoryModal,
+    ],
+    templateUrl: './game.page.html',
+    styleUrls: ['./game.page.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush,
+})
+export class GamePage {
+    private readonly dealer = inject(DealerFacade);
+    private readonly auth = inject(AuthFacade);
+    private readonly socket = inject(WebsocketService);
+
+    readonly game = toSignal(this.dealer.selectGame(), { requireSync: false, initialValue: INIT_GAME_STATE });
+    readonly table = toSignal(this.dealer.selectState('table'), { requireSync: false, initialValue: INIT_TABLE_STATE });
+    readonly userId = toSignal(this.auth.selectUserID(), { initialValue: 'unknown' });
+
+    /** Joins the shared room as soon as the authed user's id is known. */
+    private readonly joinedOnce = signal(false);
+    private readonly autoJoin = effect(() => {
+        const uid = this.userId();
+        if (uid === 'unknown' || this.joinedOnce()) return;
+        this.socket.join(uid);
+        this.joinedOnce.set(true);
+    });
+
+    readonly tableStatus = computed(() => this.table().status);
+
+    readonly phase = computed(() => this.game().phase);
+
+    /**
+     * Show the lobby until the game's own `phase` moves off 'setup'. The
+     * table's status lags (it stays 'ready' after StartGame fires), so `phase`
+     * is the reliable signal that the game has actually begun.
+     */
+    readonly inLobby = computed(() => this.phase() === 'setup');
+    readonly currentTurn = computed(() => this.game().currentTurn);
+    readonly rift = computed(() => this.game().rift);
+    readonly zones = computed(() => this.game().zones);
+    readonly display = computed(() => this.game().display);
+    readonly deckSize = computed(() => this.game().deck.length);
+    readonly discardSize = computed(() => this.game().discard.length);
+    readonly lightPlayer = computed(() => this.game().players.light);
+    readonly darkPlayer = computed(() => this.game().players.dark);
+    readonly pendingDraws = computed(() => this.game().pendingDraws);
+    readonly pendingStartOfTurnDraws = computed(() => this.game().pendingStartOfTurnDraws);
+
+    /** Opponent of mySide — used for the top-hand perspective. */
+    readonly opponentSide = computed<PlayerSide>(() =>
+        this.mySide() === 'light' ? 'dark' : 'light'
+    );
+
+    /** The player shown on the BOTTOM of the board — always the user. */
+    readonly bottomPlayer = computed(() => this.game().players[this.mySide()]);
+    /** The player shown on the TOP of the board — always the opponent. */
+    readonly topPlayer = computed(() => this.game().players[this.opponentSide()]);
+
+    /**
+     * Map each side to a table Seat via `game.playerIds`. Until StartGame runs
+     * playerIds is null, so we fall back to the raw seats in their table order.
+     */
+    readonly lightSeat = computed<Seat | null>(() => this.seatForSide('light'));
+    readonly darkSeat = computed<Seat | null>(() => this.seatForSide('dark'));
+    readonly bottomSeat = computed<Seat | null>(() => this.seatForSide(this.mySide()));
+    readonly topSeat = computed<Seat | null>(() => this.seatForSide(this.opponentSide()));
+
+    private seatForSide(side: PlayerSide): Seat | null {
+        const ids = this.game().playerIds;
+        const seats = this.table().seats;
+        if (ids) {
+            const userId = ids[side];
+            return seats.find(s => s?.user.id === userId) ?? null;
+        }
+        // Pre-game fallback: put seat[0] at the bottom of the perspective side.
+        return side === 'light' ? seats[0] : seats[1];
+    }
+
+    /**
+     * The side the user is playing as. Resolved from `game.playerIds` once the
+     * game has started. Falls back to `currentTurn` when playerIds is still
+     * null (dev without server) and pins to 'dark' during starting-draft.
+     */
+    readonly mySide = computed<PlayerSide>(() => {
+        if (this.phase() === 'starting-draft') return 'dark';
+        const ids = this.game().playerIds;
+        const uid = this.userId();
+        if (ids?.light === uid) return 'light';
+        if (ids?.dark === uid) return 'dark';
+        return this.currentTurn();
+    });
+
+    readonly isDrafting = computed(() => this.phase() === 'starting-draft');
+
+    readonly winner = computed(() => this.game()?.winner ?? null);
+    readonly winReason = computed(() => this.game()?.winReason ?? null);
+    readonly isGameOver = computed(
+        () => this.phase() === 'game-over' && this.winner() !== null && this.winReason() !== null
+    );
+
+    readonly victoryClosed = toSignal(this.dealer.selectState('victoryScreenClosed'), {
+        initialValue: false,
+    });
+
+    readonly showVictory = computed(() => this.isGameOver() && !this.victoryClosed());
+
+    readonly lightFlux = computed(() => this.totalFluxFor('light'));
+    readonly darkFlux = computed(() => this.totalFluxFor('dark'));
+
+    readonly myHand = computed(() => this.game()?.players[this.mySide()]?.hand ?? []);
+    readonly isMyTurn = computed(() => this.currentTurn() === this.mySide());
+    readonly inMainTurn = computed(() => this.phase() === 'main-turn');
+    readonly mustDraw = computed(
+        () => this.pendingDraws() > 0 || this.pendingStartOfTurnDraws() > 0
+    );
+
+    readonly canInscribe = computed(
+        () => this.isMyTurn() && this.inMainTurn() && !this.mustDraw()
+    );
+    /**
+     * Drawing is always available during your main turn — either as the
+     * standalone main action ("Draw a Card" per the rulebook, pendingDraws
+     * === 0) or as a resolution of an activated ◇ (pendingDraws > 0). The
+     * `mustDraw` state only restricts Inscribe, not Draw itself.
+     */
+    readonly canDraw = computed(() => this.isMyTurn() && this.inMainTurn());
+
+    readonly selectedCell = signal<Position | null>(null);
+    readonly paidCardIds = signal<Set<string>>(new Set());
+    readonly chosenActivations = signal<Map<GlyphSymbol, number>>(new Map());
+
+    /** Stable empty set passed to the opposite-side hand to avoid identity churn. */
+    readonly emptyIds: ReadonlySet<string> = new Set();
+
+    onCellClick(pos: Position): void {
+        if (!this.canInscribe()) return;
+        const cell = this.game().board[pos.row]?.[pos.col];
+        if (cell?.rune !== null) return;
+        this.selectedCell.set(pos);
+        this.paidCardIds.set(new Set());
+        this.chosenActivations.set(new Map());
+    }
+
+    onHandCardPicked(card: CardModel): void {
+        if (!this.canInscribe() || this.selectedCell() === null) return;
+        this.paidCardIds.update(prev => {
+            const next = new Set(prev);
+            if (next.has(card.id)) next.delete(card.id);
+            else next.add(card.id);
+            return next;
+        });
+        // Activations used to reset on every payment change, which punished the
+        // player mid-composition. Keep them and let the ActionPanel's own
+        // validation gate `canConfirm` instead — the player just sees that the
+        // totals don't match and can adjust.
+    }
+
+    onActivationChanged(change: { glyph: GlyphSymbol; delta: number }): void {
+        this.chosenActivations.update(prev => {
+            const next = new Map(prev);
+            const current = next.get(change.glyph) ?? 0;
+            const updated = Math.max(0, current + change.delta);
+            if (updated === 0) next.delete(change.glyph);
+            else next.set(change.glyph, updated);
+            return next;
+        });
+    }
+
+    onConfirmInscribe(): void {
+        const target = this.selectedCell();
+        if (!target) return;
+        const activations = this.expandActivations(this.chosenActivations());
+        const command = clientGameCommand('InscribeRune', {
+            player: this.mySide(),
+            target,
+            paidCardIds: Array.from(this.paidCardIds()),
+            chosenActivations: activations,
+        });
+        this.dealer.signalAsPlayer(command);
+        this.clearSelection();
+    }
+
+    onCancelInscribe(): void {
+        this.clearSelection();
+    }
+
+    onDisplayCardPicked(card: CardModel): void {
+        if (!this.canDraw()) return;
+        const params = { player: this.mySide(), from: 'display', cardId: card.id } as const;
+        this.dealer.signalAsPlayer(clientGameCommand('DrawCard', params));
+    }
+
+    onDrawFromDeck(): void {
+        if (!this.canDraw()) return;
+        const params = { player: this.mySide(), from: 'deck' } as const;
+        this.dealer.signalAsPlayer(clientGameCommand('DrawCard', params));
+    }
+
+    onEndTurn(): void {
+        if (!this.isMyTurn() || !this.inMainTurn()) return;
+        const command = clientGameCommand('EndTurn', { player: this.mySide() });
+        this.dealer.signalAsPlayer(command);
+    }
+
+    onDraftSubmitted(cardIds: [string, string]): void {
+        const command = clientGameCommand('DraftCards', { player: 'dark', cardIds });
+        this.dealer.signalAsPlayer(command);
+    }
+
+    onDismissVictory(): void {
+        this.dealer.closeVictoryScreen();
+    }
+
+    private totalFluxFor(side: PlayerSide): number {
+        const board = this.game()?.board;
+        if (!board) return 0;
+        let total = 0;
+        for (const row of board) {
+            for (const cell of row) {
+                if (cell.rune?.owner === side) total += cell.rune.flux;
+            }
+        }
+        return total;
+    }
+
+    private clearSelection(): void {
+        this.selectedCell.set(null);
+        this.paidCardIds.set(new Set());
+        this.chosenActivations.set(new Map());
+    }
+
+    private expandActivations(map: ReadonlyMap<GlyphSymbol, number>): GlyphSymbol[] {
+        const out: GlyphSymbol[] = [];
+        for (const [glyph, count] of map) {
+            for (let i = 0; i < count; i++) out.push(glyph);
+        }
+        return out;
+    }
+}

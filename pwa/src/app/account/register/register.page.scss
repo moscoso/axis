@@ -1,0 +1,31 @@
+:host {
+    width: 100vw;
+    height: 100vh;
+    position: absolute;
+    display: flex;
+    flex-direction: row;
+    background: #0b0f1a;
+
+    h1, h2 {
+        text-align: center;
+        color: #fff;
+    }
+
+    .form-container {
+        flex-grow: 1;
+        max-width: 500px;
+    }
+
+    .background-container {
+        background: radial-gradient(ellipse at center, #1b2440 0%, #060912 70%);
+        flex-grow: 3;
+    }
+}
+
+:host(.XSmall), :host(.Small), :host(.Medium) {
+    flex-direction: column;
+
+    .form-container {
+        flex-grow: 0;
+    }
+}
