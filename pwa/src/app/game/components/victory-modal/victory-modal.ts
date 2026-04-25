@@ -21,10 +21,11 @@ const REASON_SUMMARY: Record<WinReason, string> = {
     templateUrl: './victory-modal.html',
     styleUrls: ['./victory-modal.scss'],
     changeDetection: ChangeDetectionStrategy.OnPush,
-    host: { '[attr.data-winner]': 'winner()' },
+    host: { '[attr.data-winner]': 'winner() ?? "tie"' },
 })
 export class VictoryModal {
-    readonly winner = input.required<PlayerSide>();
+    /** `null` indicates a last-rune tie — header copy switches to "Draw". */
+    readonly winner = input.required<PlayerSide | null>();
     readonly reason = input.required<WinReason>();
     readonly lightFlux = input<number | null>(null);
     readonly darkFlux = input<number | null>(null);
@@ -33,6 +34,8 @@ export class VictoryModal {
     readonly playAgain = output<void>();
     readonly newGame = output<void>();
 
+    readonly isTie = computed(() => this.winner() === null);
+    readonly bannerLabel = computed(() => (this.isTie() ? 'Draw' : 'Victory'));
     readonly reasonLabel = computed(() => REASON_LABEL[this.reason()]);
     readonly reasonSummary = computed(() => REASON_SUMMARY[this.reason()]);
     readonly showTallies = computed(

@@ -29,6 +29,13 @@
 
 :host([data-winner="light"]) .modal { border-color: rgba(245, 239, 224, 0.5); }
 :host([data-winner="dark"])  .modal { border-color: rgba(177, 156, 255, 0.5); }
+:host([data-winner="tie"])   .modal { border-color: rgba(255, 255, 255, 0.3); }
+
+.side.tie {
+    color: rgba(255, 255, 255, 0.85);
+    font-weight: 700;
+    text-transform: uppercase;
+}
 
 header {
     margin-bottom: 1rem;

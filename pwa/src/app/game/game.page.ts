@@ -152,8 +152,14 @@ export class GamePage {
 
     readonly winner = computed(() => this.game()?.winner ?? null);
     readonly winReason = computed(() => this.game()?.winReason ?? null);
+    /**
+     * True once the game has resolved one way or another — including a
+     * last-rune tie, where `winner` is `null` but `winReason` is set.
+     * Driven by `winReason` rather than `winner` so the victory modal
+     * (and the game-over header buttons) fire on ties too.
+     */
     readonly isGameOver = computed(
-        () => this.phase() === 'game-over' && this.winner() !== null && this.winReason() !== null
+        () => this.phase() === 'game-over' && this.winReason() !== null
     );
 
     readonly victoryClosed = toSignal(this.dealer.selectState('victoryScreenClosed'), {

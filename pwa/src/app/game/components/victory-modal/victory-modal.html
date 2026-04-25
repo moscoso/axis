@@ -2,10 +2,15 @@
 
 <div class="modal" role="dialog" aria-modal="true" aria-labelledby="victory-title">
     <header>
-        <div class="banner">Victory</div>
+        <div class="banner">{{ bannerLabel() }}</div>
         <h2 id="victory-title">
-            <span class="side">{{ winner() }}</span>
-            <span class="wins">wins</span>
+            @if (isTie()) {
+                <span class="side tie">tie</span>
+                <span class="wins">— no winner</span>
+            } @else {
+                <span class="side">{{ winner() }}</span>
+                <span class="wins">wins</span>
+            }
         </h2>
         <p class="reason">{{ reasonLabel() }}</p>
         <p class="summary">{{ reasonSummary() }}</p>

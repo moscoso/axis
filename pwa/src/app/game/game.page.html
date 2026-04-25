@@ -133,10 +133,10 @@
     </app-draft-overlay>
 }
 
-@if (showVictory() && winner(); as w) {
+@if (showVictory()) {
     @if (winReason(); as reason) {
         <app-victory-modal
-            [winner]="w"
+            [winner]="winner()"
             [reason]="reason"
             [lightFlux]="lightFlux()"
             [darkFlux]="darkFlux()"
