@@ -14,6 +14,14 @@ export class SocketEventController {
 				table: d?.tableState
 			});
 		});
+		socket.on('restartGame', (payload: { roomID: string }) => {
+			const dealer = GameServer.getInstance().dealerMap.get(payload.roomID);
+			if (!dealer) {
+				socket.emit('ServerError', `Dealer for roomID: ${payload.roomID} not found`);
+				return;
+			}
+			dealer.restartGame();
+		});
 		socket.on('disconnect', () => SocketEventController.onDisconnect(socket));
 		socket.on('pingLatency', (cb: any) => SocketEventController.onPingLatency(socket, cb));
 		ActionController.addActionListeners(socket);

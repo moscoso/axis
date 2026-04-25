@@ -77,12 +77,21 @@ export class BotRunner {
 		this.bots.clear();
 	}
 
-	/** Walk the table and instantiate a Bot for every seated bot user. */
+	/**
+	 * Walk the table and reconcile the bot registry with seat occupancy.
+	 * Adds new bot-prefixed users; drops registry entries for bots whose
+	 * seat has vacated (e.g. after VacateTable).
+	 */
 	private syncBotsFromTable(): void {
 		const seats = this.dealer.tableState.seats;
+		const seated = new Set<string>();
 		for (const seat of seats) {
 			if (!seat || !isBotUser(seat.user.id)) continue;
+			seated.add(seat.user.id);
 			if (!this.bots.has(seat.user.id)) this.bots.set(seat.user.id, botFromUserId(seat.user.id));
+		}
+		for (const id of this.bots.keys()) {
+			if (!seated.has(id)) this.bots.delete(id);
 		}
 	}
 

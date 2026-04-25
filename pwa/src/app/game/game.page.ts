@@ -17,6 +17,7 @@ import {
     Position,
     Seat,
     clientGameCommand,
+    clientTableCommand,
 } from 'axis-models';
 import { LogoutButton } from '../account/components/logout-button/logout-button';
 import { AuthFacade } from '../core/state/auth/auth.facade';
@@ -263,6 +264,28 @@ export class GamePage {
     }
 
     onDismissVictory(): void {
+        this.dealer.closeVictoryScreen();
+    }
+
+    /**
+     * Reset the current game and immediately start a fresh one with the same
+     * seats / side preferences. This is a lifecycle signal, not a game
+     * command — the server's dealer dereferences the current game aggregate,
+     * builds a fresh one, then fires StartGame against the live table.
+     */
+    onPlayAgain(): void {
+        this.socket.emitRestart(this.socket.getCurrentRoomID());
+        this.dealer.closeVictoryScreen();
+    }
+
+    /**
+     * Empty the table — kicks every seated player (including bots) back to
+     * the lobby. The previous game state is reset by the existing Table
+     * Cleaned trigger so the fresh group can play immediately when the
+     * seats fill up again.
+     */
+    onNewGame(): void {
+        this.dealer.signalAsHost(clientTableCommand('VacateTable', {}));
         this.dealer.closeVictoryScreen();
     }
 

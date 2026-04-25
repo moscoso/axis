@@ -1,7 +1,6 @@
 import { AppError } from '@moscoso/models';
 
 export enum TableErrorType {
-	GameHasNotFinished        = 'Game has not finished',
 	PlayerAlreadySeated       = 'Player is already seated at this table',
 	PlayerNotSeated           = 'Player is not seated at this table',
 	TableIsFull               = 'Table is full',
@@ -15,7 +14,6 @@ export class TableError extends AppError<TableErrorType> {
 		this.detail = detail;
 	}
 
-	static GameHasNotFinished()        { return new TableError(TableErrorType.GameHasNotFinished); }
 	static PlayerAlreadySeated()       { return new TableError(TableErrorType.PlayerAlreadySeated); }
 	static PlayerNotSeated()           { return new TableError(TableErrorType.PlayerNotSeated); }
 	static TableIsFull()               { return new TableError(TableErrorType.TableIsFull); }

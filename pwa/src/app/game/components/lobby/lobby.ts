@@ -42,10 +42,6 @@ export class Lobby {
                     : 'Click a seat to join, or add a bot to fill one.';
             case 'ready':
                 return 'Both seats filled — starting soon.';
-            case 'in-progress':
-                return 'Game in progress.';
-            case 'finished':
-                return 'Game finished.';
             default:
                 return '';
         }

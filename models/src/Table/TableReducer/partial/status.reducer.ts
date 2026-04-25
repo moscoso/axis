@@ -5,15 +5,14 @@ function deriveStatus(state: Table): TableStatus {
 	return state.seats.every(s => s !== null) ? 'ready' : 'waiting';
 }
 
+/**
+ * Status is a pure function of seat occupancy. Any event that could change
+ * which seats are filled re-derives it; everything else passes through.
+ */
 export function statusReducer(event: TableEvent, state: Table): Table {
 	switch (event.type) {
 		case 'Player Joined':
 		case 'Player Left':
-			return { ...state, status: deriveStatus(state) };
-
-		case 'Game Recorded':
-			return { ...state, status: 'finished' };
-
 		case 'Table Cleaned':
 			return { ...state, status: deriveStatus(state) };
 

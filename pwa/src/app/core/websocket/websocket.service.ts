@@ -99,4 +99,13 @@ export class WebsocketService {
     emitTableAction(command: TableCommand, roomID: string): void {
         WebsocketService.socket.emit('tableAction', { command: JSON.stringify(command), roomID });
     }
+
+    /**
+     * Lifecycle signal (not a command): asks the server's dealer to dereference
+     * the current game aggregate, replace it with a fresh one, and start a new
+     * match against the still-seated table.
+     */
+    emitRestart(roomID: string): void {
+        WebsocketService.socket.emit('restartGame', { roomID });
+    }
 }

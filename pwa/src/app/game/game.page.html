@@ -8,7 +8,19 @@
         <app-turn-indicator [currentTurn]="currentTurn()" [phase]="phase()"></app-turn-indicator>
     }
     <div class="top-actions">
-        @if (!inLobby()) {
+        @if (isGameOver()) {
+            <button mat-flat-button
+                    color="accent"
+                    type="button"
+                    (click)="onPlayAgain()">
+                Play Again
+            </button>
+            <button mat-stroked-button
+                    type="button"
+                    (click)="onNewGame()">
+                New Game
+            </button>
+        } @else if (!inLobby()) {
             <button mat-stroked-button
                     type="button"
                     [disabled]="!canDraw() || deckSize() === 0"
@@ -127,7 +139,9 @@
             [reason]="reason"
             [lightFlux]="lightFlux()"
             [darkFlux]="darkFlux()"
-            (close)="onDismissVictory()">
+            (close)="onDismissVictory()"
+            (playAgain)="onPlayAgain()"
+            (newGame)="onNewGame()">
         </app-victory-modal>
     }
 }

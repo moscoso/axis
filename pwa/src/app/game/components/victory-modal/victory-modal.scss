@@ -120,20 +120,46 @@ h2 {
 
 footer {
     margin-top: 1.25rem;
+    display: flex;
+    gap: 0.6rem;
+    justify-content: center;
+    flex-wrap: wrap;
 
-    .close {
-        padding: 0.55rem 1.5rem;
-        background: rgba(255, 255, 255, 0.1);
-        color: #fff;
-        border: 1px solid rgba(255, 255, 255, 0.2);
+    button {
+        padding: 0.55rem 1.4rem;
         border-radius: 6px;
         font-weight: 500;
         letter-spacing: 0.1em;
         text-transform: uppercase;
         cursor: pointer;
+        transition: background 120ms ease;
     }
 
+    .primary {
+        background: rgba(177, 156, 255, 0.85);
+        color: #0b0f1a;
+        border: 1px solid rgba(177, 156, 255, 0.95);
+        font-weight: 700;
+    }
+    .primary:hover {
+        background: rgba(177, 156, 255, 1);
+    }
+
+    .secondary {
+        background: transparent;
+        color: rgba(255, 255, 255, 0.85);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+    .secondary:hover {
+        background: rgba(255, 255, 255, 0.08);
+    }
+
+    .close {
+        background: rgba(255, 255, 255, 0.06);
+        color: rgba(255, 255, 255, 0.55);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+    }
     .close:hover {
-        background: rgba(255, 255, 255, 0.18);
+        background: rgba(255, 255, 255, 0.12);
     }
 }

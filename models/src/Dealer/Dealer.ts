@@ -1,5 +1,13 @@
 import { Aggregate } from '@moscoso/models';
-import { GameCommand, GameCommandFactory, GameCommandResult, GameEvent, INIT_GAME_STATE, gameReducer } from '../Game';
+import {
+	clientGameCommand,
+	GameCommand,
+	GameCommandFactory,
+	GameCommandResult,
+	GameEvent,
+	INIT_GAME_STATE,
+	gameReducer,
+} from '../Game';
 import { Game } from '../Game/Game';
 import { TableCommand, TableCommandFactory, TableCommandResult, TableEvent, INIT_TABLE_STATE, tableReducer } from '../Table';
 import { Table } from '../Table/Table';
@@ -86,9 +94,22 @@ export class Dealer {
 		return result;
 	}
 
-	/** Resets the game to its initial state. */
+	/** Resets the game aggregate to its initial state and clears its event log. */
 	public resetGame(): void {
 		this.game.reset();
+	}
+
+	/**
+	 * "Play Again" — reset the game aggregate and immediately deal a new
+	 * game against the still-seated table. No-op if the table isn't full.
+	 */
+	public restartGame(): void {
+		this.resetGame();
+		const { seats } = this.tableState;
+		if (!seats[0] || !seats[1]) return;
+		this.executeGameCommand(
+			clientGameCommand('StartGame', { table: this.tableState })
+		);
 	}
 
 	// ─── Shared ──────────────────────────────────────────────────────────────────

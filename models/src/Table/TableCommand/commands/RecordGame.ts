@@ -1,8 +1,7 @@
 import { UserID } from '@moscoso/models';
-import { TableCommand, TableCommandResult, okTableCommand, failTableCommand } from '..';
+import { TableCommand, TableCommandResult, okTableCommand } from '..';
 import { Table } from '../../Table';
 import { GameRecorded } from '../../TableEvent/TableEvent';
-import { IS_GAME_FINISHED, validateTable } from '../../TablePrecondition';
 import { Game } from '../../../Game/Game';
 
 export type RecordGameParams = {
@@ -14,16 +13,16 @@ export type RecordGameParams = {
 	darkId: UserID;
 };
 
-/** Records the result of a finished game. */
+/**
+ * Records the result of a finished game. Called by the dealer's `Game Ended`
+ * trigger; that trigger is what guards "is the game actually over?", so this
+ * command itself is precondition-free.
+ */
 export class RecordGame implements TableCommand<RecordGameParams> {
 	constructor(public name: string, public params: RecordGameParams) {}
 
 	public execute(): TableCommandResult {
-		const { table, game, lightId, darkId } = this.params;
-
-		const error = validateTable([IS_GAME_FINISHED], { table });
-		if (error) return failTableCommand(error);
-
+		const { game, lightId, darkId } = this.params;
 		return okTableCommand([new GameRecorded({
 			lightId,
 			darkId,

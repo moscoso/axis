@@ -30,6 +30,8 @@ export class VictoryModal {
     readonly darkFlux = input<number | null>(null);
 
     readonly close = output<void>();
+    readonly playAgain = output<void>();
+    readonly newGame = output<void>();
 
     readonly reasonLabel = computed(() => REASON_LABEL[this.reason()]);
     readonly reasonSummary = computed(() => REASON_SUMMARY[this.reason()]);
@@ -42,5 +44,13 @@ export class VictoryModal {
 
     onClose(): void {
         this.close.emit();
+    }
+
+    onPlayAgain(): void {
+        this.playAgain.emit();
+    }
+
+    onNewGame(): void {
+        this.newGame.emit();
     }
 }

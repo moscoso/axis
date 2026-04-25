@@ -1,7 +1,16 @@
 import { User } from '@moscoso/models';
 import { DEFAULT_OPTIONS, GameOptions } from '../Game/GameOptions';
 
-export type TableStatus = 'waiting' | 'ready' | 'in-progress' | 'finished';
+/**
+ * Derived purely from seat occupancy:
+ * - `'waiting'` — at least one seat is empty.
+ * - `'ready'` — both seats are filled.
+ *
+ * Game progress / over-ness is owned by {@link Game.phase}, not the table.
+ * Earlier `'in-progress'` and `'finished'` values were never actually set
+ * by any reducer path and were removed.
+ */
+export type TableStatus = 'waiting' | 'ready';
 
 /** The side a player prefers to play, or 'random' to let the game decide. */
 export type SidePreference = 'light' | 'dark' | 'random';
