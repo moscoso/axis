@@ -2,11 +2,15 @@ import express from 'express';
 import { Server, Socket } from 'socket.io';
 import http from 'http';
 import { index as routes } from './routes';
-import { Dealer } from 'axis-models';
+import { Dealer, clientTableCommand } from 'axis-models';
 import { ClientToServerEvents, InterServerEvents, ServerToClientEvents } from './SocketEvents';
 import { SocketEventController } from './controllers/SocketEventController';
+import { BotRunner, botUserId } from './BotRunner';
 
 type RoomID = string;
+
+/** A fixed test room where seat 1 is pre-filled with a HeuristicBot. */
+const BOT_TEST_ROOM: RoomID = 'bot-test';
 
 export class GameServer {
 	private static instance: GameServer;
@@ -17,6 +21,7 @@ export class GameServer {
 	private socketServer: Server<ClientToServerEvents, ServerToClientEvents, InterServerEvents>;
 
 	public dealerMap: Map<RoomID, Dealer> = new Map();
+	public botRunners: Map<RoomID, BotRunner> = new Map();
 	public connections: Set<Socket> = new Set();
 
 	private constructor() {
@@ -28,6 +33,40 @@ export class GameServer {
 
 		const d = new Dealer('blackhole', this.getSocketServer());
 		this.dealerMap.set('blackhole', d);
+
+		this.bootstrapBotTestRoom();
+	}
+
+	/**
+	 * Spins up a permanent {@link BOT_TEST_ROOM} with a HeuristicBot pre-seated
+	 * in seat 1. A human can join seat 0 from the PWA and immediately play
+	 * against the AI without any client-side changes. Pre-seating is done via
+	 * a synthetic JoinTable command so the rest of the system sees a normal
+	 * two-player table.
+	 */
+	private bootstrapBotTestRoom(): void {
+		const dealer = new Dealer(BOT_TEST_ROOM, this.getSocketServer());
+		this.dealerMap.set(BOT_TEST_ROOM, dealer);
+
+		const runner = new BotRunner(dealer);
+		this.botRunners.set(BOT_TEST_ROOM, runner);
+
+		const id = botUserId('heuristic');
+		runner.register(id);
+
+		// Seat the bot, then record its side preference. Two commands because
+		// side preference isn't part of JoinTable. Bot prefers 'dark' so the
+		// human joining seat 0 can pick 'light' and go first in main-turn.
+		dealer.executeTableCommand(
+			clientTableCommand('JoinTable', {
+				user: { id, name: 'Axis AI (Heuristic)', photoURL: '' }
+			})
+		);
+		dealer.executeTableCommand(
+			clientTableCommand('SelectSide', { userId: id, sidePreference: 'dark' })
+		);
+
+		console.log(`[GameServer] bot test room "${BOT_TEST_ROOM}" ready — bot in seat 1, join seat 0 to play`);
 	}
 
 	public static getInstance(): GameServer {

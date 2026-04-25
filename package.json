@@ -8,6 +8,7 @@
 		"build": "tsc",
 		"develop": "ts-node-dev ./src/start --watch",
 		"start": "node dist/start.js",
+		"bot:smoke": "ts-node src/Server/BotRunner.smoke.ts",
 		"spec": "mocha --watch --watch-extensions ts --reporter spec src/**/*.spec.ts",
 		"test": "mocha --watch --watch-extensions ts --reporter spec src/**/*.spec.ts",
 		"lint": "eslint src/**"
