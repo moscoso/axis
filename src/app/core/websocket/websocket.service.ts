@@ -5,11 +5,17 @@ import { ToastService } from '../../shared/toast/toast.service';
 import { DealerFacade } from '../state/dealer/dealer.facade';
 import { DefaultSocket } from './DefaultSocket';
 
-const DEFAULT_ROOM_ID = 'blackhole';
+export const DEFAULT_ROOM_ID = 'blackhole';
 
 @Injectable({ providedIn: 'root' })
 export class WebsocketService {
     private static socket: DefaultSocket;
+
+    /** The room the client is currently subscribed to. Mutable so the user can
+     *  switch rooms (e.g. enter the `bot-test` room via "Play vs AI"). Effects
+     *  and emitters read from this rather than a const so a single switch
+     *  redirects all subsequent traffic without re-plumbing every dispatcher. */
+    private currentRoomID: string = DEFAULT_ROOM_ID;
 
     private readonly appRef = inject(ApplicationRef);
     private readonly dealer = inject(DealerFacade);
@@ -23,15 +29,32 @@ export class WebsocketService {
 
     /** Connect to the websocket and listen to socket events. */
     join(userID: string, roomID: string = DEFAULT_ROOM_ID): void {
+        this.currentRoomID = roomID;
         WebsocketService.socket.emit('connectionHandshake', { userID });
         WebsocketService.socket.emit('SyncRequested', { roomID });
         this.listen();
     }
 
+    /**
+     * Switch the client to a different room mid-session. Re-issues a
+     * SyncRequested so the new room's table/game state arrives. Subsequent
+     * gameAction/tableAction emits will target this room.
+     */
+    switchRoom(roomID: string): void {
+        if (this.currentRoomID === roomID) return;
+        this.currentRoomID = roomID;
+        WebsocketService.socket.emit('SyncRequested', { roomID });
+    }
+
+    /** The room id all subsequent emits target. */
+    getCurrentRoomID(): string {
+        return this.currentRoomID;
+    }
+
     listen(): void {
         const socket = WebsocketService.socket;
         socket.on('connect', () =>
-            WebsocketService.socket.emit('SyncRequested', { roomID: DEFAULT_ROOM_ID })
+            WebsocketService.socket.emit('SyncRequested', { roomID: this.currentRoomID })
         );
         socket.on('DeltaUpdate', (payload: { game: any; table: any }) =>
             this.dealer.receivedDeltaEvent(payload.game, payload.table)

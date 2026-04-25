@@ -61,6 +61,21 @@ header {
     color: rgba(255, 255, 255, 0.45);
 }
 
+.ai-row {
+    display: flex;
+    justify-content: center;
+}
+
+.ai-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    font-weight: 600;
+    padding: 0 1.6rem;
+}
+
 .status {
     margin: 0;
     text-align: center;
