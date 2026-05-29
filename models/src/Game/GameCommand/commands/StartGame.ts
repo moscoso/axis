@@ -45,7 +45,7 @@ export class StartGame implements GameCommand<StartGameParams> {
 			seatB.user.id, seatB.sidePreference,
 		);
 
-		const { board, zones } = generateBoard();
+		const { board, zones } = generateBoard({ shiftGlyphs: table.options.shiftGlyphs });
 		const shuffledDeck    = shuffle(createDeck());
 		const display         = shuffledDeck.slice(0, 4);
 		const remainingDeck   = shuffledDeck.slice(4);

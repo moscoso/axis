@@ -10,9 +10,17 @@ export interface GameOptions {
 	 * resolved before the main action (Inscribe or Draw). 0 = vanilla rules.
 	 */
 	startOfTurnDraws: number;
+
+	/**
+	 * When true, the board is dealt with shift glyphs (↑ → ↓ ←) and activating
+	 * one slides its row/column with edge wraparound. When false, no shift
+	 * glyphs are generated and the board uses only +, ▲, ◇ (legacy behavior).
+	 */
+	shiftGlyphs: boolean;
 }
 
 /** The baseline rules — matches the rulebook with no house variants applied. */
 export const DEFAULT_OPTIONS: GameOptions = Object.freeze<GameOptions>({
 	startOfTurnDraws: 0,
+	shiftGlyphs: true,
 });

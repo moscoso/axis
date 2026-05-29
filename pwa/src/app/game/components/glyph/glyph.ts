@@ -5,12 +5,20 @@ const GLYPH_LABEL: Record<GlyphSymbol, string> = {
     '+': 'Flux',
     '▲': 'Force',
     '◇': 'Draw',
+    '↑': 'Shift Up',
+    '→': 'Shift Right',
+    '↓': 'Shift Down',
+    '←': 'Shift Left',
 };
 
 const GLYPH_CLASS: Record<GlyphSymbol, string> = {
     '+': 'flux',
     '▲': 'force',
     '◇': 'draw',
+    '↑': 'shift-up',
+    '→': 'shift-right',
+    '↓': 'shift-down',
+    '←': 'shift-left',
 };
 
 @Component({

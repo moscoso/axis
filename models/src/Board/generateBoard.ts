@@ -1,12 +1,14 @@
 import { Element } from '../Element/Element';
-import { Glyph } from '../Glyph/Glyph';
+import { Glyph, ShiftGlyph, SHIFT_GLYPHS } from '../Glyph/Glyph';
 import { BoardCell, Game } from '../Game/Game';
 import { shuffle } from '../Utility/shuffle';
 import { Zone } from '../Zone/Zone';
 
 const ELEMENTS: Element[] = ['fire', 'earth', 'air', 'water'];
-const GLYPHS: Glyph[] = ['+', '▲', '◇'];
-const GLYPH_ORDER: Record<Glyph, number> = { '+': 0, '▲': 1, '◇': 2 };
+const NON_SHIFT_GLYPHS: Glyph[] = ['+', '▲', '◇'];
+const GLYPH_ORDER: Record<Glyph, number> = {
+	'+': 0, '▲': 1, '◇': 2, '↑': 3, '→': 4, '↓': 5, '←': 6,
+};
 
 const QUADRANTS = [
 	{ id: 'TL', topLeft: { row: 0, col: 0 } },
@@ -14,10 +16,6 @@ const QUADRANTS = [
 	{ id: 'BL', topLeft: { row: 3, col: 0 } },
 	{ id: 'BR', topLeft: { row: 3, col: 3 } },
 ] as const;
-
-function randomGlyph(): Glyph {
-	return GLYPHS[Math.floor(Math.random() * GLYPHS.length)];
-}
 
 function placeCruxes(): { TL: { row: number; col: number }; TR: { row: number; col: number }; BL: { row: number; col: number }; BR: { row: number; col: number } } {
 	const [tlRow, trRow] = shuffle([0, 1, 2]);
@@ -33,19 +31,78 @@ function placeCruxes(): { TL: { row: number; col: number }; TR: { row: number; c
 	};
 }
 
+/** Legacy distribution: each slot gets `cost` glyphs picked uniformly from +, ▲, ◇. */
+function dealLegacyGlyphs(capacities: number[]): Glyph[][] {
+	return capacities.map(cap =>
+		Array.from({ length: cap }, () => NON_SHIFT_GLYPHS[Math.floor(Math.random() * NON_SHIFT_GLYPHS.length)])
+			.sort((a, b) => GLYPH_ORDER[a] - GLYPH_ORDER[b])
+	);
+}
+
+/**
+ * Distributes 144 glyphs across 32 cells given each cell's capacity.
+ * - 36 of each non-shift type (+, ▲, ◇).
+ * - 9 of each shift direction (↑, →, ↓, ←).
+ * - Per-cell rule: shifts on a single cell must all share one direction.
+ */
+function dealGlyphs(capacities: number[]): Glyph[][] {
+	const cells = capacities.map(cap => ({
+		remaining: cap,
+		glyphs: [] as Glyph[],
+		shiftDir: null as ShiftGlyph | null,
+	}));
+
+	for (const dir of shuffle([...SHIFT_GLYPHS])) {
+		for (let i = 0; i < 9; i++) {
+			const eligible = cells.filter(c =>
+				c.remaining > 0 && (c.shiftDir === null || c.shiftDir === dir)
+			);
+			if (eligible.length === 0) {
+				throw new Error(`dealGlyphs: cannot place shift '${dir}' — no compatible cell`);
+			}
+			const cell = eligible[Math.floor(Math.random() * eligible.length)];
+			cell.glyphs.push(dir);
+			cell.shiftDir = dir;
+			cell.remaining--;
+		}
+	}
+
+	const nonShifts: Glyph[] = shuffle([
+		...Array(36).fill('+' as Glyph),
+		...Array(36).fill('▲' as Glyph),
+		...Array(36).fill('◇' as Glyph),
+	]);
+	let nsIdx = 0;
+	for (const cell of cells) {
+		while (cell.remaining > 0) {
+			cell.glyphs.push(nonShifts[nsIdx++]);
+			cell.remaining--;
+		}
+	}
+
+	return cells.map(c =>
+		c.glyphs.slice().sort((a, b) => GLYPH_ORDER[a] - GLYPH_ORDER[b])
+	);
+}
+
 /**
  * Generates a randomised 6×6 board and 4 zones for a new AXIS game.
  * - Elements are randomly assigned to quadrants.
- * - Cruxes are placed obeying row/column exclusivity across all 4 quadrants.
+ * - Cruxes are placed obeying row/column exclusivity at generation time.
  * - Each zone's 8 non-crux cells receive costs 1–8 exactly once (shuffled).
- * - Glyphs are randomly assigned with equal 33% weight per type.
+ * - When `shiftGlyphs` is true (default), 144 glyphs are distributed as 36 each
+ *   of +, ▲, ◇ and 9 each of ↑, →, ↓, ←. A cell's shifts are all the same
+ *   direction (mixed shift directions on one cell are forbidden); non-shift
+ *   glyphs may freely co-exist with shifts. When false, every glyph is picked
+ *   uniformly from +, ▲, ◇ and no shifts appear.
  */
-export function generateBoard(): Pick<Game, 'board' | 'zones'> {
+export function generateBoard(
+	{ shiftGlyphs = true }: { shiftGlyphs?: boolean } = {}
+): Pick<Game, 'board' | 'zones'> {
 	const elements = shuffle(ELEMENTS);
 	const cruxes = placeCruxes();
 	const cruxKeys = ['TL', 'TR', 'BL', 'BR'] as const;
 
-	// Build empty 6×6 grid
 	const board: BoardCell[][] = Array.from({ length: 6 }, (_, row) =>
 		Array.from({ length: 6 }, (_, col) => ({
 			position: { row, col },
@@ -56,12 +113,14 @@ export function generateBoard(): Pick<Game, 'board' | 'zones'> {
 		}))
 	);
 
+	type Slot = { row: number; col: number; cost: number };
+	const slots: Slot[] = [];
+
 	const zones: Zone[] = QUADRANTS.map(({ id, topLeft }, i) => {
 		const key = cruxKeys[i];
 		const cruxPosition = cruxes[key];
 		const element = elements[i];
 
-		// Each zone's 8 non-crux cells get costs 1–8 exactly once, shuffled
 		const costs = shuffle([1, 2, 3, 4, 5, 6, 7, 8]);
 		let costIndex = 0;
 
@@ -70,10 +129,9 @@ export function generateBoard(): Pick<Game, 'board' | 'zones'> {
 				const isCrux = r === cruxPosition.row && c === cruxPosition.col;
 				board[r][c].zoneId = id;
 				board[r][c].hasCrux = isCrux;
-				board[r][c].glyphs = isCrux
-					? []
-					: Array.from({ length: costs[costIndex++] }, randomGlyph)
-						.sort((a, b) => GLYPH_ORDER[a] - GLYPH_ORDER[b]);
+				if (!isCrux) {
+					slots.push({ row: r, col: c, cost: costs[costIndex++] });
+				}
 			}
 		}
 
@@ -85,6 +143,13 @@ export function generateBoard(): Pick<Game, 'board' | 'zones'> {
 			control: 'unbound',
 		};
 	});
+
+	const capacities = slots.map(s => s.cost);
+	const glyphsPerSlot = shiftGlyphs ? dealGlyphs(capacities) : dealLegacyGlyphs(capacities);
+	for (let i = 0; i < slots.length; i++) {
+		const { row, col } = slots[i];
+		board[row][col].glyphs = glyphsPerSlot[i];
+	}
 
 	return { board, zones };
 }

@@ -11,3 +11,8 @@
 :host([data-kind="flux"])  { color: #b8d4ff; }
 :host([data-kind="force"]) { color: #ff9069; }
 :host([data-kind="draw"])  { color: #f2e36a; }
+
+:host([data-kind="shift-up"]),
+:host([data-kind="shift-right"]),
+:host([data-kind="shift-down"]),
+:host([data-kind="shift-left"]) { color: #c4a3ff; }
