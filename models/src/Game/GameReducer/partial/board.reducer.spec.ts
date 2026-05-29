@@ -37,7 +37,10 @@ describe('boardReducer — Rune Inscribed shift activations', () => {
 	});
 
 	it("slides the target row/column when shift glyphs are activated, carrying the just-placed rune", () => {
-		const state = gameWith(emptyBoard());
+		const state: Game = {
+			...gameWith(emptyBoard()),
+			options: { ...INIT_GAME_STATE.options, shiftGlyphs: true },
+		};
 		const event = new RuneInscribed({
 			player: 'dark',
 			position: { row: 4, col: 1 },
@@ -57,7 +60,10 @@ describe('boardReducer — Rune Inscribed shift activations', () => {
 		const board = emptyBoard();
 		// Mark a Crux at (3,3) so we can trace its motion.
 		board[3][3].hasCrux = true;
-		const state = gameWith(board);
+		const state: Game = {
+			...gameWith(board),
+			options: { ...INIT_GAME_STATE.options, shiftGlyphs: true },
+		};
 
 		const event = new RuneInscribed({
 			player: 'light',

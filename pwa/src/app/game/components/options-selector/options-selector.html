@@ -1,0 +1,12 @@
+<span class="label">House Rules</span>
+<div class="options">
+    <button type="button"
+            class="toggle"
+            [class.active]="shiftGlyphs()"
+            [disabled]="disabled()"
+            [attr.aria-pressed]="shiftGlyphs()"
+            (click)="toggleShiftGlyphs()">
+        Shift Glyphs
+        <span class="state">{{ shiftGlyphs() ? 'On' : 'Off' }}</span>
+    </button>
+</div>

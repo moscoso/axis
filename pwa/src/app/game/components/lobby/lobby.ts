@@ -2,13 +2,14 @@ import { ChangeDetectionStrategy, Component, computed, inject, input } from '@an
 import { toSignal } from '@angular/core/rxjs-interop';
 import { SidePreference, Table } from 'axis-models';
 import { AuthFacade } from '../../../core/state/auth/auth.facade';
+import { OptionsSelector } from '../options-selector/options-selector';
 import { Seat } from '../seat/seat';
 import { SideSelector } from '../side-selector/side-selector';
 
 @Component({
     selector: 'app-lobby',
     standalone: true,
-    imports: [Seat, SideSelector],
+    imports: [Seat, SideSelector, OptionsSelector],
     templateUrl: './lobby.html',
     styleUrls: ['./lobby.scss'],
     changeDetection: ChangeDetectionStrategy.OnPush,
@@ -22,6 +23,7 @@ export class Lobby {
     readonly seatA = computed(() => this.table().seats[0]);
     readonly seatB = computed(() => this.table().seats[1]);
     readonly status = computed(() => this.table().status);
+    readonly options = computed(() => this.table().options);
 
     readonly userIsSeated = computed(() => {
         const uid = this.userId();

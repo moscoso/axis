@@ -22,5 +22,5 @@ export interface GameOptions {
 /** The baseline rules — matches the rulebook with no house variants applied. */
 export const DEFAULT_OPTIONS: GameOptions = Object.freeze<GameOptions>({
 	startOfTurnDraws: 0,
-	shiftGlyphs: true,
+	shiftGlyphs: false,
 });

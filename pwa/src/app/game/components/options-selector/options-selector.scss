@@ -1,0 +1,57 @@
+:host {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.label {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.25em;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.options {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.04);
+    color: rgba(255, 255, 255, 0.85);
+    font-size: 0.85rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 120ms, border-color 120ms, color 120ms;
+}
+
+.toggle:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.toggle:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.toggle.active {
+    background: #c4a3ff;
+    color: #1a0f3a;
+    border-color: #c4a3ff;
+}
+
+.state {
+    font-size: 0.7rem;
+    font-weight: 600;
+    opacity: 0.7;
+}

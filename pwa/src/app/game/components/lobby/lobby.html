@@ -12,6 +12,7 @@
 
     @if (userIsSeated()) {
         <app-side-selector [current]="mySidePreference()"></app-side-selector>
+        <app-options-selector [current]="options()"></app-options-selector>
     }
 
     <p class="status" [attr.data-status]="status()">{{ statusMessage() }}</p>
