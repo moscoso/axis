@@ -72,18 +72,29 @@ export class ActionPanel {
         getControlledElements(this.game(), this.player())
     );
 
-    readonly paymentValue = computed(() => {
+    readonly paidCardValues = computed<number[]>(() => {
         const t = this.target();
-        if (!t) return 0;
+        if (!t) return [];
         const targetElement = getZoneForPosition(this.game(), t).element;
         const controlled = this.controlledElements();
-        return this.paidCards().reduce(
-            (sum, c) => sum + getCardValue(c, targetElement, controlled),
-            0
-        );
+        return this.paidCards().map(c => getCardValue(c, targetElement, controlled));
     });
 
+    readonly paymentValue = computed(() => this.paidCardValues().reduce((sum, v) => sum + v, 0));
+
     readonly canPay = computed(() => this.paymentValue() >= this.discountedCost());
+
+    /**
+     * True when a paid card buys no activation — an avoidable over-overpay.
+     * Activations cap at the printed symbols, so if dropping the lowest-value
+     * card still meets that cap, that card is pure waste. Blocks confirm so a
+     * player can't accidentally burn cards.
+     */
+    readonly wasteful = computed(() => {
+        const values = this.paidCardValues();
+        if (values.length === 0) return false;
+        return this.paymentValue() - Math.min(...values) >= this.baseCost();
+    });
 
     readonly activationRows = computed<ActivationRow[]>(() => {
         const cell = this.targetCell();
@@ -104,15 +115,25 @@ export class ActionPanel {
         return total;
     });
 
+    /**
+     * Activations equal the payment value, capped at the printed symbols. A
+     * value-2 card on a 1-symbol space is a legal (if wasteful) overpay — you
+     * just activate the one symbol; the surplus value is lost.
+     */
+    readonly requiredActivations = computed(() =>
+        Math.min(this.paymentValue(), this.targetCell()?.glyphs.length ?? 0)
+    );
+
     readonly canConfirm = computed(
         () =>
             this.target() !== null &&
             this.canPay() &&
-            this.totalActivations() === this.paymentValue()
+            !this.wasteful() &&
+            this.totalActivations() === this.requiredActivations()
     );
 
     increment(row: ActivationRow): void {
-        if (row.chosen < row.max) {
+        if (row.chosen < row.max && this.totalActivations() < this.requiredActivations()) {
             this.activationChanged.emit({ glyph: row.glyph, delta: +1 });
         }
     }

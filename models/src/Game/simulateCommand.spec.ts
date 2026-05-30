@@ -1,9 +1,10 @@
 import { expect } from 'chai';
 import { simulateGameCommand } from './simulateCommand';
-import { INIT_GAME_STATE } from './Game';
+import { INIT_GAME_STATE, Game, BoardCell } from './Game';
 import { clientGameCommand } from './GameCommand/GameCommand';
 import { Table } from '../Table/Table';
 import { DEFAULT_OPTIONS } from './GameOptions';
+import { Glyph } from '../Glyph/Glyph';
 
 function buildReadyTable(): Table {
 	return {
@@ -66,5 +67,98 @@ describe('simulateGameCommand', () => {
 		expect(afterDraft.state.phase).to.equal('main-turn');
 		expect(afterDraft.state.players.dark.hand.length).to.equal(2);
 		expect(afterDraft.state.players.light.hand.length).to.equal(2);
+	});
+
+	it('allows overpaying a 1-symbol space with a value-2 Affinity card (surplus wasted)', () => {
+		// Regression: a Water card (worth 2 via Affinity) on a 1-symbol Water cell
+		// must be a legal inscribe — activations cap at the printed symbol, the
+		// extra value is wasted rather than blocking the move.
+		const board: BoardCell[][] = Array.from({ length: 6 }, (_, row) =>
+			Array.from({ length: 6 }, (_, col): BoardCell => ({
+				position: { row, col },
+				zoneId: '',
+				glyphs: [] as Glyph[],
+				rune: null,
+				hasCrux: false,
+			}))
+		);
+		board[0][0].glyphs = ['+']; // 1-symbol target in the Water Zone
+
+		const state: Game = {
+			...INIT_GAME_STATE,
+			id: 'overpay',
+			phase: 'main-turn',
+			currentTurn: 'dark',
+			board,
+			zones: [
+				{ id: 'z-water', element: 'water', topLeft: { row: 0, col: 0 }, cruxPosition: { row: 0, col: 2 }, control: 'unbound' },
+				{ id: 'z-fire',  element: 'fire',  topLeft: { row: 0, col: 3 }, cruxPosition: { row: 0, col: 5 }, control: 'unbound' },
+				{ id: 'z-earth', element: 'earth', topLeft: { row: 3, col: 0 }, cruxPosition: { row: 5, col: 2 }, control: 'unbound' },
+				{ id: 'z-air',   element: 'air',   topLeft: { row: 3, col: 3 }, cruxPosition: { row: 5, col: 5 }, control: 'unbound' },
+			],
+			players: {
+				light: { side: 'light', hand: [] },
+				dark:  { side: 'dark',  hand: [{ id: 'w1', element: 'water' }] },
+			},
+		};
+
+		const result = simulateGameCommand(
+			state,
+			clientGameCommand('InscribeRune', {
+				player: 'dark',
+				target: { row: 0, col: 0 },
+				paidCardIds: ['w1'],
+				chosenActivations: ['+'] as Glyph[],
+			})
+		);
+
+		expect(result.ok).to.equal(true);
+		expect(result.state.board[0][0].rune).to.deep.equal({ owner: 'dark', flux: 1 });
+	});
+
+	it('rejects a wasteful overpay where a paid card buys no activation', () => {
+		// Two value-2 Water cards on a 2-symbol Water cell = payment 4, but only 2
+		// activations possible — the second card is pure waste, so it's illegal.
+		const board: BoardCell[][] = Array.from({ length: 6 }, (_, row) =>
+			Array.from({ length: 6 }, (_, col): BoardCell => ({
+				position: { row, col },
+				zoneId: '',
+				glyphs: [] as Glyph[],
+				rune: null,
+				hasCrux: false,
+			}))
+		);
+		board[0][0].glyphs = ['+', '+']; // 2-symbol target in the Water Zone
+
+		const state: Game = {
+			...INIT_GAME_STATE,
+			id: 'wasteful',
+			phase: 'main-turn',
+			currentTurn: 'dark',
+			board,
+			zones: [
+				{ id: 'z-water', element: 'water', topLeft: { row: 0, col: 0 }, cruxPosition: { row: 0, col: 2 }, control: 'unbound' },
+				{ id: 'z-fire',  element: 'fire',  topLeft: { row: 0, col: 3 }, cruxPosition: { row: 0, col: 5 }, control: 'unbound' },
+				{ id: 'z-earth', element: 'earth', topLeft: { row: 3, col: 0 }, cruxPosition: { row: 5, col: 2 }, control: 'unbound' },
+				{ id: 'z-air',   element: 'air',   topLeft: { row: 3, col: 3 }, cruxPosition: { row: 5, col: 5 }, control: 'unbound' },
+			],
+			players: {
+				light: { side: 'light', hand: [] },
+				dark:  { side: 'dark',  hand: [{ id: 'w1', element: 'water' }, { id: 'w2', element: 'water' }] },
+			},
+		};
+
+		const result = simulateGameCommand(
+			state,
+			clientGameCommand('InscribeRune', {
+				player: 'dark',
+				target: { row: 0, col: 0 },
+				paidCardIds: ['w1', 'w2'],
+				chosenActivations: ['+', '+'] as Glyph[],
+			})
+		);
+
+		expect(result.ok).to.equal(false);
+		expect(result.state.board[0][0].rune).to.equal(null);
 	});
 });

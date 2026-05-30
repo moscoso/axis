@@ -111,7 +111,13 @@ function enumerateInscribes(state: Game, side: PlayerSide): GameCommand[] {
 			const targetElement = getZoneForPosition(state, position).element;
 			forEachPaymentSubset(hand, baseCost, targetElement, controlled, (subset, paymentValue) => {
 				if (paymentValue < discountedCost) return;
-				for (const activations of enumerateActivations(cell.glyphs, paymentValue)) {
+				// No wasted card: dropping the lowest-value card must fall below the
+				// activation cap (printed symbols), else a paid card buys nothing.
+				const minValue = Math.min(...subset.map(card => getCardValue(card, targetElement, controlled)));
+				if (paymentValue - minValue >= baseCost) return;
+				// Activations are capped at the printed symbols — a single unavoidable overshoot is wasted.
+				const activationCount = Math.min(paymentValue, cell.glyphs.length);
+				for (const activations of enumerateActivations(cell.glyphs, activationCount)) {
 					moves.push(
 						clientGameCommand('InscribeRune', {
 							player: side,

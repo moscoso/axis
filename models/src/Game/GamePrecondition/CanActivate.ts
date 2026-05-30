@@ -30,8 +30,12 @@ export const CAN_ACTIVATE: GamePreconditionValidator = (
 		return sum + (card ? getCardValue(card, targetElement, controlledElements) : 0);
 	}, 0);
 
-	if (chosenActivations.length !== paymentValue) {
-		return GameError.InvalidActivationCount(`Expected ${paymentValue} activations, got ${chosenActivations.length}`);
+	// Activations equal the payment value, but capped at the printed symbols:
+	// overpaying a small space (e.g. a value-2 card on a 1-symbol cell) is legal,
+	// the surplus value is simply wasted rather than blocking the move.
+	const requiredActivations = Math.min(paymentValue, cell.glyphs.length);
+	if (chosenActivations.length !== requiredActivations) {
+		return GameError.InvalidActivationCount(`Expected ${requiredActivations} activations, got ${chosenActivations.length}`);
 	}
 
 	const printedCounts: Partial<Record<Glyph, number>> = {};

@@ -11,6 +11,7 @@ export enum GameErrorType {
 	InvalidPhase = 'Invalid game phase for this action',
 	NotYourTurn = 'It is not your turn',
 	TooManyCardsPaid = 'Too many cards paid — exceeds the base cost',
+	WastefulPayment = 'An overpaid card buys no activation — remove it',
 	UndefinedCommandArguments = 'Undefined arguments were passed into the command',
 }
 
@@ -34,5 +35,6 @@ export class GameError extends AppError<GameErrorType> {
 	static InvalidPhase(d?: string)                { return new GameError(GameErrorType.InvalidPhase, d); }
 	static NotYourTurn()                           { return new GameError(GameErrorType.NotYourTurn); }
 	static TooManyCardsPaid(d?: string)            { return new GameError(GameErrorType.TooManyCardsPaid, d); }
+	static WastefulPayment(d?: string)             { return new GameError(GameErrorType.WastefulPayment, d); }
 	static UndefinedCommandArguments()             { return new GameError(GameErrorType.UndefinedCommandArguments); }
 }

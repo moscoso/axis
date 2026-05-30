@@ -75,6 +75,8 @@ Each space has a set of printed symbols. The total number of symbols is its cost
 
 * You cannot pay with more cards than symbols printed on the space.
 
+* Every card you pay must buy an activation — you cannot dump spare cards that do nothing. A single high-value card (Affinity/Bond) may exceed a small space's symbols only when it is the only way to pay; the surplus is wasted.
+
 | Affinity & Bond Cards resonate with the elements, counting as 2 — both when paying a cost and as 2 activations — under either condition below. A card is never worth more than 2; the two conditions do not stack. • **Affinity:** a card counts as 2 when inscribed on a space in its own element's Zone. Always active, no control required. • **Bond:** while you control a Crux, that element's cards count as 2 in any Zone — not just their home. Bond only applies if you controlled the Crux before inscribing the Rune. Example: a 3-symbol space normally requires 3 cards and yields 3 activations. With 1 resonating card (2\) \+ 1 ordinary card (1\) you cover the cost (2 \+ 1 \= 3\) and gain 3 activations (2 \+ 1 \= 3\) — using only 2 physical cards. You still cannot pay with, or activate, more than the symbols printed on the space. |
 | :---- |
 

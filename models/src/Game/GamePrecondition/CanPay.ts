@@ -9,7 +9,11 @@ import { GamePreconditionValidator } from './GamePrecondition';
  * Validates that the offered cards constitute a legal payment for a rune inscription:
  * - All card IDs must refer to cards currently in the player's hand.
  * - Number of cards offered must not exceed the cell's base cost.
- * - Effective payment value (accounting for Bond) must meet the discounted cost.
+ * - Effective payment value (Affinity/Bond) must meet the discounted cost.
+ * - No paid card may be pure waste: every card must buy at least one activation
+ *   (activations cap at the printed symbols), so accidental over-overpaying —
+ *   e.g. dumping spare cards that do nothing — is rejected. A single high-value
+ *   card may still overshoot by 1 when it can't be split (the only way to pay).
  */
 export const CAN_PAY: GamePreconditionValidator = (
 	{ game, player, target, paidCardIds }: { game: Game; player: PlayerSide; target: Position; paidCardIds: string[] }
@@ -29,13 +33,20 @@ export const CAN_PAY: GamePreconditionValidator = (
 
 	const controlledElements = getControlledElements(game, player);
 	const targetElement = getZoneForPosition(game, target).element;
-	const paymentValue = resolvedCards.reduce(
-		(sum, card) => sum + getCardValue(card!, targetElement, controlledElements), 0
-	);
+	const cardValues = resolvedCards.map(card => getCardValue(card!, targetElement, controlledElements));
+	const paymentValue = cardValues.reduce((sum, v) => sum + v, 0);
 
 	const discountedCost = getDiscountedCost(game, player, target);
 	if (paymentValue < discountedCost) {
 		return GameError.InsufficientPayment(`Need effective payment of ${discountedCost}, got ${paymentValue}`);
+	}
+
+	// No wasted card: if dropping the lowest-value card still meets the activation
+	// cap (the printed symbols), that card buys nothing and the payment is wasteful.
+	const paymentWastesACard =
+		cardValues.length > 0 && paymentValue - Math.min(...cardValues) >= baseCost;
+	if (paymentWastesACard) {
+		return GameError.WastefulPayment(`Payment ${paymentValue} exceeds what ${baseCost} symbol(s) can activate`);
 	}
 
 	return null;
