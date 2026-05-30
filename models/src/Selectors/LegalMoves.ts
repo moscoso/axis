@@ -6,10 +6,12 @@ import { Game } from '../Game/Game';
 import { GameCommand, clientGameCommand } from '../Game/GameCommand/GameCommand';
 import {
 	getBaseCost,
-	getCardPaymentValue,
+	getCardValue,
 	getControlledElements,
 	getDiscountedCost,
+	getZoneForPosition,
 } from './GameSelectors';
+import { Element } from '../Element/Element';
 
 /**
  * Enumerates every legal move available to `side` in the current state.
@@ -106,7 +108,8 @@ function enumerateInscribes(state: Game, side: PlayerSide): GameCommand[] {
 			}
 
 			// Otherwise: enumerate every hand subset (size ≤ baseCost) that pays at least discountedCost.
-			forEachPaymentSubset(hand, baseCost, controlled, (subset, paymentValue) => {
+			const targetElement = getZoneForPosition(state, position).element;
+			forEachPaymentSubset(hand, baseCost, targetElement, controlled, (subset, paymentValue) => {
 				if (paymentValue < discountedCost) return;
 				for (const activations of enumerateActivations(cell.glyphs, paymentValue)) {
 					moves.push(
@@ -128,6 +131,7 @@ function enumerateInscribes(state: Game, side: PlayerSide): GameCommand[] {
 function forEachPaymentSubset(
 	hand: Card[],
 	maxSize: number,
+	targetElement: Element,
 	controlled: ReturnType<typeof getControlledElements>,
 	visit: (subset: Card[], paymentValue: number) => void
 ): void {
@@ -139,7 +143,7 @@ function forEachPaymentSubset(
 		if (current.length === cap) return;
 		for (let i = start; i < n; i++) {
 			current.push(hand[i]);
-			recurse(i + 1, current, value + getCardPaymentValue(hand[i], controlled));
+			recurse(i + 1, current, value + getCardValue(hand[i], targetElement, controlled));
 			current.pop();
 		}
 	}

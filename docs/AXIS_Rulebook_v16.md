@@ -75,7 +75,7 @@ Each space has a set of printed symbols. The total number of symbols is its cost
 
 * You cannot pay with more cards than symbols printed on the space.
 
-| Bond While you control a Crux, cards of its matching element count as 2 when paying a cost — and as 2 activations when resolving rewards. Both effects apply to the same card simultaneously. Example: a 3-symbol space normally requires 3 cards and yields 3 activations. With Bond, 1 matching card \+ 1 normal card covers the full cost (2 \+ 1 \= 3\) and yields 3 activations (2 \+ 1 \= 3\) — using only 2 physical cards. Bond only applies if you controlled the Crux before inscribing the Rune. You still cannot activate more rewards than symbols printed on the space. |
+| Affinity & Bond Cards resonate with the elements, counting as 2 — both when paying a cost and as 2 activations — under either condition below. A card is never worth more than 2; the two conditions do not stack. • **Affinity:** a card counts as 2 when inscribed on a space in its own element's Zone. Always active, no control required. • **Bond:** while you control a Crux, that element's cards count as 2 in any Zone — not just their home. Bond only applies if you controlled the Crux before inscribing the Rune. Example: a 3-symbol space normally requires 3 cards and yields 3 activations. With 1 resonating card (2\) \+ 1 ordinary card (1\) you cover the cost (2 \+ 1 \= 3\) and gain 3 activations (2 \+ 1 \= 3\) — using only 2 physical cards. You still cannot pay with, or activate, more than the symbols printed on the space. |
 | :---- |
 
 ## **Activating Rewards**
@@ -143,7 +143,9 @@ If the board fills with Runes before either instant victory triggers, both sides
 
 * Max cards paid \= number of symbols on the space.
 
-* Bond: matching-element cards count as 2 toward both cost and activations.
+* Affinity: a card counts as 2 (cost \+ activations) on a space in its own element's Zone — always.
+
+* Bond: while you control a Crux, that element's cards count as 2 in any Zone.
 
 ## **Crux Control at a Glance**
 
@@ -151,7 +153,7 @@ If the board fills with Runes before either instant victory triggers, both sides
 
 * Rechecked immediately after every Rune and all rewards resolve.
 
-* Holding a Crux grants Bond for that element’s cards.
+* Holding a Crux grants Bond — that element’s cards count as 2 in any Zone (extending their home-Zone Affinity across the board).
 
 ## **Victory at a Glance**
 
@@ -163,9 +165,13 @@ If the board fills with Runes before either instant victory triggers, both sides
 
 ## **Key Terms**
 
+### **Affinity**
+
+A card’s natural resonance with its element. A card counts as 2 — when paying costs and when activating symbols — on a space in its own element’s Zone. Always active; no control required.
+
 ### **Bond**
 
-A buff granted while controlling a Crux. Cards of the matching element count as 2 when paying costs and activating symbols.
+A buff granted while controlling a Crux: that element’s cards count as 2 in *any* Zone, not just their home — extending Affinity across the whole board.
 
 ### **Crux**
 

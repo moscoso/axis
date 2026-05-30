@@ -4,7 +4,8 @@ import {
     PlayerSide,
     Position,
     Zone,
-    getCardPaymentValue,
+    getBaseCost,
+    getCardValue,
     getControlledElements,
     getDiscountedCost,
     getFluxTotalForCruxLines,
@@ -85,17 +86,28 @@ export class Board {
         return this.tallies().rows[r][side];
     }
 
-    /** Total payment value the active player could put down from their current hand. */
-    readonly maxPayment = computed(() => {
+    /**
+     * Best payment value the active player could put toward a *specific* cell.
+     * Card values are Zone-dependent now (Affinity doubles a card in its home
+     * Zone), so this is per-target: take the highest-value cards up to the
+     * cell's base cost (you can't pay with more cards than printed symbols).
+     */
+    private maxPaymentFor(pos: Position): number {
         const player = this.player();
         if (!player) return 0;
         const g = this.game();
+        const cell = g.board[pos.row]?.[pos.col];
+        const element = cell ? this.zoneFor(cell.zoneId)?.element : undefined;
+        if (!cell || !element) return 0;
         const controlled = getControlledElements(g, player);
-        return g.players[player].hand.reduce(
-            (sum, card) => sum + getCardPaymentValue(card, controlled),
-            0
-        );
-    });
+        const values = g.players[player].hand
+            .map(card => getCardValue(card, element, controlled))
+            .sort((a, b) => b - a);
+        const limit = Math.min(getBaseCost(cell), values.length);
+        let sum = 0;
+        for (let i = 0; i < limit; i++) sum += values[i];
+        return sum;
+    }
 
     zoneFor(zoneId: string): Zone | undefined {
         return this.zonesById().get(zoneId);
@@ -119,7 +131,7 @@ export class Board {
         const cell = g.board[pos.row]?.[pos.col];
         if (cell?.rune !== null) return true;
         if (cell.hasCrux) return false; // Crux cells are permanently off-limits for inscribing.
-        return getDiscountedCost(g, player, pos) <= this.maxPayment();
+        return getDiscountedCost(g, player, pos) <= this.maxPaymentFor(pos);
     }
 
     /**

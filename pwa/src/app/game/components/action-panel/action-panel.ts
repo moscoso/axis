@@ -6,9 +6,10 @@ import {
     PlayerSide,
     Position,
     getBaseCost,
-    getCardPaymentValue,
+    getCardValue,
     getControlledElements,
     getDiscountedCost,
+    getZoneForPosition,
 } from 'axis-models';
 import { Glyph } from '../glyph/glyph';
 
@@ -72,8 +73,14 @@ export class ActionPanel {
     );
 
     readonly paymentValue = computed(() => {
+        const t = this.target();
+        if (!t) return 0;
+        const targetElement = getZoneForPosition(this.game(), t).element;
         const controlled = this.controlledElements();
-        return this.paidCards().reduce((sum, c) => sum + getCardPaymentValue(c, controlled), 0);
+        return this.paidCards().reduce(
+            (sum, c) => sum + getCardValue(c, targetElement, controlled),
+            0
+        );
     });
 
     readonly canPay = computed(() => this.paymentValue() >= this.discountedCost());

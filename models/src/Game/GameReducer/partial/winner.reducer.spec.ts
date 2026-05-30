@@ -24,7 +24,14 @@ function stuckState(overrides: Partial<Game> = {}): Game {
 		id: 'stuck',
 		phase: 'main-turn',
 		board: buildEmptyBoard(),
-		zones: [],
+		// The four 3×3 elemental Zones every real game has. hasAnyLegalMove now
+		// resolves each cell's Zone (for Affinity), so the state must be valid.
+		zones: [
+			{ id: 'z-fire',  element: 'fire',  topLeft: { row: 0, col: 0 }, cruxPosition: { row: 0, col: 0 }, control: 'unbound' },
+			{ id: 'z-earth', element: 'earth', topLeft: { row: 0, col: 3 }, cruxPosition: { row: 0, col: 3 }, control: 'unbound' },
+			{ id: 'z-air',   element: 'air',   topLeft: { row: 3, col: 0 }, cruxPosition: { row: 3, col: 0 }, control: 'unbound' },
+			{ id: 'z-water', element: 'water', topLeft: { row: 3, col: 3 }, cruxPosition: { row: 3, col: 3 }, control: 'unbound' },
+		],
 		players: {
 			light: { side: 'light', hand: [{ id: 'c-light', element: 'fire' }] },
 			dark:  { side: 'dark',  hand: [] },

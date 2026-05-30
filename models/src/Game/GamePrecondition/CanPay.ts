@@ -1,6 +1,6 @@
 import { PlayerSide } from '../../Player/Player';
 import { Position } from '../../Zone/Zone';
-import { getBaseCost, getCardPaymentValue, getControlledElements, getDiscountedCost } from '../../Selectors/GameSelectors';
+import { getBaseCost, getCardValue, getControlledElements, getDiscountedCost, getZoneForPosition } from '../../Selectors/GameSelectors';
 import { Game } from '../Game';
 import { GameError } from '../GameError/GameError';
 import { GamePreconditionValidator } from './GamePrecondition';
@@ -28,8 +28,9 @@ export const CAN_PAY: GamePreconditionValidator = (
 	}
 
 	const controlledElements = getControlledElements(game, player);
+	const targetElement = getZoneForPosition(game, target).element;
 	const paymentValue = resolvedCards.reduce(
-		(sum, card) => sum + getCardPaymentValue(card!, controlledElements), 0
+		(sum, card) => sum + getCardValue(card!, targetElement, controlledElements), 0
 	);
 
 	const discountedCost = getDiscountedCost(game, player, target);

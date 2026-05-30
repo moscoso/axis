@@ -38,9 +38,22 @@ export function getControlledElements(state: Game, player: PlayerSide): Element[
 		.map(z => z.element);
 }
 
-/** Returns 2 if the card's element matches a Crux the player controls (Bond), otherwise 1. */
-export function getCardPaymentValue(card: Card, controlledElements: Element[]): 1 | 2 {
-	return controlledElements.includes(card.element) ? 2 : 1;
+/**
+ * Effective payment/activation value of a card when inscribing on a space whose
+ * Zone has element `targetElement`:
+ * - **Affinity** — a card is worth 2 in its own element's Zone, always.
+ * - **Bond** — while you control a Crux, that element's cards are worth 2 in ANY
+ *   Zone, not just their home.
+ * Otherwise 1. A card is never worth more than 2; the two effects don't stack.
+ */
+export function getCardValue(
+	card: Card, 
+	targetElement: Element, 
+	controlledElements: Element[]
+): 1 | 2 {
+	if (card.element === targetElement) return 2;            // Affinity (home Zone)
+	if (controlledElements.includes(card.element)) return 2; // Bond (controlled Crux, any Zone)
+	return 1;
 }
 
 export function getDiscountedCost(state: Game, player: PlayerSide, position: Position): number {
@@ -139,9 +152,6 @@ export function hasAnyLegalMove(state: Game, player: PlayerSide): boolean {
 
 	const hand = state.players[player].hand;
 	const controlled = getControlledElements(state, player);
-	const sortedValues = hand
-		.map(card => getCardPaymentValue(card, controlled))
-		.sort((a, b) => b - a);
 
 	for (let r = 0; r < state.board.length; r++) {
 		for (let c = 0; c < state.board[r].length; c++) {
@@ -152,6 +162,12 @@ export function hasAnyLegalMove(state: Game, player: PlayerSide): boolean {
 			const position: Position = { row: r, col: c };
 			const discountedCost = getDiscountedCost(state, player, position);
 			if (discountedCost === 0) return true;
+
+			// Card values are Zone-dependent (Affinity), so rank per target.
+			const targetElement = getZoneForPosition(state, position).element;
+			const sortedValues = hand
+				.map(card => getCardValue(card, targetElement, controlled))
+				.sort((a, b) => b - a);
 
 			const baseCost = getBaseCost(cell);
 			const limit = Math.min(baseCost, sortedValues.length);

@@ -1,7 +1,7 @@
 import { PlayerSide } from '../../Player/Player';
 import { Position } from '../../Zone/Zone';
 import { Glyph } from '../../Glyph/Glyph';
-import { getCardPaymentValue, getControlledElements } from '../../Selectors/GameSelectors';
+import { getCardValue, getControlledElements, getZoneForPosition } from '../../Selectors/GameSelectors';
 import { Game } from '../Game';
 import { GameError } from '../GameError/GameError';
 import { GamePreconditionValidator } from './GamePrecondition';
@@ -22,11 +22,12 @@ export const CAN_ACTIVATE: GamePreconditionValidator = (
 ) => {
 	const cell = game.board[target.row][target.col];
 	const controlledElements = getControlledElements(game, player);
+	const targetElement = getZoneForPosition(game, target).element;
 	const hand = game.players[player].hand;
 
 	const paymentValue = paidCardIds.reduce((sum, id) => {
 		const card = hand.find(c => c.id === id);
-		return sum + (card ? getCardPaymentValue(card, controlledElements) : 0);
+		return sum + (card ? getCardValue(card, targetElement, controlledElements) : 0);
 	}, 0);
 
 	if (chosenActivations.length !== paymentValue) {
