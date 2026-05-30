@@ -39,6 +39,28 @@ header {
     &.short strong { color: #ff9069; }
 }
 
+.cost-breakdown {
+    margin-bottom: 0.5rem;
+}
+
+/* Discount line: muted at 0, accented when it actually reduces the cost. */
+.stat-row.discount strong {
+    color: rgba(255, 255, 255, 0.45);
+}
+.stat-row.discount.active strong {
+    color: #6abeff;
+}
+
+/* Paid reads as the result, divided off from cost − discount above it. */
+.stat-row.paid {
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+    margin-top: 0.15rem;
+    padding-top: 0.35rem;
+}
+.stat-row.paid strong {
+    font-size: 1.05rem;
+}
+
 .activations {
     margin-top: 0.6rem;
 

@@ -5,6 +5,7 @@ import {
     Glyph as GlyphSymbol,
     PlayerSide,
     Position,
+    getBaseCost,
     getCardPaymentValue,
     getControlledElements,
     getDiscountedCost,
@@ -42,11 +43,23 @@ export class ActionPanel {
         return this.game().board[t.row]?.[t.col] ?? null;
     });
 
+    readonly baseCost = computed(() => {
+        const cell = this.targetCell();
+        return cell ? getBaseCost(cell) : 0;
+    });
+
     readonly discountedCost = computed(() => {
         const t = this.target();
         if (!t) return 0;
         return getDiscountedCost(this.game(), this.player(), t);
     });
+
+    /**
+     * Effective discount actually applied: base − final cost. Uses the floored
+     * cost (not the raw friendly-rune count) so the three lines always sum
+     * cleanly — base − discount = cost — even when the discount would overshoot.
+     */
+    readonly discount = computed(() => this.baseCost() - this.discountedCost());
 
     readonly paidCards = computed<CardModel[]>(() => {
         const ids = this.paidCardIds();

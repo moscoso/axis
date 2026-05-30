@@ -4,13 +4,19 @@
         <span class="target">({{ t.row }}, {{ t.col }})</span>
     </header>
 
-    <div class="stat-row">
-        <span>Cost</span>
-        <strong>{{ discountedCost() }}</strong>
-    </div>
-    <div class="stat-row" [class.short]="!canPay()" [class.ok]="canPay()">
-        <span>Paid</span>
-        <strong>{{ paymentValue() }}</strong>
+    <div class="cost-breakdown">
+        <div class="stat-row">
+            <span>Cost</span>
+            <strong>{{ baseCost() }}</strong>
+        </div>
+        <div class="stat-row discount" [class.active]="discount() > 0">
+            <span>Discount</span>
+            <strong>{{ discount() }}</strong>
+        </div>
+        <div class="stat-row paid" [class.short]="!canPay()" [class.ok]="canPay()">
+            <span>Paid</span>
+            <strong>{{ paymentValue() }}</strong>
+        </div>
     </div>
 
     @if (paidCardIds().size === 0) {
