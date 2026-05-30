@@ -1,6 +1,14 @@
 /* Global styles for AXIS */
 
 :root {
+    /**
+     * Scoped UI scales, driven at runtime by UiPreferencesService. The game
+     * layout applies these via `zoom` to independently resize the scoring
+     * widgets and the player hands. Default 1 = 100%.
+     */
+    --scoring-scale: 1;
+    --hand-scale: 1;
+
     --font-display: 'Orbitron', 'Oxanium', sans-serif;
     --font-body: 'Oxanium', 'Barlow', system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
     --font-accent: 'Pirata One', 'Luckiest Guy', 'Bangers', cursive;

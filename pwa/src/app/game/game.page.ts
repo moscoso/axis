@@ -20,6 +20,7 @@ import {
     clientTableCommand,
 } from 'axis-models';
 import { LogoutButton } from '../account/components/logout-button/logout-button';
+import { UiPreferencesService } from '../core/services/ui-preferences.service';
 import { AuthFacade } from '../core/state/auth/auth.facade';
 import { DealerFacade } from '../core/state/dealer/dealer.facade';
 import { ConnectionStatus } from '../core/websocket/connection-status/connection-status';
@@ -36,6 +37,7 @@ import { Hand } from './components/hand/hand';
 import { Lobby } from './components/lobby/lobby';
 import { PlayerPanel } from './components/player-panel/player-panel';
 import { RiftTrack } from './components/rift-track/rift-track';
+import { SettingsModal } from './components/settings-modal/settings-modal';
 import { TurnIndicator } from './components/turn-indicator/turn-indicator';
 import { VictoryModal } from './components/victory-modal/victory-modal';
 
@@ -57,6 +59,7 @@ import { VictoryModal } from './components/victory-modal/victory-modal';
         MatButtonModule,
         PlayerPanel,
         RiftTrack,
+        SettingsModal,
         TurnIndicator,
         UserBadge,
         VictoryModal,
@@ -69,6 +72,19 @@ export class GamePage {
     private readonly dealer = inject(DealerFacade);
     private readonly auth = inject(AuthFacade);
     private readonly socket = inject(WebsocketService);
+    private readonly uiPrefs = inject(UiPreferencesService);
+
+    /** Whether the board's discount guideline edges are shown (user setting). */
+    readonly boardGuides = this.uiPrefs.boardGuides;
+
+    /** Settings overlay visibility. */
+    readonly settingsOpen = signal(false);
+    openSettings(): void {
+        this.settingsOpen.set(true);
+    }
+    closeSettings(): void {
+        this.settingsOpen.set(false);
+    }
 
     readonly game = toSignal(this.dealer.selectGame(), { requireSync: false, initialValue: INIT_GAME_STATE });
     readonly table = toSignal(this.dealer.selectState('table'), { requireSync: false, initialValue: INIT_TABLE_STATE });

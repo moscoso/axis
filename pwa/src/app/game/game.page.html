@@ -35,6 +35,7 @@
                 End turn
             </button>
         }
+        <button type="button" class="settings-btn" aria-label="Settings" title="Settings" (click)="openSettings()">⚙</button>
         <app-user-badge></app-user-badge>
         <app-logout-button></app-logout-button>
     </div>
@@ -82,6 +83,7 @@
                     [player]="mySide()"
                     [selectable]="canInscribe()"
                     [selectedCell]="selectedCell()"
+                    [showGuides]="boardGuides()"
                     (cellClicked)="onCellClick($event)">
                 </app-board>
             </section>
@@ -131,6 +133,10 @@
         [mySide]="mySide()"
         (draftSubmitted)="onDraftSubmitted($event)">
     </app-draft-overlay>
+}
+
+@if (settingsOpen()) {
+    <app-settings-modal (close)="closeSettings()"></app-settings-modal>
 }
 
 @if (showVictory()) {

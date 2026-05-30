@@ -1,47 +1,52 @@
 @if (rows().length === 0) {
     <div class="empty">Awaiting setup…</div>
 } @else {
-    <div class="frame">
-        <!-- Top edge: light's per-column tallies -->
-        <div class="corner"></div>
-        @for (c of axis; track c) {
-            <div class="tally col light" [class.zero]="tallies().cols[c].light === 0">
-                {{ tallies().cols[c].light }}
-            </div>
-        }
-        <div class="corner"></div>
-
-        <!-- Body: left edge = light's row tally, right edge = dark's row tally -->
-        @for (row of rows(); track $index; let r = $index) {
-            <div class="tally row light" [class.zero]="tallies().rows[r].light === 0">
-                {{ tallies().rows[r].light }}
-            </div>
-            @for (cell of row; track cell.position.col) {
-                <app-board-cell
-                    [cell]="cell"
-                    [zone]="zoneFor(cell.zoneId)"
-                    [selectable]="selectable() && cell.rune === null && !cell.hasCrux"
-                    [selected]="isSelected(cell.position)"
-                    [dim]="selectable() && !cell.hasCrux && !isAffordable(cell.position)"
-                    [inCross]="isInCross(cell.position)"
-                    [cruxBadge]="cruxBadge(cell.position)"
-                    (click)="onCellClick(cell.position)"
-                    (mouseenter)="onCellHover(cell.position)"
-                    (mouseleave)="onCellLeave(cell.position)">
-                </app-board-cell>
+    <div class="board" [class.no-guides]="!showGuides()">
+        <div class="grid">
+            @for (row of rows(); track $index) {
+                @for (cell of row; track cell.position.col) {
+                    <app-board-cell
+                        [cell]="cell"
+                        [zone]="zoneFor(cell.zoneId)"
+                        [selectable]="selectable() && cell.rune === null && !cell.hasCrux"
+                        [selected]="isSelected(cell.position)"
+                        [dim]="selectable() && !cell.hasCrux && !isAffordable(cell.position)"
+                        [inCross]="isInCross(cell.position)"
+                        [cruxBadge]="cruxBadge(cell.position)"
+                        (click)="onCellClick(cell.position)"
+                        (mouseenter)="onCellHover(cell.position)"
+                        (mouseleave)="onCellLeave(cell.position)">
+                    </app-board-cell>
+                }
             }
-            <div class="tally row dark" [class.zero]="tallies().rows[r].dark === 0">
-                {{ tallies().rows[r].dark }}
-            </div>
-        }
+        </div>
 
-        <!-- Bottom edge: dark's per-column tallies -->
-        <div class="corner"></div>
-        @for (c of axis; track c) {
-            <div class="tally col dark" [class.zero]="tallies().cols[c].dark === 0">
-                {{ tallies().cols[c].dark }}
+        @if (showGuides()) {
+            <!--
+              Discount guides: friendly-rune tally per line, as thin overlay rails
+              aligned to the grid tracks. Light owns top + left, Dark owns bottom +
+              right, so each side reads its discount field from the edges flanking it.
+            -->
+            <div class="rail top" aria-hidden="true">
+                @for (c of axis; track c) {
+                    <span class="tally light" [class.zero]="tallies().cols[c].light === 0">{{ tallies().cols[c].light }}</span>
+                }
+            </div>
+            <div class="rail bottom" aria-hidden="true">
+                @for (c of axis; track c) {
+                    <span class="tally dark" [class.zero]="tallies().cols[c].dark === 0">{{ tallies().cols[c].dark }}</span>
+                }
+            </div>
+            <div class="rail left" aria-hidden="true">
+                @for (r of axis; track r) {
+                    <span class="tally light" [class.zero]="tallies().rows[r].light === 0">{{ tallies().rows[r].light }}</span>
+                }
+            </div>
+            <div class="rail right" aria-hidden="true">
+                @for (r of axis; track r) {
+                    <span class="tally dark" [class.zero]="tallies().rows[r].dark === 0">{{ tallies().rows[r].dark }}</span>
+                }
             </div>
         }
-        <div class="corner"></div>
     </div>
 }

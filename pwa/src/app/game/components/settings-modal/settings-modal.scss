@@ -1,0 +1,243 @@
+:host {
+    position: fixed;
+    inset: 0;
+    z-index: 120;
+}
+
+/**
+ * Transparent click-catcher so clicking outside closes the drawer — but with
+ * NO blur or dim, so the board and widgets stay fully visible while the user
+ * watches their size/guideline changes apply live.
+ */
+.scrim {
+    position: absolute;
+    inset: 0;
+    background: transparent;
+}
+
+.drawer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 360px;
+    max-width: 90vw;
+    box-sizing: border-box;
+    padding: 1.5rem 1.5rem 1.25rem;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    /* Semi-transparent so the board/widgets remain visible behind the panel. */
+    background: linear-gradient(160deg, rgba(26, 34, 54, 0.82) 0%, rgba(11, 15, 26, 0.82) 100%);
+    backdrop-filter: blur(3px);
+    border-right: 1px solid rgba(255, 255, 255, 0.15);
+    box-shadow: 18px 0 56px rgba(0, 0, 0, 0.45);
+    color: #fff;
+    animation: drawer-in 180ms ease;
+}
+
+@keyframes drawer-in {
+    from { transform: translateX(-100%); }
+    to   { transform: translateX(0); }
+}
+
+header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.25rem;
+}
+
+.banner {
+    font-family: var(--font-display);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.35em;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.x {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: rgba(255, 255, 255, 0.7);
+    width: 1.9rem;
+    height: 1.9rem;
+    border-radius: 8px;
+    cursor: pointer;
+    line-height: 1;
+}
+.x:hover {
+    background: rgba(255, 255, 255, 0.12);
+    color: #fff;
+}
+
+.rows {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.75rem 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.07);
+}
+.row:first-child {
+    border-top: none;
+}
+
+.meta {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    min-width: 0;
+}
+
+.name {
+    font-weight: 600;
+    letter-spacing: 0.02em;
+}
+
+.desc {
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.5);
+}
+
+/* ── Stepper ────────────────────────────────────────────── */
+.stepper {
+    display: inline-flex;
+    align-items: stretch;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.04);
+    flex-shrink: 0;
+}
+
+.stepper button {
+    border: none;
+    background: transparent;
+    color: rgba(255, 255, 255, 0.85);
+    font-weight: 700;
+    font-size: 1.2rem;
+    line-height: 1;
+    width: 2.2rem;
+    cursor: pointer;
+    transition: background 120ms ease;
+}
+.stepper button:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.12);
+    color: #fff;
+}
+.stepper button:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+}
+
+.stepper .val {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 3.4rem;
+    padding: 0.45rem 0;
+    font-variant-numeric: tabular-nums;
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.75);
+    border-left: 1px solid rgba(255, 255, 255, 0.12);
+    border-right: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+/* ── Toggle switch ──────────────────────────────────────── */
+.toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.3rem 0.55rem 0.3rem 0.4rem;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.05);
+    color: rgba(255, 255, 255, 0.6);
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: background 120ms ease, color 120ms ease, border-color 120ms ease;
+}
+
+.toggle .knob {
+    width: 2.4rem;
+    height: 1.3rem;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.18);
+    position: relative;
+    transition: background 140ms ease;
+}
+.toggle .knob::after {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: calc(1.3rem - 4px);
+    height: calc(1.3rem - 4px);
+    border-radius: 50%;
+    background: #fff;
+    transition: transform 140ms ease;
+}
+
+.toggle[data-on="true"] {
+    color: #0b0f1a;
+    border-color: rgba(110, 210, 106, 0.8);
+}
+.toggle[data-on="true"] .knob {
+    background: #6ed26a;
+}
+.toggle[data-on="true"] .knob::after {
+    transform: translateX(1.1rem);
+}
+.toggle .state {
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    color: rgba(255, 255, 255, 0.85);
+    min-width: 1.8rem;
+    text-align: left;
+}
+
+/* ── Footer ─────────────────────────────────────────────── */
+footer {
+    margin-top: auto;
+    padding-top: 1.25rem;
+    display: flex;
+    justify-content: space-between;
+    gap: 0.6rem;
+}
+
+footer button {
+    padding: 0.5rem 1.1rem;
+    border-radius: 8px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    cursor: pointer;
+    transition: background 120ms ease;
+}
+
+.reset {
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    color: rgba(255, 255, 255, 0.7);
+}
+.reset:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: #fff;
+}
+
+.done {
+    background: rgba(177, 156, 255, 0.85);
+    border: 1px solid rgba(177, 156, 255, 0.95);
+    color: #0b0f1a;
+    font-weight: 700;
+}
+.done:hover {
+    background: rgba(177, 156, 255, 1);
+}

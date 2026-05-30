@@ -25,6 +25,8 @@ export class Board {
     readonly selectable = input<boolean>(false);
     /** The player whose perspective drives affordability dimming. */
     readonly player = input<PlayerSide | null>(null);
+    /** Show the discount guideline edges (per-row/column rune tallies). */
+    readonly showGuides = input<boolean>(true);
 
     readonly cellClicked = output<Position>();
 
@@ -98,7 +100,7 @@ export class Board {
         if (!player) return true;
         const g = this.game();
         const cell = g.board[pos.row]?.[pos.col];
-        if (!cell || cell.rune !== null) return true;
+        if (cell?.rune !== null) return true;
         if (cell.hasCrux) return false; // Crux cells are permanently off-limits for inscribing.
         return getDiscountedCost(g, player, pos) <= this.maxPayment();
     }
@@ -141,7 +143,7 @@ export class Board {
 
     onCellLeave(pos: Position): void {
         const hover = this.hoveredRune();
-        if (hover && hover.row === pos.row && hover.col === pos.col) {
+        if (hover?.row === pos.row && hover.col === pos.col) {
             this.hoveredRune.set(null);
         }
     }

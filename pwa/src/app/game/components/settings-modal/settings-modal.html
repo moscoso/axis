@@ -1,0 +1,56 @@
+<div class="scrim" (click)="onClose()"></div>
+
+<div class="drawer" role="dialog" aria-label="Settings">
+    <header>
+        <span class="banner">Settings</span>
+        <button type="button" class="x" aria-label="Close settings" (click)="onClose()">✕</button>
+    </header>
+
+    <div class="rows">
+        <div class="row">
+            <div class="meta">
+                <span class="name">Scoring widgets</span>
+                <span class="desc">Size of the side panels &amp; player rails</span>
+            </div>
+            <div class="stepper" role="group" aria-label="Scoring widgets size">
+                <button type="button" [disabled]="scoringAtMin()" aria-label="Decrease" (click)="decScoring()">−</button>
+                <span class="val">{{ scoringPercent() }}%</span>
+                <button type="button" [disabled]="scoringAtMax()" aria-label="Increase" (click)="incScoring()">+</button>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="meta">
+                <span class="name">Hands</span>
+                <span class="desc">Size of your &amp; the opponent's cards</span>
+            </div>
+            <div class="stepper" role="group" aria-label="Hands size">
+                <button type="button" [disabled]="handAtMin()" aria-label="Decrease" (click)="decHand()">−</button>
+                <span class="val">{{ handPercent() }}%</span>
+                <button type="button" [disabled]="handAtMax()" aria-label="Increase" (click)="incHand()">+</button>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="meta">
+                <span class="name">Board guidelines</span>
+                <span class="desc">Discount tallies on the board edges</span>
+            </div>
+            <button
+                type="button"
+                class="toggle"
+                role="switch"
+                [attr.aria-checked]="boardGuides()"
+                [attr.data-on]="boardGuides()"
+                (click)="toggleGuides()">
+                <span class="knob"></span>
+                <span class="state">{{ boardGuides() ? 'On' : 'Off' }}</span>
+            </button>
+        </div>
+    </div>
+
+    <footer>
+        <button type="button" class="reset" (click)="reset()">Reset to defaults</button>
+        <button type="button" class="done" (click)="onClose()">Done</button>
+    </footer>
+</div>
