@@ -100,3 +100,38 @@
     --rune-size: 3em;
     font-size: 1.1rem;
 }
+
+/**
+ * Crux control badge: signed flux lead on the Crux's lines, colored by the
+ * controlling side (matching rune colors). Pinned bottom-center, below the
+ * centered Crux glyph. Only rendered for controlled (non-unbound) Cruxes.
+ */
+.crux-badge {
+    position: absolute;
+    left: 50%;
+    bottom: 5px;
+    transform: translateX(-50%);
+    min-width: 1.5em;
+    padding: 0.1em 0.4em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-display, sans-serif);
+    font-weight: 800;
+    font-size: clamp(0.65rem, 2.2cqw, 1rem);
+    line-height: 1;
+    border-radius: 999px;
+    border: 1.5px solid currentColor;
+    background: rgba(0, 0, 0, 0.5);
+    pointer-events: none;
+}
+
+.crux-badge[data-owner="light"] {
+    color: #f5efe0;
+    background: rgba(255, 245, 220, 0.2);
+}
+
+.crux-badge[data-owner="dark"] {
+    color: #b19cff;
+    background: rgba(80, 50, 130, 0.4);
+}

@@ -36,6 +36,8 @@ export class BoardCell {
     readonly dim = input<boolean>(false);
     /** Part of the row/column cross of the currently-hovered rune. */
     readonly inCross = input<boolean>(false);
+    /** Crux control badge: signed flux lead + the side that controls the Zone. */
+    readonly cruxBadge = input<{ text: string; owner: 'light' | 'dark' } | null>(null);
 
     readonly element = computed<Element | null>(() => this.zone()?.element ?? null);
     readonly rune = computed(() => this.cell().rune);

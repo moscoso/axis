@@ -8,6 +8,9 @@
 
 @if (cell().hasCrux) {
     <div class="crux" [attr.aria-label]="'Crux of ' + element()">{{ cruxSymbol() }}</div>
+    @if (cruxBadge(); as badge) {
+        <div class="crux-badge" [attr.data-owner]="badge.owner">{{ badge.text }}</div>
+    }
 }
 
 @if (rune(); as r) {

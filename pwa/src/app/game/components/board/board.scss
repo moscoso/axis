@@ -11,10 +11,11 @@
     flex: 0 0 auto;
 }
 
-.grid {
+.frame {
+    --edge: clamp(16px, 5cqw, 32px);
     display: grid;
-    grid-template-columns: repeat(6, 1fr);
-    grid-template-rows: repeat(6, 1fr);
+    grid-template-columns: var(--edge) repeat(6, 1fr) var(--edge);
+    grid-template-rows: var(--edge) repeat(6, 1fr) var(--edge);
     width: 100%;
     height: 100%;
     gap: 2px;
@@ -28,6 +29,37 @@
     box-shadow:
         0 0 60px rgba(120, 100, 220, 0.15),
         inset 0 0 40px rgba(0, 0, 0, 0.6);
+}
+
+/**
+ * Edge axis tallies: friendly-rune counts per row/column, one side per pair of
+ * edges — light owns the top + left, dark owns the bottom + right. A player's
+ * discount on an empty cell is its column tally + row tally on their two edges,
+ * so each player reads their own discount field from the sides flanking them.
+ */
+.tally,
+.corner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-display, sans-serif);
+    font-size: clamp(0.55rem, 1.7cqw, 0.85rem);
+    font-weight: 700;
+    line-height: 1;
+    user-select: none;
+}
+
+.tally.light {
+    color: #f5efe0;
+}
+
+.tally.dark {
+    color: #b19cff;
+}
+
+/* Empty lines fade out so the active discount lines are the signal. */
+.tally.zero {
+    opacity: 0.22;
 }
 
 .empty {
