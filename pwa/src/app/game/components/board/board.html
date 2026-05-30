@@ -24,27 +24,28 @@
         @if (showGuides()) {
             <!--
               Discount guides: friendly-rune tally per line, as thin overlay rails
-              aligned to the grid tracks. Light owns top + left, Dark owns bottom +
-              right, so each side reads its discount field from the edges flanking it.
+              aligned to the grid tracks. Seat-relative — the perspective player
+              owns bottom + left (nearest them), the opponent owns top + right.
+              Colour still encodes the actual side.
             -->
             <div class="rail top" aria-hidden="true">
                 @for (c of axis; track c) {
-                    <span class="tally light" [class.zero]="tallies().cols[c].light === 0">{{ tallies().cols[c].light }}</span>
+                    <span class="tally" [class.light]="topSide() === 'light'" [class.dark]="topSide() === 'dark'" [class.zero]="colTally(c, topSide()) === 0">{{ colTally(c, topSide()) }}</span>
                 }
             </div>
             <div class="rail bottom" aria-hidden="true">
                 @for (c of axis; track c) {
-                    <span class="tally dark" [class.zero]="tallies().cols[c].dark === 0">{{ tallies().cols[c].dark }}</span>
+                    <span class="tally" [class.light]="bottomSide() === 'light'" [class.dark]="bottomSide() === 'dark'" [class.zero]="colTally(c, bottomSide()) === 0">{{ colTally(c, bottomSide()) }}</span>
                 }
             </div>
             <div class="rail left" aria-hidden="true">
                 @for (r of axis; track r) {
-                    <span class="tally light" [class.zero]="tallies().rows[r].light === 0">{{ tallies().rows[r].light }}</span>
+                    <span class="tally" [class.light]="bottomSide() === 'light'" [class.dark]="bottomSide() === 'dark'" [class.zero]="rowTally(r, bottomSide()) === 0">{{ rowTally(r, bottomSide()) }}</span>
                 }
             </div>
             <div class="rail right" aria-hidden="true">
                 @for (r of axis; track r) {
-                    <span class="tally dark" [class.zero]="tallies().rows[r].dark === 0">{{ tallies().rows[r].dark }}</span>
+                    <span class="tally" [class.light]="topSide() === 'light'" [class.dark]="topSide() === 'dark'" [class.zero]="rowTally(r, topSide()) === 0">{{ rowTally(r, topSide()) }}</span>
                 }
             </div>
         }

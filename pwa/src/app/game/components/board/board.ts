@@ -68,6 +68,23 @@ export class Board {
         return { rows, cols };
     });
 
+    /**
+     * Guide-rail seat assignment. The perspective player sits at the bottom, so
+     * their tallies hug the bottom + left rails (nearest them); the opponent's
+     * sit on the top + right. Falls back to light-at-bottom for spectators.
+     * Colour still tracks the actual side; only the *position* is perspective-
+     * relative.
+     */
+    readonly bottomSide = computed<PlayerSide>(() => this.player() ?? 'light');
+    readonly topSide = computed<PlayerSide>(() => (this.bottomSide() === 'light' ? 'dark' : 'light'));
+
+    colTally(c: number, side: PlayerSide): number {
+        return this.tallies().cols[c][side];
+    }
+    rowTally(r: number, side: PlayerSide): number {
+        return this.tallies().rows[r][side];
+    }
+
     /** Total payment value the active player could put down from their current hand. */
     readonly maxPayment = computed(() => {
         const player = this.player();
