@@ -1,13 +1,19 @@
 import { Bot, HeuristicBot, RandomBot, runSeries, SeriesResult } from '../src/Player/Bot';
+import { DEFAULT_OPTIONS, GameOptions } from '../src/Game/GameOptions';
 
 const GAMES = Number(process.argv[2] ?? 20);
 
-function bench(label: string, lightFactory: () => Bot, darkFactory: () => Bot): SeriesResult {
+function bench(
+	label: string,
+	lightFactory: () => Bot,
+	darkFactory: () => Bot,
+	gameOptions: GameOptions = DEFAULT_OPTIONS,
+): SeriesResult {
 	const t0 = Date.now();
 	// Play both match-ups so side-bias (Light goes first) doesn't skew the result.
 	const half = Math.max(1, Math.floor(GAMES / 2));
-	const forward = runSeries({ light: lightFactory(), dark: darkFactory(), games: half });
-	const reverse = runSeries({ light: darkFactory(), dark: lightFactory(), games: GAMES - half });
+	const forward = runSeries({ light: lightFactory(), dark: darkFactory(), games: half, gameOptions });
+	const reverse = runSeries({ light: darkFactory(), dark: lightFactory(), games: GAMES - half, gameOptions });
 	const ms = Date.now() - t0;
 
 	// "A" = whoever the first factory built; "B" = the second, regardless of side.
@@ -44,9 +50,17 @@ bench(
 );
 
 bench(
-	'Heuristic vs Random (target: >55% for Heuristic)',
+	'Heuristic vs Random — Affinity ON (target: >55% for Heuristic)',
 	() => new HeuristicBot({ name: 'Heur' }),
 	() => new RandomBot({ name: 'Rand' }),
+	{ ...DEFAULT_OPTIONS, affinity: true },
+);
+
+bench(
+	'Heuristic vs Random — Affinity OFF (isolates Affinity\'s effect)',
+	() => new HeuristicBot({ name: 'Heur' }),
+	() => new RandomBot({ name: 'Rand' }),
+	{ ...DEFAULT_OPTIONS, affinity: false },
 );
 
 console.log();
