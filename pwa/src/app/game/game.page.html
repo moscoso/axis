@@ -27,13 +27,6 @@
                     (click)="onDrawFromDeck()">
                 Draw from deck
             </button>
-            <button mat-flat-button
-                    color="primary"
-                    type="button"
-                    [disabled]="!isMyTurn() || !inMainTurn()"
-                    (click)="onEndTurn()">
-                End turn
-            </button>
         }
         <button type="button" class="settings-btn" aria-label="Settings" title="Settings" (click)="openSettings()">⚙</button>
         <app-user-badge></app-user-badge>

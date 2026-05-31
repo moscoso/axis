@@ -278,12 +278,6 @@ export class GamePage {
         this.dealer.signalAsPlayer(clientGameCommand('DrawCard', params));
     }
 
-    onEndTurn(): void {
-        if (!this.isMyTurn() || !this.inMainTurn()) return;
-        const command = clientGameCommand('EndTurn', { player: this.mySide() });
-        this.dealer.signalAsPlayer(command);
-    }
-
     onDraftSubmitted(cardIds: [string, string]): void {
         const command = clientGameCommand('DraftCards', { player: 'dark', cardIds });
         this.dealer.signalAsPlayer(command);
