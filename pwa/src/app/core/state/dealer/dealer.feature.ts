@@ -56,10 +56,15 @@ function applyEventSnapshots(state: DealerState, action: Action): DealerState {
         return state;
     }
 
+    const mergedGame = event.game ?? state.game;
     const next: DealerState = {
         ...state,
-        game: event.game ?? state.game,
+        game: mergedGame,
         table: event.table ?? state.table,
+        // A fresh, in-progress game has no dismissed victory screen — reset the
+        // flag so the modal shows again on the next game-over. Without this it
+        // stays suppressed forever after the first dismissal (rematches break).
+        victoryScreenClosed: victoryClosedFor(state.victoryScreenClosed, mergedGame),
     };
 
     if (isEvent) {
@@ -72,6 +77,16 @@ function applyEventSnapshots(state: DealerState, action: Action): DealerState {
     }
 
     return next;
+}
+
+/**
+ * Keep `victoryScreenClosed` true only while the game it was dismissed for is
+ * still terminal. Any non-terminal game snapshot (a new game began) clears it.
+ */
+function victoryClosedFor(prevClosed: boolean, game: Game | undefined): boolean {
+    if (!game) return prevClosed;
+    const terminal = game.winReason !== null || game.phase === 'game-over';
+    return terminal ? prevClosed : false;
 }
 
 function toEpochMs(ts: Date | string | number | undefined): number {
