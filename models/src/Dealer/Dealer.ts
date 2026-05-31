@@ -94,9 +94,19 @@ export class Dealer {
 		return result;
 	}
 
-	/** Resets the game aggregate to its initial state and clears its event log. */
+	/**
+	 * Reset the game aggregate to its initial state (the lobby) and push the
+	 * fresh state to the room. The broadcast matters when nothing follows to
+	 * carry the update — e.g. "New Game" / Table Cleaned — otherwise clients
+	 * never learn the reset and stay stuck on the game-over screen. (Play Again
+	 * follows this with StartGame, whose own broadcast lands the new game.)
+	 */
 	public resetGame(): void {
 		this.game.reset();
+		this.broadcaster?.to(this.roomId).emit('DeltaUpdate', {
+			game: this.gameState,
+			table: this.tableState,
+		});
 	}
 
 	/**

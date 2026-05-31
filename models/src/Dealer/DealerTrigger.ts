@@ -39,7 +39,9 @@ export const DEALER_TRIGGERS: DealerTrigger[] = [
 	},
 
 	/**
-	 * Reset the game state when the table is cleaned so the next session starts fresh.
+	 * Reset the game when the table is cleaned so the next session starts fresh.
+	 * resetGame broadcasts the reset, so "New Game" actually returns clients to
+	 * the lobby instead of leaving them stuck on the game-over view.
 	 */
 	{
 		on:    ['Table Cleaned'],
