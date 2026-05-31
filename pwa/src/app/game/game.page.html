@@ -5,7 +5,7 @@
 <header class="top">
     <h1>AXIS</h1>
     @if (!inLobby()) {
-        <app-turn-indicator [currentTurn]="currentTurn()" [phase]="phase()"></app-turn-indicator>
+        <app-turn-indicator [currentTurn]="currentTurn()" [phase]="phase()" [drawsRequired]="requiredDraws()"></app-turn-indicator>
     }
     <div class="top-actions">
         @if (isGameOver()) {

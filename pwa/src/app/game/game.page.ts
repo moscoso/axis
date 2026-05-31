@@ -119,6 +119,8 @@ export class GamePage {
     readonly darkPlayer = computed(() => this.game().players.dark);
     readonly pendingDraws = computed(() => this.game().pendingDraws);
     readonly pendingStartOfTurnDraws = computed(() => this.game().pendingStartOfTurnDraws);
+    /** Total cards the active player must draw before they may inscribe. */
+    readonly requiredDraws = computed(() => this.pendingDraws() + this.pendingStartOfTurnDraws());
 
     /** Opponent of mySide — used for the top-hand perspective. */
     readonly opponentSide = computed<PlayerSide>(() =>
