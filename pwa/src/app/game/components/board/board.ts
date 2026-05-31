@@ -97,11 +97,14 @@ export class Board {
         if (!player) return 0;
         const g = this.game();
         const cell = g.board[pos.row]?.[pos.col];
-        const element = cell ? this.zoneFor(cell.zoneId)?.element : undefined;
-        if (!cell || !element) return 0;
+        if (!cell) return 0;
+        // Affinity makes a card's value Zone-dependent; null when the toggle is off
+        // (Bond still applies). Don't bail on a missing zone — Bond is independent.
+        const zoneElement = this.zoneFor(cell.zoneId)?.element ?? null;
+        const targetElement = g.options.affinity ? zoneElement : null;
         const controlled = getControlledElements(g, player);
         const values = g.players[player].hand
-            .map(card => getCardValue(card, element, controlled))
+            .map(card => getCardValue(card, targetElement, controlled))
             .sort((a, b) => b - a);
         const limit = Math.min(getBaseCost(cell), values.length);
         let sum = 0;

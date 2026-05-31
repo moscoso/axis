@@ -17,10 +17,19 @@ export interface GameOptions {
 	 * glyphs are generated and the board uses only +, ▲, ◇ (legacy behavior).
 	 */
 	shiftGlyphs: boolean;
+
+	/**
+	 * When true (default), a card counts as 2 (cost + activations) when inscribed
+	 * on a space in its own element's Zone (Affinity). When false, only Bond —
+	 * controlling the matching Crux — doubles a card's value. A design-exploration
+	 * toggle for comparing play (and bot strength) with and without Affinity.
+	 */
+	affinity: boolean;
 }
 
-/** The baseline rules — matches the rulebook with no house variants applied. */
+/** The baseline rules — matches the rulebook (Affinity on; no house variants). */
 export const DEFAULT_OPTIONS: GameOptions = Object.freeze<GameOptions>({
 	startOfTurnDraws: 0,
 	shiftGlyphs: false,
+	affinity: true,
 });

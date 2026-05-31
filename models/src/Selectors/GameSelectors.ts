@@ -41,18 +41,19 @@ export function getControlledElements(state: Game, player: PlayerSide): Element[
 /**
  * Effective payment/activation value of a card when inscribing on a space whose
  * Zone has element `targetElement`:
- * - **Affinity** — a card is worth 2 in its own element's Zone, always.
+ * - **Affinity** — a card is worth 2 in its own element's Zone. Pass `null` for
+ *   `targetElement` to disable Affinity (the `options.affinity` toggle off).
  * - **Bond** — while you control a Crux, that element's cards are worth 2 in ANY
- *   Zone, not just their home.
+ *   Zone, not just their home. Always applies, independent of Affinity.
  * Otherwise 1. A card is never worth more than 2; the two effects don't stack.
  */
 export function getCardValue(
-	card: Card, 
-	targetElement: Element, 
+	card: Card,
+	targetElement: Element | null,
 	controlledElements: Element[]
 ): 1 | 2 {
-	if (card.element === targetElement) return 2;            // Affinity (home Zone)
-	if (controlledElements.includes(card.element)) return 2; // Bond (controlled Crux, any Zone)
+	if (targetElement !== null && card.element === targetElement) return 2; // Affinity (home Zone)
+	if (controlledElements.includes(card.element)) return 2;                // Bond (controlled Crux, any Zone)
 	return 1;
 }
 
@@ -164,7 +165,7 @@ export function hasAnyLegalMove(state: Game, player: PlayerSide): boolean {
 			if (discountedCost === 0) return true;
 
 			// Card values are Zone-dependent (Affinity), so rank per target.
-			const targetElement = getZoneForPosition(state, position).element;
+			const targetElement = state.options.affinity ? getZoneForPosition(state, position).element : null;
 			const sortedValues = hand
 				.map(card => getCardValue(card, targetElement, controlled))
 				.sort((a, b) => b - a);

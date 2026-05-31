@@ -9,4 +9,13 @@
         Shift Glyphs
         <span class="state">{{ shiftGlyphs() ? 'On' : 'Off' }}</span>
     </button>
+    <button type="button"
+            class="toggle"
+            [class.active]="affinity()"
+            [disabled]="disabled()"
+            [attr.aria-pressed]="affinity()"
+            (click)="toggleAffinity()">
+        Affinity
+        <span class="state">{{ affinity() ? 'On' : 'Off' }}</span>
+    </button>
 </div>

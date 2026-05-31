@@ -23,12 +23,22 @@ export class OptionsSelector {
 
     readonly disabled = computed(() => this.userId() === 'unknown');
     readonly shiftGlyphs = computed(() => this.current().shiftGlyphs);
+    readonly affinity = computed(() => this.current().affinity);
 
     toggleShiftGlyphs(): void {
         if (this.disabled()) return;
         const command = clientTableCommand('SetOptions', {
             userId: this.userId(),
             options: { shiftGlyphs: !this.shiftGlyphs() },
+        });
+        this.dealer.signalAsHost(command);
+    }
+
+    toggleAffinity(): void {
+        if (this.disabled()) return;
+        const command = clientTableCommand('SetOptions', {
+            userId: this.userId(),
+            options: { affinity: !this.affinity() },
         });
         this.dealer.signalAsHost(command);
     }

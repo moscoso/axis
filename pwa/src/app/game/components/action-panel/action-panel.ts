@@ -75,7 +75,8 @@ export class ActionPanel {
     readonly paidCardValues = computed<number[]>(() => {
         const t = this.target();
         if (!t) return [];
-        const targetElement = getZoneForPosition(this.game(), t).element;
+        const g = this.game();
+        const targetElement = g.options.affinity ? getZoneForPosition(g, t).element : null;
         const controlled = this.controlledElements();
         return this.paidCards().map(c => getCardValue(c, targetElement, controlled));
     });

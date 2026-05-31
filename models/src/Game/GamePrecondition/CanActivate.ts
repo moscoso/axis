@@ -22,7 +22,7 @@ export const CAN_ACTIVATE: GamePreconditionValidator = (
 ) => {
 	const cell = game.board[target.row][target.col];
 	const controlledElements = getControlledElements(game, player);
-	const targetElement = getZoneForPosition(game, target).element;
+	const targetElement = game.options.affinity ? getZoneForPosition(game, target).element : null;
 	const hand = game.players[player].hand;
 
 	const paymentValue = paidCardIds.reduce((sum, id) => {
