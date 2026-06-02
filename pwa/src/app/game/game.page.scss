@@ -29,7 +29,7 @@
  * victory) are intentionally excluded so their own `position: fixed` and
  * high z-index can float above everything without being clobbered here.
  */
-:host > *:not(.bg):not(app-draft-overlay):not(app-victory-modal):not(app-settings-modal) {
+:host > *:not(.bg):not(app-draft-overlay):not(app-victory-modal):not(app-settings):not(app-event-log) {
     position: relative;
     z-index: 1;
 }
@@ -65,7 +65,7 @@
     flex-shrink: 0;
 }
 
-.settings-btn {
+.icon-btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -81,9 +81,12 @@
     transition: background 120ms ease, color 120ms ease, transform 120ms ease;
 }
 
-.settings-btn:hover {
+.icon-btn:hover {
     background: rgba(255, 255, 255, 0.12);
     color: #fff;
+}
+
+.settings-btn:hover {
     transform: rotate(30deg);
 }
 

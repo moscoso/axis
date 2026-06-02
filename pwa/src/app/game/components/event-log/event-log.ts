@@ -1,17 +1,21 @@
-import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, output } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { DealerFacade } from '../../../core/state/dealer/dealer.facade';
 import { EventLogEntry } from '../../../core/state/dealer/dealer.state';
+import { Drawer } from '../drawer/drawer';
 
 @Component({
     selector: 'app-event-log',
     standalone: true,
+    imports: [Drawer],
     templateUrl: './event-log.html',
     styleUrls: ['./event-log.scss'],
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class EventLog {
     private readonly dealer = inject(DealerFacade);
+
+    readonly close = output<void>();
 
     private readonly events = toSignal(this.dealer.selectState('events'), {
         initialValue: [] as EventLogEntry[],
@@ -25,6 +29,10 @@ export class EventLog {
 
     trackById(_: number, entry: EventLogEntry): number {
         return entry.id;
+    }
+
+    onClose(): void {
+        this.close.emit();
     }
 
     formatTime(at: number): string {

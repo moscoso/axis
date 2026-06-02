@@ -1,11 +1,4 @@
-<div class="scrim" (click)="onClose()"></div>
-
-<div class="drawer" role="dialog" aria-label="Settings">
-    <header>
-        <span class="banner">Settings</span>
-        <button type="button" class="x" aria-label="Close settings" (click)="onClose()">✕</button>
-    </header>
-
+<app-drawer title="Settings" side="left" (close)="onClose()">
     <div class="rows">
         <div class="row">
             <div class="meta">
@@ -49,8 +42,8 @@
         </div>
     </div>
 
-    <footer>
+    <footer drawerFooter>
         <button type="button" class="reset" (click)="reset()">Reset to defaults</button>
         <button type="button" class="done" (click)="onClose()">Done</button>
     </footer>
-</div>
+</app-drawer>

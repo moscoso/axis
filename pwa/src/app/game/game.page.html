@@ -28,7 +28,8 @@
                 Draw from deck
             </button>
         }
-        <button type="button" class="settings-btn" aria-label="Settings" title="Settings" (click)="openSettings()">⚙</button>
+        <button type="button" class="icon-btn log-btn" aria-label="Event log" title="Event log" (click)="openEventLog()">📜</button>
+        <button type="button" class="icon-btn settings-btn" aria-label="Settings" title="Settings" (click)="openSettings()">⚙</button>
         <app-user-badge></app-user-badge>
         <app-logout-button></app-logout-button>
     </div>
@@ -113,7 +114,6 @@
                 (cancel)="onCancelInscribe()"
                 (activationChanged)="onActivationChanged($event)">
             </app-action-panel>
-            <app-event-log></app-event-log>
         </aside>
     </div>
 } @else {
@@ -129,7 +129,11 @@
 }
 
 @if (settingsOpen()) {
-    <app-settings-modal (close)="closeSettings()"></app-settings-modal>
+    <app-settings (close)="closeSettings()"></app-settings>
+}
+
+@if (eventLogOpen()) {
+    <app-event-log (close)="closeEventLog()"></app-event-log>
 }
 
 @if (showVictory()) {

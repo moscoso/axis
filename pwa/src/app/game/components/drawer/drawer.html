@@ -1,0 +1,14 @@
+<div class="scrim" (click)="onClose()"></div>
+
+<div class="drawer" [attr.data-side]="side()" role="dialog" [attr.aria-label]="title()">
+    <header>
+        <span class="banner">{{ title() }}</span>
+        <button type="button" class="x" aria-label="Close" (click)="onClose()">✕</button>
+    </header>
+
+    <div class="body">
+        <ng-content></ng-content>
+    </div>
+
+    <ng-content select="[drawerFooter]"></ng-content>
+</div>

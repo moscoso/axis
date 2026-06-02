@@ -37,7 +37,7 @@ import { Hand } from './components/hand/hand';
 import { Lobby } from './components/lobby/lobby';
 import { PlayerPanel } from './components/player-panel/player-panel';
 import { RiftTrack } from './components/rift-track/rift-track';
-import { SettingsModal } from './components/settings-modal/settings-modal';
+import { Settings } from './components/settings/settings';
 import { TurnIndicator } from './components/turn-indicator/turn-indicator';
 import { VictoryModal } from './components/victory-modal/victory-modal';
 
@@ -59,7 +59,7 @@ import { VictoryModal } from './components/victory-modal/victory-modal';
         MatButtonModule,
         PlayerPanel,
         RiftTrack,
-        SettingsModal,
+        Settings,
         TurnIndicator,
         UserBadge,
         VictoryModal,
@@ -84,6 +84,15 @@ export class GamePage {
     }
     closeSettings(): void {
         this.settingsOpen.set(false);
+    }
+
+    /** Event log drawer visibility. */
+    readonly eventLogOpen = signal(false);
+    openEventLog(): void {
+        this.eventLogOpen.set(true);
+    }
+    closeEventLog(): void {
+        this.eventLogOpen.set(false);
     }
 
     readonly game = toSignal(this.dealer.selectGame(), { requireSync: false, initialValue: INIT_GAME_STATE });
