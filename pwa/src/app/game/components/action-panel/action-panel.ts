@@ -7,7 +7,7 @@ import {
     Position,
     getBaseCost,
     getCardValue,
-    getControlledElements,
+    getBondElements,
     getDiscountedCost,
     getZoneForPosition,
 } from 'axis-models';
@@ -69,7 +69,7 @@ export class ActionPanel {
     });
 
     readonly controlledElements = computed(() =>
-        getControlledElements(this.game(), this.player())
+        getBondElements(this.game(), this.player())
     );
 
     readonly paidCardValues = computed<number[]>(() => {

@@ -39,13 +39,18 @@ export function getControlledElements(state: Game, player: PlayerSide): Element[
 }
 
 /**
- * Effective payment/activation value of a card when inscribing on a space whose
- * Zone has element `targetElement`:
- * - **Affinity** — a card is worth 2 in its own element's Zone. Pass `null` for
- *   `targetElement` to disable Affinity (the `options.affinity` toggle off).
- * - **Bond** — while you control a Crux, that element's cards are worth 2 in ANY
- *   Zone, not just their home. Always applies, independent of Affinity.
- * Otherwise 1. A card is never worth more than 2; the two effects don't stack.
+ * Crux-controlled elements that confer Bond to `player`, or `[]` when the Bond
+ * bonus is off. Feed straight into {@link getCardValue} as `controlledElements`.
+ */
+export function getBondElements(state: Game, player: PlayerSide): Element[] {
+	return state.options.cruxBonus.bond ? getControlledElements(state, player) : [];
+}
+
+/**
+ * A card's payment/activation value (capped at 2): worth 2 via Affinity (in its
+ * home Zone — pass `null` `targetElement` to disable) or Bond (its element's Crux
+ * controlled — pass `[]` `controlledElements` to disable, or {@link getBondElements}
+ * to honor the toggle). Otherwise 1; the two never stack.
  */
 export function getCardValue(
 	card: Card,
@@ -152,7 +157,7 @@ export function hasAnyLegalMove(state: Game, player: PlayerSide): boolean {
 	if (state.pendingDraws > 0 || state.pendingStartOfTurnDraws > 0) return false;
 
 	const hand = state.players[player].hand;
-	const controlled = getControlledElements(state, player);
+	const controlled = getBondElements(state, player);
 
 	for (let r = 0; r < state.board.length; r++) {
 		for (let c = 0; c < state.board[r].length; c++) {

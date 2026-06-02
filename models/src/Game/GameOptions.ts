@@ -1,35 +1,33 @@
 /**
- * Tunable rules for a single AXIS game. Baked into {@link Game} at
- * {@link StartGame} time so every command sees them without cross-lookup.
- * New options live here as plain number/boolean fields; UI can expose them in
- * the lobby later.
+ * Tunable rules for a single AXIS game, baked into {@link Game} at
+ * {@link StartGame} time so commands read them without cross-lookup.
  */
 export interface GameOptions {
-	/**
-	 * Draws granted at the start of each player's main turn. They must be
-	 * resolved before the main action (Inscribe or Draw). 0 = vanilla rules.
-	 */
+	/** Draws at the start of each main turn, resolved before acting. 0 = vanilla. */
 	startOfTurnDraws: number;
 
-	/**
-	 * When true, the board is dealt with shift glyphs (↑ → ↓ ←) and activating
-	 * one slides its row/column with edge wraparound. When false, no shift
-	 * glyphs are generated and the board uses only +, ▲, ◇ (legacy behavior).
-	 */
+	/** Deal shift glyphs (↑→↓←) that slide their row/column (wrapping) when activated. */
 	shiftGlyphs: boolean;
 
-	/**
-	 * When true (default), a card counts as 2 (cost + activations) when inscribed
-	 * on a space in its own element's Zone (Affinity). When false, only Bond —
-	 * controlling the matching Crux — doubles a card's value. A design-exploration
-	 * toggle for comparing play (and bot strength) with and without Affinity.
-	 */
+	/** A card counts as 2 (cost + activations) in its own element's Zone. */
 	affinity: boolean;
+
+	/** Perks for controlling a Crux; each toggles independently. */
+	cruxBonus: CruxBonus;
 }
 
-/** The baseline rules — matches the rulebook (Affinity on; no house variants). */
+/** Independent rewards for controlling a Crux. */
+export interface CruxBonus {
+	/** That element's cards count as 2 in ANY Zone. */
+	bond: boolean;
+	/** When an opponent inscribes inside a Zone you control, the Rift tugs +1 toward you. */
+	force: boolean;
+}
+
+/** Baseline rulebook (v17) config: Affinity + Crux Force on, Bond off. */
 export const DEFAULT_OPTIONS: GameOptions = Object.freeze<GameOptions>({
 	startOfTurnDraws: 0,
 	shiftGlyphs: false,
 	affinity: true,
+	cruxBonus: Object.freeze({ bond: false, force: true }),
 });

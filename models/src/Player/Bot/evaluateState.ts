@@ -12,7 +12,11 @@ import { PlayerSide } from '../Player';
  * Rough rationale for the defaults (high → low importance):
  *   - `win` / `loss` dominate everything else: a forced win is always best.
  *   - `cruxControl` reflects Fluxmate pressure — owning all 4 Cruxes wins.
- *   - `rift` pushes the ±8 Rift Break track.
+ *   - `rift` pushes the ±8 Rift Break track. (The Crux Force tax — a Rune in an
+ *     opponent-controlled Zone tugs the Rift toward that owner — needs no weight
+ *     of its own: lookahead simulates the inscription, the reducer moves the
+ *     Rift, and this term scores the result. Holding the Crux is valued via
+ *     `cruxControl`, so its deterrent threat is already priced in.)
  *   - `auraScore` rewards null runes inside a controlled Zone (the
  *     tiebreaker bonus in last-rune scoring).
  *   - `cruxFlux` rewards raw flux sitting on Crux rows/cols — precedes

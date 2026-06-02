@@ -18,4 +18,22 @@
         Affinity
         <span class="state">{{ affinity() ? 'On' : 'Off' }}</span>
     </button>
+    <button type="button"
+            class="toggle"
+            [class.active]="bond()"
+            [disabled]="disabled()"
+            [attr.aria-pressed]="bond()"
+            (click)="toggleBond()">
+        Bond
+        <span class="state">{{ bond() ? 'On' : 'Off' }}</span>
+    </button>
+    <button type="button"
+            class="toggle"
+            [class.active]="force()"
+            [disabled]="disabled()"
+            [attr.aria-pressed]="force()"
+            (click)="toggleForce()">
+        Crux Force
+        <span class="state">{{ force() ? 'On' : 'Off' }}</span>
+    </button>
 </div>

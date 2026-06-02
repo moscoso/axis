@@ -24,22 +24,18 @@ export class OptionsSelector {
     readonly disabled = computed(() => this.userId() === 'unknown');
     readonly shiftGlyphs = computed(() => this.current().shiftGlyphs);
     readonly affinity = computed(() => this.current().affinity);
+    readonly bond = computed(() => this.current().cruxBonus.bond);
+    readonly force = computed(() => this.current().cruxBonus.force);
 
-    toggleShiftGlyphs(): void {
-        if (this.disabled()) return;
-        const command = clientTableCommand('SetOptions', {
-            userId: this.userId(),
-            options: { shiftGlyphs: !this.shiftGlyphs() },
-        });
-        this.dealer.signalAsHost(command);
-    }
+    toggleShiftGlyphs(): void { this.patch({ shiftGlyphs: !this.shiftGlyphs() }); }
+    toggleAffinity(): void { this.patch({ affinity: !this.affinity() }); }
 
-    toggleAffinity(): void {
+    // cruxBonus is merged shallowly, so send the whole sub-object each time.
+    toggleBond(): void { this.patch({ cruxBonus: { ...this.current().cruxBonus, bond: !this.bond() } }); }
+    toggleForce(): void { this.patch({ cruxBonus: { ...this.current().cruxBonus, force: !this.force() } }); }
+
+    private patch(options: Partial<GameOptions>): void {
         if (this.disabled()) return;
-        const command = clientTableCommand('SetOptions', {
-            userId: this.userId(),
-            options: { affinity: !this.affinity() },
-        });
-        this.dealer.signalAsHost(command);
+        this.dealer.signalAsHost(clientTableCommand('SetOptions', { userId: this.userId(), options }));
     }
 }

@@ -6,7 +6,7 @@ import {
     Zone,
     getBaseCost,
     getCardValue,
-    getControlledElements,
+    getBondElements,
     getDiscountedCost,
     getFluxTotalForCruxLines,
 } from 'axis-models';
@@ -102,7 +102,7 @@ export class Board {
         // (Bond still applies). Don't bail on a missing zone — Bond is independent.
         const zoneElement = this.zoneFor(cell.zoneId)?.element ?? null;
         const targetElement = g.options.affinity ? zoneElement : null;
-        const controlled = getControlledElements(g, player);
+        const controlled = getBondElements(g, player);
         const values = g.players[player].hand
             .map(card => getCardValue(card, targetElement, controlled))
             .sort((a, b) => b - a);

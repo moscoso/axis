@@ -7,7 +7,7 @@ import { GameCommand, clientGameCommand } from '../Game/GameCommand/GameCommand'
 import {
 	getBaseCost,
 	getCardValue,
-	getControlledElements,
+	getBondElements,
 	getDiscountedCost,
 	getZoneForPosition,
 } from './GameSelectors';
@@ -82,7 +82,7 @@ function enumerateDraws(state: Game, side: PlayerSide): GameCommand[] {
 function enumerateInscribes(state: Game, side: PlayerSide): GameCommand[] {
 	const moves: GameCommand[] = [];
 	const hand = state.players[side].hand;
-	const controlled = getControlledElements(state, side);
+	const controlled = getBondElements(state, side);
 
 	for (let r = 0; r < state.board.length; r++) {
 		for (let c = 0; c < state.board[r].length; c++) {
@@ -138,7 +138,7 @@ function forEachPaymentSubset(
 	hand: Card[],
 	maxSize: number,
 	targetElement: Element | null,
-	controlled: ReturnType<typeof getControlledElements>,
+	controlled: ReturnType<typeof getBondElements>,
 	visit: (subset: Card[], paymentValue: number) => void
 ): void {
 	const n = hand.length;

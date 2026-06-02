@@ -1,7 +1,7 @@
 import { PlayerSide } from '../../Player/Player';
 import { Position } from '../../Zone/Zone';
 import { Glyph } from '../../Glyph/Glyph';
-import { getCardValue, getControlledElements, getZoneForPosition } from '../../Selectors/GameSelectors';
+import { getCardValue, getBondElements, getZoneForPosition } from '../../Selectors/GameSelectors';
 import { Game } from '../Game';
 import { GameError } from '../GameError/GameError';
 import { GamePreconditionValidator } from './GamePrecondition';
@@ -21,7 +21,7 @@ export const CAN_ACTIVATE: GamePreconditionValidator = (
 	}
 ) => {
 	const cell = game.board[target.row][target.col];
-	const controlledElements = getControlledElements(game, player);
+	const controlledElements = getBondElements(game, player);
 	const targetElement = game.options.affinity ? getZoneForPosition(game, target).element : null;
 	const hand = game.players[player].hand;
 
