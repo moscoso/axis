@@ -1,9 +1,15 @@
 :host {
-    color: white;
-    text-align: right;
-    position: absolute;
-    right: 0;
-    top: 100px;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.3rem 0.6rem;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 0.8rem;
+    line-height: 1;
+    white-space: nowrap;
 }
 
 .medium-latency {
@@ -15,12 +21,12 @@
 }
 
 .socket-connection {
-    float: right;
-    width: 30px;
-    height: 30px;
+    width: 18px;
+    height: 18px;
+    display: block;
 }
 
 .disconnected {
-    width: 50px;
-    height: 50px;
+    width: 18px;
+    height: 18px;
 }
