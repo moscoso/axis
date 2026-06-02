@@ -1,8 +1,8 @@
 :host {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
-    padding: 0.75rem;
+    justify-content: center;
+    padding: 0.6rem;
     border-radius: 10px;
     background: rgba(255, 255, 255, 0.03);
     border: 1px solid rgba(255, 255, 255, 0.08);
@@ -11,75 +11,26 @@
     box-sizing: border-box;
 }
 
-/** Compact mode: stack the piles above/below the display column and shrink tiles. */
-:host([data-compact="true"]) {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 0.5rem;
-    padding: 0.5rem;
-}
-
-.pile {
+/* Display cards and the deck sit together on a single row. */
+.row {
     display: flex;
-    flex-direction: column;
-    align-items: center;
+    flex-wrap: nowrap;
+    align-items: flex-start;
     justify-content: center;
-    width: 4.5rem;
-    height: 6.25rem;
-    border-radius: 8px;
-    border: 2px dashed rgba(255, 255, 255, 0.25);
-    color: rgba(255, 255, 255, 0.7);
-    font-size: 0.75rem;
-    letter-spacing: 0.1em;
-    flex-shrink: 0;
-}
-
-:host([data-compact="true"]) .pile {
-    flex-direction: row;
-    gap: 0.5rem;
-    width: 100%;
-    height: 2rem;
-    padding: 0 0.75rem;
-    box-sizing: border-box;
-    justify-content: space-between;
-    border-style: solid;
-    border-width: 1px;
-    border-radius: 6px;
-}
-
-.pile.empty {
-    opacity: 0.4;
-}
-
-.pile .label {
-    text-transform: uppercase;
-    font-family: var(--font-display);
-    font-weight: 600;
-}
-
-.pile .count {
-    font-size: 1.3rem;
-    font-weight: 700;
-    color: #fff;
-    font-variant-numeric: tabular-nums;
-}
-
-:host([data-compact="true"]) .pile .count {
-    font-size: 0.95rem;
-}
-
-.display {
-    display: flex;
-    gap: 0.5rem;
-    flex: 1;
-    justify-content: center;
-    flex-wrap: wrap;
+    gap: 0.4rem;
     min-width: 0;
 }
 
-:host([data-compact="true"]) .display {
-    justify-content: center;
-    padding: 0.25rem 0;
+.row > * {
+    flex-shrink: 0;
+}
+
+/* The deck card stacked above its discard count. */
+.deck-col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.4rem;
 }
 
 .placeholder {
@@ -87,4 +38,33 @@
     font-style: italic;
     padding: 1rem;
     text-align: center;
+}
+
+/* ── Discard: a tiny count chip beneath the deck ── */
+.discard-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.12rem 0.5rem;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: rgba(255, 255, 255, 0.55);
+    font-family: var(--font-display);
+    font-size: 0.6rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    line-height: 1;
+    white-space: nowrap;
+}
+
+.discard-chip b {
+    color: #fff;
+    font-size: 0.78rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+}
+
+.discard-chip.empty {
+    opacity: 0.4;
 }

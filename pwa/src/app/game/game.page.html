@@ -18,13 +18,6 @@
                     (click)="onNewGame()">
                 New Game
             </button>
-        } @else if (!inLobby()) {
-            <button mat-stroked-button
-                    type="button"
-                    [disabled]="!canDraw() || deckSize() === 0"
-                    (click)="onDrawFromDeck()">
-                Draw from deck
-            </button>
         }
         <button type="button" class="icon-btn log-btn" aria-label="Event log" title="Event log" (click)="openEventLog()">📜</button>
         <button type="button" class="icon-btn settings-btn" aria-label="Settings" title="Settings" (click)="openSettings()">⚙</button>
@@ -100,7 +93,8 @@
                 [discardSize]="discardSize()"
                 [selectable]="canDraw()"
                 [compact]="true"
-                (cardSelected)="onDisplayCardPicked($event)">
+                (cardSelected)="onDisplayCardPicked($event)"
+                (drawFromDeck)="onDrawFromDeck()">
             </app-card-display>
             <app-flux-scoreboard [game]="g"></app-flux-scoreboard>
             <app-action-panel
