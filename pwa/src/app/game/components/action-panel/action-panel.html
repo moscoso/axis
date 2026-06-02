@@ -19,7 +19,9 @@
         </div>
     </div>
 
-    @if (paidCardIds().size === 0) {
+    @if (handSize() === 0) {
+        <p class="hint warn ">You have no cards to activate with</p>
+    } @else if (paidCardIds().size === 0) {
         <p class="hint">Click cards in your hand to pay.</p>
     } @else if (!canPay()) {
         <p class="hint warn">Need more payment — keep adding cards.</p>

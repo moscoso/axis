@@ -62,6 +62,10 @@ export class ActionPanel {
      */
     readonly discount = computed(() => this.baseCost() - this.discountedCost());
 
+    readonly handSize = computed<number>(() =>{
+        return this.game().players[this.player()].hand.length
+    });
+
     readonly paidCards = computed<CardModel[]>(() => {
         const ids = this.paidCardIds();
         const hand = this.game().players[this.player()].hand;
