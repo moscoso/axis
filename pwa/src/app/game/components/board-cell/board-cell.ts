@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
-import { BoardCell as BoardCellModel, Element, Zone } from 'axis-models';
+import { BoardCell as BoardCellModel, Element, Rune as RuneModel, Zone } from 'axis-models';
 import { Glyph } from '../glyph/glyph';
 import { Rune } from '../rune/rune';
 
@@ -36,8 +36,14 @@ export class BoardCell {
     readonly dim = input<boolean>(false);
     /** Part of the row/column cross of the currently-hovered rune. */
     readonly inCross = input<boolean>(false);
-    /** Crux control badge: signed flux lead + the side that controls the Zone. */
-    readonly cruxBadge = input<{ text: string; owner: 'light' | 'dark' } | null>(null);
+    /**
+     * Crux control badge: signed flux lead + the side that controls the Zone.
+     * `preview` is true when this is a projected (pending-move) result — rendered
+     * dotted to distinguish it from the committed value.
+     */
+    readonly cruxBadge = input<{ text: string; owner: 'light' | 'dark' | 'unbound'; preview: boolean } | null>(null);
+    /** When set, render a semi-transparent preview rune — a "you can play here" ghost. */
+    readonly ghost = input<RuneModel | null>(null);
 
     readonly element = computed<Element | null>(() => this.zone()?.element ?? null);
     readonly rune = computed(() => this.cell().rune);

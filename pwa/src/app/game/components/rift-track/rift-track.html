@@ -7,6 +7,9 @@
     @for (n of notches(); track $index) {
         <div class="notch" [class.major]="n.major" [style.top.%]="n.top"></div>
     }
+    @if (arrow(); as a) {
+        <div class="preview-arrow" [class.down]="a.down" [class.good]="a.good" [class.bad]="!a.good" [style.top.%]="a.top" [style.height.%]="a.height"></div>
+    }
     <div class="marker" [style.top.%]="position()">
         <span class="value">
             @if (value() > 0) { +{{ value() }} } @else { {{ value() }} }

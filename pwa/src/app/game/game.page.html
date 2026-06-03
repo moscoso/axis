@@ -42,7 +42,7 @@
                 [zones]="zones()"
                 [isActive]="currentTurn() === opponentSide() && inMainTurn()">
             </app-player-panel>
-            <app-rift-track [value]="rift()" [perspective]="mySide()"></app-rift-track>
+            <app-rift-track [value]="rift()" [preview]="previewRift()" [perspective]="mySide()"></app-rift-track>
             <app-player-panel
                 [side]="mySide()"
                 [seat]="bottomSeat()"
@@ -69,6 +69,8 @@
                     [player]="mySide()"
                     [selectable]="canInscribe()"
                     [selectedCell]="selectedCell()"
+                    [previewRune]="previewRune()"
+                    [previewGame]="previewState()"
                     [showGuides]="boardGuides()"
                     (cellClicked)="onCellClick($event)">
                 </app-board>
@@ -80,6 +82,7 @@
                         [player]="p"
                         [selectable]="canInscribe()"
                         [selectedIds]="paidCardIds()"
+                        [ghostDraws]="previewDraws()"
                         (cardSelected)="onHandCardPicked($event)">
                     </app-hand>
                 }

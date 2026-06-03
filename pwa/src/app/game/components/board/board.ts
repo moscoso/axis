@@ -3,6 +3,7 @@ import {
     Game,
     PlayerSide,
     Position,
+    Rune,
     Zone,
     getBaseCost,
     getCardValue,
@@ -26,6 +27,10 @@ export class Board {
     readonly selectable = input<boolean>(false);
     /** The player whose perspective drives affordability dimming. */
     readonly player = input<PlayerSide | null>(null);
+    /** The simulated rune for the selected target — carries charged flux into the ghost. */
+    readonly previewRune = input<Rune | null>(null);
+    /** The full simulated post-inscribe state — drives the Crux flux-lead delta chips. */
+    readonly previewGame = input<Game | null>(null);
     /** Show the discount guideline edges (per-row/column rune tallies). */
     readonly showGuides = input<boolean>(true);
 
@@ -143,16 +148,33 @@ export class Board {
      * side that controls the Zone. Null for non-Crux cells and for unbound
      * Cruxes (a tie or no flux), which show no badge.
      */
-    cruxBadge(pos: Position): { text: string; owner: PlayerSide } | null {
+    cruxBadge(pos: Position): { text: string; owner: PlayerSide | 'unbound'; preview: boolean } | null {
         const g = this.game();
         const cell = g.board[pos.row]?.[pos.col];
         if (!cell?.hasCrux) return null;
-        const zone = this.zoneFor(cell.zoneId);
-        if (!zone || zone.control === 'unbound') return null;
-        const diff =
-            getFluxTotalForCruxLines(g, pos, 'light') -
-            getFluxTotalForCruxLines(g, pos, 'dark');
-        return { text: diff > 0 ? `+${diff}` : `${diff}`, owner: zone.control };
+
+        const lead = (s: Game) =>
+            getFluxTotalForCruxLines(s, pos, 'light') - getFluxTotalForCruxLines(s, pos, 'dark');
+
+        // Show the projected result when a pending placement changes this Crux's
+        // lines; otherwise the live state. The preview flag drives the dotted style.
+        const sim = this.previewGame();
+        const preview = sim !== null && lead(sim) !== lead(g);
+        const state = preview ? sim : g;
+
+        const zone = state.zones.find(
+            z => z.cruxPosition.row === pos.row && z.cruxPosition.col === pos.col
+        );
+        if (!zone) return null;
+
+        // A committed unbound Crux shows nothing; but a move that *contests* one
+        // into a tie surfaces a neutral dotted "0" so the change is still legible.
+        if (zone.control === 'unbound') {
+            return preview ? { text: '0', owner: 'unbound', preview: true } : null;
+        }
+
+        const diff = lead(state);
+        return { text: diff > 0 ? `+${diff}` : `${diff}`, owner: zone.control, preview };
     }
 
     onCellClick(pos: Position): void {
@@ -168,16 +190,38 @@ export class Board {
      */
     readonly hoveredRune = signal<Position | null>(null);
 
+    /** Tracks the mouse over an empty cell — drives the "you can play here" ghost. */
+    readonly hoveredEmpty = signal<Position | null>(null);
+
     onCellHover(pos: Position): void {
         const cell = this.game().board[pos.row]?.[pos.col];
-        if (cell?.rune) this.hoveredRune.set(pos);
+        if (!cell) return;
+        if (cell.rune) this.hoveredRune.set(pos);
+        else this.hoveredEmpty.set(pos);
     }
 
     onCellLeave(pos: Position): void {
-        const hover = this.hoveredRune();
-        if (hover?.row === pos.row && hover.col === pos.col) {
-            this.hoveredRune.set(null);
-        }
+        const here = (p: Position | null) => p?.row === pos.row && p.col === pos.col;
+        if (here(this.hoveredRune())) this.hoveredRune.set(null);
+        if (here(this.hoveredEmpty())) this.hoveredEmpty.set(null);
+    }
+
+    /**
+     * The ghost rune to render on a cell, or null for none. The selected target
+     * shows the *simulated* rune (so charged flux appears as a number); a
+     * hovered affordable empty cell shows a blank flux-0 stone — a "you can play
+     * here" reminder. Requires an inscribe-enabled board and a known player.
+     */
+    ghostFor(pos: Position): Rune | null {
+        const player = this.player();
+        if (!player || !this.selectable()) return null;
+        const cell = this.game().board[pos.row]?.[pos.col];
+        if (!cell || cell.rune !== null || cell.hasCrux) return null;
+        if (!this.isAffordable(pos)) return null;
+        if (this.isSelected(pos)) return this.previewRune() ?? { owner: player, flux: 0 };
+        const hovered = this.hoveredEmpty();
+        const isHovered = hovered?.row === pos.row && hovered.col === pos.col;
+        return isHovered ? { owner: player, flux: 0 } : null;
     }
 
     isInCross(pos: Position): boolean {

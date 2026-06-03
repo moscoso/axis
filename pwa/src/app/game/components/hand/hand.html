@@ -11,6 +11,11 @@
             (click)="onPick(c)">
         </app-card>
     } @empty {
-        <div class="empty">No cards</div>
+        @if (ghostSlots().length === 0) {
+            <div class="empty">No cards</div>
+        }
+    }
+    @for (i of ghostSlots(); track i) {
+        <div class="ghost-card" aria-label="card to draw"><app-glyph symbol="◇"></app-glyph></div>
     }
 </div>

@@ -18,6 +18,7 @@ import {
     Seat,
     clientGameCommand,
     clientTableCommand,
+    simulateGameCommand,
 } from 'axis-models';
 import { LogoutButton } from '../account/components/logout-button/logout-button';
 import { UiPreferencesService } from '../core/services/ui-preferences.service';
@@ -219,6 +220,48 @@ export class GamePage {
     readonly selectedCell = signal<Position | null>(null);
     readonly paidCardIds = signal<Set<string>>(new Set());
     readonly chosenActivations = signal<Map<GlyphSymbol, number>>(new Map());
+
+    /**
+     * What-if outcome of the move currently being composed, run through the
+     * pure simulator so the UI can preview results (rift shift, draws, crux
+     * flips) without re-deriving any rules in Angular. Null when there's no
+     * target or the current payment/activations aren't yet a legal inscribe —
+     * previews simply hide until the move is confirmable.
+     */
+    readonly previewState = computed(() => {
+        const target = this.selectedCell();
+        if (!target || !this.canInscribe()) return null;
+        // A preview must NEVER break core play: the simulator runs follow-up
+        // commands (EndTurn → refill/reshuffle) that could throw on some states,
+        // and this computed is read inline in the game view — an uncaught throw
+        // here would abort change detection and hide the action panel itself.
+        try {
+            const command = clientGameCommand('InscribeRune', {
+                player: this.mySide(),
+                target,
+                paidCardIds: Array.from(this.paidCardIds()),
+                chosenActivations: this.expandActivations(this.chosenActivations()),
+            });
+            const result = simulateGameCommand(this.game(), command);
+            return result.ok ? result.state : null;
+        } catch {
+            return null;
+        }
+    });
+
+    /** Rift after the composed move, or null when there's no live preview. */
+    readonly previewRift = computed(() => this.previewState()?.rift ?? null);
+
+    /** The rune as it would land on the selected cell (carrying any charged flux). */
+    readonly previewRune = computed(() => {
+        const state = this.previewState();
+        const target = this.selectedCell();
+        if (!state || !target) return null;
+        return state.board[target.row]?.[target.col]?.rune ?? null;
+    });
+
+    /** Cards the composed move would queue to draw (◇ activations); 0 when no preview. */
+    readonly previewDraws = computed(() => this.previewState()?.pendingDraws ?? 0);
 
     /** Stable empty set passed to the opposite-side hand to avoid identity churn. */
     readonly emptyIds: ReadonlySet<string> = new Set();

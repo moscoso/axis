@@ -101,6 +101,14 @@
     font-size: 1.1rem;
 }
 
+/* Ghost preview: the stone you'd place here, showing its previewed flux. Faint,
+   dotted, click-through so it never blocks the cell. */
+.rune.ghost {
+    opacity: 0.4;
+    border-style: dotted;
+    pointer-events: none;
+}
+
 /**
  * Crux control badge: signed flux lead on the Crux's lines, colored by the
  * controlling side (matching rune colors). Pinned bottom-center, below the
@@ -134,4 +142,15 @@
 .crux-badge[data-owner="dark"] {
     color: #b19cff;
     background: rgba(80, 50, 130, 0.4);
+}
+
+/* Neutral — only seen as a projection where a move would contest a Crux to a tie. */
+.crux-badge[data-owner="unbound"] {
+    color: rgba(255, 255, 255, 0.7);
+    background: rgba(0, 0, 0, 0.5);
+}
+
+/* Projected result while composing a move: dotted to read as "not yet committed". */
+.crux-badge.preview {
+    border-style: dotted;
 }

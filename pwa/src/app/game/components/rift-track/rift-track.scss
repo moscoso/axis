@@ -122,3 +122,44 @@
     color: #1a0f3a;
     box-shadow: 0 3px 10px rgba(0, 0, 0, 0.55), 0 0 18px rgba(177, 156, 255, 0.6);
 }
+
+/* Ghost marker: where the Rift lands if the composed move is confirmed.
+   Hollow + dotted so it reads as a preview, never mistaken for the live value. */
+/* Preview arrow: a bar from the live marker toward where the Rift would land,
+   with an arrowhead on the leading edge. Green when the move pushes the Rift
+   toward the perspective side's win, red when away. */
+.preview-arrow {
+    position: absolute;
+    left: 50%;
+    width: 6px;
+    transform: translateX(-50%);
+    border-radius: 3px;
+    pointer-events: none;
+    --arrow-color: rgba(255, 255, 255, 0.6);
+    background: var(--arrow-color);
+    box-shadow: 0 0 10px var(--arrow-color);
+}
+
+.preview-arrow.good { --arrow-color: #57d977; }
+.preview-arrow.bad  { --arrow-color: #ff6a6a; }
+
+.preview-arrow::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+}
+
+/* Arrowhead overlaps the bar's leading end so its TIP lands on the destination
+   notch (not its base). */
+.preview-arrow:not(.down)::after {
+    top: 0;
+    border-bottom: 11px solid var(--arrow-color);
+}
+
+.preview-arrow.down::after {
+    bottom: 0;
+    border-top: 11px solid var(--arrow-color);
+}

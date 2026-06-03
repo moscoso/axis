@@ -18,13 +18,49 @@ export class RiftTrack {
      */
     readonly perspective = input<PlayerSide>('light');
 
+    /** Where the Rift would land if the move being composed is confirmed; null hides the preview. */
+    readonly preview = input<number | null>(null);
+
     readonly clamped = computed(() => Math.max(-8, Math.min(8, this.value())));
 
-    /** Marker position as a percentage from the TOP of the track. */
-    readonly position = computed(() => {
+    /** Maps a clamped Rift value to a percentage from the TOP of the track. */
+    private toPosition(clampedValue: number): number {
         // Default: +8 → 100% (Light at bottom), -8 → 0% (Dark at top).
-        const lightPerspective = ((this.clamped() + 8) / 16) * 100;
+        const lightPerspective = ((clampedValue + 8) / 16) * 100;
         return this.perspective() === 'dark' ? 100 - lightPerspective : lightPerspective;
+    }
+
+    /** Marker position as a percentage from the TOP of the track. */
+    readonly position = computed(() => this.toPosition(this.clamped()));
+
+    readonly previewClamped = computed<number | null>(() => {
+        const p = this.preview();
+        return p === null ? null : Math.max(-8, Math.min(8, p));
+    });
+
+    /** True only when there's a preview AND it differs from the live value. */
+    readonly previewActive = computed(
+        () => this.previewClamped() !== null && this.previewClamped() !== this.clamped()
+    );
+
+    readonly previewPosition = computed(() => {
+        const c = this.previewClamped();
+        return c === null ? 0 : this.toPosition(c);
+    });
+
+    /**
+     * The connecting arrow between the live marker and the ghost: a thin bar
+     * spanning the gap. `down` tells the template which end gets the head;
+     * `good` is true when the Rift moves toward the perspective side's win
+     * (Light wins at +8, Dark at −8), driving the green/red coloring.
+     */
+    readonly arrow = computed<{ top: number; height: number; down: boolean; good: boolean } | null>(() => {
+        if (!this.previewActive()) return null;
+        const from = this.position();
+        const to = this.previewPosition();
+        const delta = this.previewClamped()! - this.clamped();
+        const towardMe = this.perspective() === 'light' ? delta : -delta;
+        return { top: Math.min(from, to), height: Math.abs(to - from), down: to > from, good: towardMe > 0 };
     });
 
     readonly sideLeading = computed<'light' | 'dark' | 'neutral'>(() => {

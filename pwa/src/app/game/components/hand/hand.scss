@@ -53,3 +53,19 @@ header .count {
     text-align: center;
     width: 100%;
 }
+
+/* Ghost draw preview: faint dashed placeholders sized like a card (md), one per
+   queued ◇ draw, marked with the draw glyph since the drawn card is unknown. */
+.ghost-card {
+    width: 6.5rem;
+    height: 9.5rem;
+    border-radius: 12px;
+    border: 2px dashed rgba(255, 255, 255, 0.35);
+    background: rgba(255, 255, 255, 0.04);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0.75;
+    /* app-glyph sizes itself off --glyph-size, not the parent font-size. */
+    --glyph-size: 3.4rem;
+}
