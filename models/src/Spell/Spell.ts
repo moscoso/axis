@@ -33,12 +33,18 @@ export const SPELL_FOOTPRINTS: Record<SpellShape, ReadonlyArray<{ dr: number; dc
 	block4: [{ dr: 0, dc: 0 }, { dr: 0, dc: 1 }, { dr: 1, dc: 0 }, { dr: 1, dc: 1 }],
 };
 
+/** The board wraps as a torus, so footprint cells warp across edges. */
+const BOARD_SIZE = 6;
+const wrap = (n: number) => ((n % BOARD_SIZE) + BOARD_SIZE) % BOARD_SIZE;
+
 /**
- * Resolves a Spell footprint to the on-board cells it would cover for a given
- * anchor. Offsets that fall outside the 6×6 board are clipped away.
+ * Resolves a Spell footprint to the cells it would cover for a given anchor.
+ * Offsets that run off an edge **warp** to the opposite side (toroidal), the
+ * same way shift glyphs wrap — so every anchor always covers the full shape.
  */
 export function getSpellFootprint(shape: SpellShape, anchor: Position): Position[] {
-	return SPELL_FOOTPRINTS[shape]
-		.map(o => ({ row: anchor.row + o.dr, col: anchor.col + o.dc }))
-		.filter(p => p.row >= 0 && p.row < 6 && p.col >= 0 && p.col < 6);
+	return SPELL_FOOTPRINTS[shape].map(o => ({
+		row: wrap(anchor.row + o.dr),
+		col: wrap(anchor.col + o.dc),
+	}));
 }

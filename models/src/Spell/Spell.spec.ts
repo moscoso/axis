@@ -23,14 +23,15 @@ describe('getSpellFootprint', () => {
 		]);
 	});
 
-	it('clips cells that fall off the board', () => {
-		// row3 anchored at the left edge loses its left cell.
+	it('warps cells that run off the board (toroidal)', () => {
+		// row3 anchored at the left edge wraps its left cell to col 5.
 		expect(getSpellFootprint('row3', { row: 0, col: 0 })).to.deep.equal([
-			{ row: 0, col: 0 }, { row: 0, col: 1 },
+			{ row: 0, col: 5 }, { row: 0, col: 0 }, { row: 0, col: 1 },
 		]);
-		// x5 in the corner keeps only the anchor and the one in-board diagonal.
+		// x5 in the corner wraps all four diagonals around the edges.
 		expect(getSpellFootprint('x5', { row: 0, col: 0 })).to.have.deep.members([
-			{ row: 0, col: 0 }, { row: 1, col: 1 },
+			{ row: 0, col: 0 },
+			{ row: 5, col: 5 }, { row: 5, col: 1 }, { row: 1, col: 5 }, { row: 1, col: 1 },
 		]);
 	});
 });
