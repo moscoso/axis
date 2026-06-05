@@ -12,6 +12,9 @@ export interface GameOptions {
 	/** A card counts as 2 (cost + activations) in its own element's Zone. */
 	affinity: boolean;
 
+	/** Amount of Flux a Rune starts with, before any `+` activations add on to it. */
+	baseRuneCharge: number;
+
 	/** Perks for controlling a Crux; each toggles independently. */
 	cruxBonus: CruxBonus;
 }
@@ -24,10 +27,11 @@ export interface CruxBonus {
 	force: boolean;
 }
 
-/** Baseline rulebook (v17) config: Affinity + Crux Force on, Bond off. */
+/** Baseline rulebook (v17) config: Affinity + Crux Force on, Bond off, Runes start charged. */
 export const DEFAULT_OPTIONS: GameOptions = Object.freeze<GameOptions>({
 	startOfTurnDraws: 0,
 	shiftGlyphs: false,
 	affinity: true,
+	baseRuneCharge: 1,
 	cruxBonus: Object.freeze({ bond: false, force: true }),
 });

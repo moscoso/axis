@@ -21,14 +21,28 @@ export class OptionsSelector {
 
     private readonly userId = toSignal(this.auth.selectUserID(), { initialValue: 'unknown' });
 
+    /** Highest base charge the stepper allows. */
+    private static readonly MAX_BASE_CHARGE = 3;
+
     readonly disabled = computed(() => this.userId() === 'unknown');
     readonly shiftGlyphs = computed(() => this.current().shiftGlyphs);
     readonly affinity = computed(() => this.current().affinity);
+    readonly baseRuneCharge = computed(() => this.current().baseRuneCharge);
     readonly bond = computed(() => this.current().cruxBonus.bond);
     readonly force = computed(() => this.current().cruxBonus.force);
 
+    readonly canDecCharge = computed(() => !this.disabled() && this.baseRuneCharge() > 0);
+    readonly canIncCharge = computed(
+        () => !this.disabled() && this.baseRuneCharge() < OptionsSelector.MAX_BASE_CHARGE
+    );
+
     toggleShiftGlyphs(): void { this.patch({ shiftGlyphs: !this.shiftGlyphs() }); }
     toggleAffinity(): void { this.patch({ affinity: !this.affinity() }); }
+
+    stepBaseCharge(delta: number): void {
+        const next = Math.max(0, Math.min(OptionsSelector.MAX_BASE_CHARGE, this.baseRuneCharge() + delta));
+        if (next !== this.baseRuneCharge()) this.patch({ baseRuneCharge: next });
+    }
 
     // cruxBonus is merged shallowly, so send the whole sub-object each time.
     toggleBond(): void { this.patch({ cruxBonus: { ...this.current().cruxBonus, bond: !this.bond() } }); }

@@ -90,10 +90,10 @@ For each card paid, you may activate one symbol on that space to claim its rewar
 | ▲ | Force | Move the Rift marker 1 space toward your side. |
 | ■ | Draw | Take 1 card from the face-up display. |
 
-| Null Runes All Runes begin with 0 Flux, making them Null. A Null Rune is still yours and still grants discounts in its row and column. At end game it counts toward Zone Aura — for whoever controls that Zone. |
+| Base Charge Every Rune begins with a Base Charge of Flux — **1 by default**. The \+ symbol *adds* to that charge; it does not create it. So at the default charge, even a Rune placed with no activations lands carrying 1 Flux: it counts toward Crux control and the Last Rune tally the instant it is placed. Base Charge is a House Rule — set it to **0** to restore classic Null Runes, Runes that begin at 0 Flux and only gain it through \+. |
 | :---- |
 
-| The Cost of Going Cheap The fewer cards you pay, the fewer symbols you activate. Discounts are powerful but they come at a price — a deeply discounted space might cost you nothing and reward you with nothing but a Null Rune. Every placement is a negotiation between what you spend and what you gain. |
+| The Cost of Going Cheap The fewer cards you pay, the fewer \+ symbols you activate, and the less Flux your Rune carries above its Base Charge. Discounts are powerful but they come at a price — a deeply discounted space might cost you nothing and reward you with nothing beyond the Rune's base charge. Every placement is a negotiation between what you spend and what you gain. |
 | :---- |
 
 # **The Crux**
@@ -104,7 +104,7 @@ Each Zone’s Crux is a convergence point — where the elemental lines of its r
 
 Crux control is determined by the Runes in the Crux’s row and column across the full 6×6 board.
 
-* **Controlled:** You control a Crux if your total Flux in those two lines is strictly greater than your opponent’s. Null Runes (0 Flux) do not count.
+* **Controlled:** You control a Crux if your total Flux in those two lines is strictly greater than your opponent’s. Only Flux counts — a 0-Flux Null Rune (possible only under the Base Charge 0 House Rule) contributes nothing. At the default Base Charge of 1, every Rune in the lines counts.
 
 * **Unbound:** If Flux totals are tied, or no charged Runes are present in those lines, the Crux is Unbound — controlled by neither side.
 
@@ -137,7 +137,7 @@ If the board fills with Runes before either instant victory triggers, both sides
 | Flux Source | How It’s Counted |
 | :---- | :---- |
 | Total Flux | Sum of all Flux values on your Runes across the entire board. |
-| Zone Aura | \+1 Flux for each Null Rune inside a Zone whose Crux you control — yours and your opponent’s alike. The Crux itself does not score. |
+| Zone Aura | \+1 Flux for each Null Rune (0 Flux) inside a Zone whose Crux you control — yours and your opponent’s alike. The Crux itself does not score. **At the default Base Charge of 1 no Rune is ever Null, so Zone Aura only scores under the Base Charge 0 House Rule.** |
 
 # **Quick Reference & Glossary**
 
@@ -173,6 +173,10 @@ If the board fills with Runes before either instant victory triggers, both sides
 
 A card’s natural resonance with its element. A card counts as 2 — when paying costs and when activating symbols — on a space in its own element’s Zone. Always active; no control required.
 
+### **Base Charge**
+
+The Flux a Rune starts with the moment it is inscribed, before any \+ activations. **1 by default**, so every Rune is charged on placement. A House Rule may set it to 0, restoring classic Null Runes.
+
 ### **Crux**
 
 The convergence point at the heart of each Zone. Controlling it grants Crux Force. Control is determined by the Flux in its row and column.
@@ -183,7 +187,7 @@ A deterrent granted while controlling a Crux: each Rune your *opponent* inscribe
 
 ### **Flux**
 
-The power held within a Rune, accumulated through the \+ symbol. Null Runes carry 0 Flux. Flux determines Crux control and scores in the Last Rune tally.
+The power held within a Rune. Every Rune starts with its Base Charge (1 by default) and accumulates more through the \+ symbol; a Rune with 0 Flux is Null (possible only at Base Charge 0). Flux determines Crux control and scores in the Last Rune tally.
 
 ### **Fluxmate**
 
@@ -199,7 +203,7 @@ The end-game condition triggered when the board is fully covered. Both sides cou
 
 ### **Null Rune**
 
-A Rune with 0 Flux. Counts toward discounts but not Crux control. At end game, each Null Rune scores \+1 Flux for whoever controls that Zone — placing one in an opponent’s Zone feeds their score.
+A Rune with 0 Flux — possible only under the Base Charge 0 House Rule (at the default charge of 1, no Rune is ever Null). It counts toward discounts but not Crux control. At end game, each Null Rune scores \+1 Flux via Zone Aura for whoever controls that Zone — placing one in an opponent’s Zone feeds their score.
 
 ### **Rift**
 
@@ -211,7 +215,7 @@ An instant victory: push the Rift marker all the way to your terminal end.
 
 ### **Rune**
 
-A marker inscribed on the board by a player. Runes begin Null (0 Flux) and gain Flux through the \+ symbol. A Rune is yours from the moment it is placed.
+A marker inscribed on the board by a player. Runes begin with their Base Charge (1 Flux by default) and gain more through the \+ symbol. A Rune is yours from the moment it is placed.
 
 ### **Unbound**
 
@@ -223,4 +227,4 @@ One of the four 3×3 elemental regions of the board, each anchored by a Crux.
 
 ### **Zone Aura**
 
-\+1 Flux for each Null Rune inside a Zone whose Crux you control. This includes your opponent’s Null Runes — any uncharged presence in your Zone scores for you.
+\+1 Flux for each Null Rune inside a Zone whose Crux you control. This includes your opponent’s Null Runes — any uncharged presence in your Zone scores for you. Because Null Runes exist only at Base Charge 0, Zone Aura is dormant under the default Base Charge of 1.

@@ -113,7 +113,8 @@ describe('simulateGameCommand', () => {
 		);
 
 		expect(result.ok).to.equal(true);
-		expect(result.state.board[0][0].rune).to.deep.equal({ owner: 'dark', flux: 1 });
+		// Base charge 1 + one `+` activation (surplus payment wasted) = flux 2.
+		expect(result.state.board[0][0].rune).to.deep.equal({ owner: 'dark', flux: 2 });
 	});
 
 	it('rejects a wasteful overpay where a paid card buys no activation', () => {

@@ -10,7 +10,8 @@ export function boardReducer(event: GameEvent, state: Game): Game {
 
 		case 'Rune Inscribed': {
 			const { position, rune, activations } = event.payload;
-			const fluxCount = activations.filter((g: Glyph) => g === '+').length;
+			// Flux = the configurable base charge plus one per `+` activation.
+			const fluxCount = state.options.baseRuneCharge + activations.filter((g: Glyph) => g === '+').length;
 
 			let board = state.board.map(r => r.map(cell => ({ ...cell })));
 			board[position.row][position.col] = {

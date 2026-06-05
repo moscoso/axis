@@ -21,7 +21,7 @@ function gameWith(board: BoardCell[][]): Game {
 }
 
 describe('boardReducer — Rune Inscribed shift activations', () => {
-	it("places the rune at the target with flux equal to the number of '+' activations", () => {
+	it("places the rune with flux = base charge + number of '+' activations", () => {
 		const state = gameWith(emptyBoard());
 		const event = new RuneInscribed({
 			player: 'light',
@@ -33,7 +33,26 @@ describe('boardReducer — Rune Inscribed shift activations', () => {
 
 		const next = boardReducer(event, state);
 
-		expect(next.board[2][2].rune).to.deep.equal({ owner: 'light', flux: 2 });
+		// Default base charge is 1, so two `+` activations land flux 3.
+		expect(next.board[2][2].rune).to.deep.equal({ owner: 'light', flux: 3 });
+	});
+
+	it('honors a base charge of 0 (classic Null Rune semantics)', () => {
+		const state: Game = {
+			...gameWith(emptyBoard()),
+			options: { ...INIT_GAME_STATE.options, baseRuneCharge: 0 },
+		};
+		const event = new RuneInscribed({
+			player: 'light',
+			position: { row: 2, col: 2 },
+			rune: { owner: 'light', flux: 0 },
+			paidCards: [],
+			activations: [] as Glyph[],
+		});
+
+		const next = boardReducer(event, state);
+
+		expect(next.board[2][2].rune).to.deep.equal({ owner: 'light', flux: 0 });
 	});
 
 	it("slides the target row/column when shift glyphs are activated, carrying the just-placed rune", () => {

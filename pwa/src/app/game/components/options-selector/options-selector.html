@@ -36,4 +36,12 @@
         Crux Force
         <span class="state">{{ force() ? 'On' : 'Off' }}</span>
     </button>
+    <div class="stepper" [class.active]="baseRuneCharge() > 0">
+        Base Charge
+        <div class="stepper-controls">
+            <button type="button" aria-label="Decrease base charge" [disabled]="!canDecCharge()" (click)="stepBaseCharge(-1)">−</button>
+            <span class="state">{{ baseRuneCharge() }}</span>
+            <button type="button" aria-label="Increase base charge" [disabled]="!canIncCharge()" (click)="stepBaseCharge(1)">+</button>
+        </div>
+    </div>
 </div>
