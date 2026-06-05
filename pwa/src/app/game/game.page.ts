@@ -16,6 +16,7 @@ import {
     PlayerSide,
     Position,
     Seat,
+    autoSelectInscription,
     clientGameCommand,
     clientTableCommand,
     simulateGameCommand,
@@ -271,8 +272,18 @@ export class GamePage {
         const cell = this.game().board[pos.row]?.[pos.col];
         if (cell?.rune !== null) return;
         this.selectedCell.set(pos);
-        this.paidCardIds.set(new Set());
-        this.chosenActivations.set(new Map());
+        // Pre-fill a sensible default move (cheapest payment + flux-first activations)
+        // so the player can confirm in one click — still fully editable below.
+        const auto = autoSelectInscription(this.game(), this.mySide(), pos);
+        this.paidCardIds.set(new Set(auto?.paidCardIds ?? []));
+        this.chosenActivations.set(this.collapseActivations(auto?.activations ?? []));
+    }
+
+    /** Flattened activation list → the per-glyph count map the panel/preview use. */
+    private collapseActivations(activations: GlyphSymbol[]): Map<GlyphSymbol, number> {
+        const map = new Map<GlyphSymbol, number>();
+        for (const g of activations) map.set(g, (map.get(g) ?? 0) + 1);
+        return map;
     }
 
     onHandCardPicked(card: CardModel): void {
