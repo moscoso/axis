@@ -68,7 +68,7 @@ export interface Game {
 	/** Face-up Spells either player may cast on their turn. */
 	spellDisplay: SpellCard[];
 
-	/** Spent Spells, reshuffled into the spell deck when it runs dry. */
+	/** Spent Spells. A finite resource — never reshuffled back into the deck. */
 	spellDiscard: SpellCard[];
 
 	/**

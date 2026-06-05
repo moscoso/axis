@@ -16,7 +16,6 @@ export const GAME_EVENT_TYPES = [
 	'Game Started',
 	'Rune Inscribed',
 	'Spell Cast',
-	'Spell Deck Reshuffled',
 	'Spell Display Refilled',
 	'Turn Ended'
 ] as const;
@@ -94,12 +93,6 @@ export class SpellCast extends GameEvents<SpellCastPayload> {
 	override readonly type = 'Spell Cast';
 }
 
-// ─── Spell Deck Reshuffled ───────────────────────────────────────────────────
-type SpellDeckReshuffledPayload = { newDeck: SpellCard[] };
-export class SpellDeckReshuffled extends GameEvents<SpellDeckReshuffledPayload> {
-	override readonly type = 'Spell Deck Reshuffled';
-}
-
 // ─── Spell Display Refilled ──────────────────────────────────────────────────
 type SpellDisplayRefilledPayload = { spell: SpellCard };
 export class SpellDisplayRefilled extends GameEvents<SpellDisplayRefilledPayload> {
@@ -121,6 +114,5 @@ export type GameEvent =
 	GameStarted |
 	RuneInscribed |
 	SpellCast |
-	SpellDeckReshuffled |
 	SpellDisplayRefilled |
 	TurnEnded;

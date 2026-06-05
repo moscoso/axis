@@ -30,9 +30,6 @@ export function spellsReducer(event: GameEvent, state: Game): Game {
 				spellDisplay: [...state.spellDisplay, event.payload.spell],
 			};
 
-		case 'Spell Deck Reshuffled':
-			return { ...state, spellDeck: event.payload.newDeck, spellDiscard: [] };
-
 		default:
 			return state;
 	}

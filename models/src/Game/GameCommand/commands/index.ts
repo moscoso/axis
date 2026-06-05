@@ -6,5 +6,4 @@ export * from './InscribeRune';
 export * from './RefillDisplay';
 export * from './RefillSpellDisplay';
 export * from './ReshuffleDeck';
-export * from './ReshuffleSpellDeck';
 export * from './StartGame';
