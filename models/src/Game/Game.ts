@@ -3,6 +3,7 @@ import { Card } from '../Card/Card';
 import { PlayerMap, PlayerSide } from '../Player/Player';
 import { Position, Zone } from '../Zone/Zone';
 import { Glyph } from '../Glyph/Glyph';
+import { SpellCard } from '../Spell/Spell';
 import { DEFAULT_OPTIONS, GameOptions } from './GameOptions';
 
 export type GamePhase = 'setup' | 'starting-draft' | 'main-turn' | 'game-over';
@@ -61,6 +62,15 @@ export interface Game {
 	/** The two face-up cards available for the Draw action */
 	display: Card[];
 
+	/** Spell draw pile (index 0 = top). Empty when spells are disabled. */
+	spellDeck: SpellCard[];
+
+	/** Face-up Spells either player may cast on their turn. */
+	spellDisplay: SpellCard[];
+
+	/** Spent Spells, reshuffled into the spell deck when it runs dry. */
+	spellDiscard: SpellCard[];
+
 	/**
 	 * Number of ◇ activation draws the active player still needs to resolve,
 	 * queued by {@link RuneInscribed}. Decremented on {@link CardDrawn}.
@@ -103,6 +113,9 @@ const INIT_STATE: Game = {
 	deck: [],
 	discard: [],
 	display: [],
+	spellDeck: [],
+	spellDisplay: [],
+	spellDiscard: [],
 	pendingDraws: 0,
 	pendingStartOfTurnDraws: 0,
 	options: DEFAULT_OPTIONS,

@@ -2,6 +2,7 @@ import { UserID } from '@moscoso/models';
 import { Card } from '../../Card/Card';
 import { BoardCell } from '../Game';
 import { GameOptions } from '../GameOptions';
+import { SpellCard } from '../../Spell/Spell';
 import { Zone } from '../../Zone/Zone';
 
 /**
@@ -17,6 +18,10 @@ export interface GameSeed {
 	deck:        Card[];
 	/** The four face-up cards available at the start of the draft. */
 	display:     Card[];
+	/** Spell draw pile after the spell display is dealt (empty when spells are off). */
+	spellDeck:   SpellCard[];
+	/** Face-up Spells available to cast (empty when spells are off). */
+	spellDisplay: SpellCard[];
 	lightPlayer: UserID;
 	darkPlayer:  UserID;
 	/** House-rule knobs snapshotted from the table at start time. */

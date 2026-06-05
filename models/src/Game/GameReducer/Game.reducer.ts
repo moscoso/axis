@@ -10,6 +10,7 @@ import { pendingDrawsReducer } from './partial/pendingDraws.reducer';
 import { phaseReducer }        from './partial/phase.reducer';
 import { playerIdsReducer }    from './partial/playerIds.reducer';
 import { riftReducer }         from './partial/rift.reducer';
+import { spellsReducer }       from './partial/spells.reducer';
 import { turnReducer }         from './partial/turn.reducer';
 import { winnerReducer }       from './partial/winner.reducer';
 import { zonesReducer }        from './partial/zones.reducer';
@@ -27,6 +28,7 @@ export function gameReducer(event: GameEvent, state: Game): Game {
 		discardReducer,
 		deckReducer,
 		displayReducer,
+		spellsReducer,
 		pendingDrawsReducer,
 		phaseReducer,
 		boardReducer,

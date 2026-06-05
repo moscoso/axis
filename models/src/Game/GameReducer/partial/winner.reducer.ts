@@ -51,6 +51,21 @@ export function winnerReducer(event: GameEvent, state: Game): Game {
 			return state;
 		}
 
+		case 'Spell Cast': {
+			// Casting can flip Cruxes (Charge) — check the instant wins. It can't
+			// fill the board, and the Force cost is capped short of a Rift Break,
+			// but the rift checks stay as a defensive backstop.
+			if (state.rift >= 8)  return declareWinner(state, 'light', 'rift-break');
+			if (state.rift <= -8) return declareWinner(state, 'dark',  'rift-break');
+
+			const lightCruxes = state.zones.filter(z => z.control === 'light').length;
+			const darkCruxes  = state.zones.filter(z => z.control === 'dark').length;
+			if (lightCruxes === 4) return declareWinner(state, 'light', 'fluxmate');
+			if (darkCruxes  === 4) return declareWinner(state, 'dark',  'fluxmate');
+
+			return state;
+		}
+
 		default:
 			return state;
 	}

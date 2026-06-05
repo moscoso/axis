@@ -2,6 +2,7 @@ import { UserID } from '@moscoso/models';
 import { Card } from '../../../Card/Card';
 import { Element } from '../../../Element/Element';
 import { generateBoard } from '../../../Board/generateBoard';
+import { createSpellDeck } from '../../../Spell/createSpellDeck';
 import { GameSeed } from '../../GameSeed/GameSeed';
 import { shuffle } from '../../../Utility/shuffle';
 import { Table, SidePreference } from '../../../Table/Table';
@@ -50,11 +51,18 @@ export class StartGame implements GameCommand<StartGameParams> {
 		const display         = shuffledDeck.slice(0, 4);
 		const remainingDeck   = shuffledDeck.slice(4);
 
+		// Spell piles — only dealt when the option is on; otherwise left empty.
+		const shuffledSpells  = table.options.spells ? shuffle(createSpellDeck()) : [];
+		const spellDisplay    = shuffledSpells.slice(0, SPELL_DISPLAY_SIZE);
+		const spellDeck       = shuffledSpells.slice(SPELL_DISPLAY_SIZE);
+
 		const seed: GameSeed = {
 			board,
 			zones,
 			deck:        remainingDeck,
 			display,
+			spellDeck,
+			spellDisplay,
 			lightPlayer,
 			darkPlayer,
 			options:     table.options,
@@ -67,6 +75,7 @@ export class StartGame implements GameCommand<StartGameParams> {
 
 const ELEMENTS: Element[] = ['fire', 'earth', 'air', 'water'];
 const CARDS_PER_ELEMENT = 8;
+const SPELL_DISPLAY_SIZE = 3;
 
 /** Builds the 32-card AXIS deck: 8 of each element, id'd by element + index. */
 function createDeck(): Card[] {

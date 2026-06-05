@@ -17,6 +17,9 @@ export interface GameOptions {
 
 	/** Perks for controlling a Crux; each toggles independently. */
 	cruxBonus: CruxBonus;
+
+	/** Enable the Spell deck/display and the Cast a Spell action. */
+	spells: boolean;
 }
 
 /** Independent rewards for controlling a Crux. */
@@ -34,4 +37,5 @@ export const DEFAULT_OPTIONS: GameOptions = Object.freeze<GameOptions>({
 	affinity: true,
 	baseRuneCharge: 1,
 	cruxBonus: Object.freeze({ bond: false, force: true }),
+	spells: true,
 });

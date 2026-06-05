@@ -1,5 +1,6 @@
 import { Card } from '../Card/Card';
 import { Game } from '../Game/Game';
+import { SpellCard } from '../Spell/Spell';
 import { PlayerSide } from './Player';
 
 /**
@@ -25,6 +26,13 @@ export interface PublicGameState {
 	options: Game['options'];
 	winner: PlayerSide | null;
 	winReason: Game['winReason'];
+
+	/** Face-up Spells available to cast — public to both sides. */
+	spellDisplay: SpellCard[];
+	/** Spent Spells — public, order preserved. */
+	spellDiscard: SpellCard[];
+	/** Remaining Spells in the spell deck. Order and identities hidden. */
+	spellDeckSize: number;
 
 	/** Which side this view is for — all "own"/"opponent" fields are relative to this. */
 	side: PlayerSide;
@@ -55,6 +63,10 @@ export function getPublicState(state: Game, side: PlayerSide): PublicGameState {
 		options: state.options,
 		winner: state.winner,
 		winReason: state.winReason,
+
+		spellDisplay: state.spellDisplay,
+		spellDiscard: state.spellDiscard,
+		spellDeckSize: state.spellDeck.length,
 
 		side,
 		ownHand: state.players[side].hand,

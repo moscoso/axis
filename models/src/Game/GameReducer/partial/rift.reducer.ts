@@ -27,6 +27,15 @@ export function riftReducer(event: GameEvent, state: Game): Game {
 			const newRift = Math.max(-8, Math.min(8, state.rift + delta));
 			return { ...state, rift: newRift };
 		}
+
+		case 'Spell Cast': {
+			// Casting spends Force: the Rift slides toward the caster's opponent.
+			const { player, spell } = event.payload;
+			const delta = player === 'light' ? -spell.forceCost : spell.forceCost;
+			const newRift = Math.max(-8, Math.min(8, state.rift + delta));
+			return { ...state, rift: newRift };
+		}
+
 		default:
 			return state;
 	}

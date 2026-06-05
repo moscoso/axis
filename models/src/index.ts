@@ -6,6 +6,7 @@ export * from './Element/Element';
 export * from './Game';
 export * from './Player';
 export * from './Selectors';
+export * from './Spell';
 export * from './Glyph/Glyph';
 export * from './Utility';
 export * from './Zone';

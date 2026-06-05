@@ -11,6 +11,7 @@ import {
 	getDiscountedCost,
 	getZoneForPosition,
 } from './GameSelectors';
+import { getForceRoom, getSpellChargeTargets } from './SpellSelectors';
 import { Element } from '../Element/Element';
 
 /**
@@ -48,7 +49,36 @@ export function getLegalMoves(state: Game, side: PlayerSide): GameCommand[] {
 
 	if (mustDraw) return drawMoves;
 
-	return [...enumerateInscribes(state, side), ...drawMoves];
+	return [
+		...enumerateInscribes(state, side),
+		...enumerateSpellCasts(state, side),
+		...drawMoves,
+	];
+}
+
+/**
+ * Enumerates legal {@link CastSpell} moves: each display Spell the player can
+ * afford (Force room ≥ cost) at every anchor where it would charge at least one
+ * of the player's runes. Anchors that buff nothing are skipped — casting there
+ * only spends Force for no gain.
+ */
+function enumerateSpellCasts(state: Game, side: PlayerSide): GameCommand[] {
+	if (!state.options.spells) return [];
+
+	const moves: GameCommand[] = [];
+	const room = getForceRoom(state, side);
+
+	for (const spell of state.spellDisplay) {
+		if (spell.forceCost > room) continue;
+		for (let r = 0; r < state.board.length; r++) {
+			for (let c = 0; c < state.board[r].length; c++) {
+				const anchor: Position = { row: r, col: c };
+				if (getSpellChargeTargets(state, side, spell.shape, anchor).length === 0) continue;
+				moves.push(clientGameCommand('CastSpell', { player: side, spellId: spell.id, anchor }));
+			}
+		}
+	}
+	return moves;
 }
 
 function enumerateDrafts(state: Game): GameCommand[] {

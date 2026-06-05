@@ -9,7 +9,11 @@ export enum GameErrorType {
 	InvalidActivationCount = 'Invalid number of glyph activations',
 	InvalidDrawSelection = 'Invalid card selected from the display',
 	InvalidPhase = 'Invalid game phase for this action',
+	InvalidSpellSelection = 'That Spell is not in the display',
+	InvalidSpellTarget = 'Invalid Spell anchor',
+	InsufficientForce = 'Not enough Force to cast — the Rift lacks room',
 	NotYourTurn = 'It is not your turn',
+	SpellsDisabled = 'Spells are not enabled in this game',
 	TooManyCardsPaid = 'Too many cards paid — exceeds the base cost',
 	WastefulPayment = 'An overpaid card buys no activation — remove it',
 	UndefinedCommandArguments = 'Undefined arguments were passed into the command',
@@ -33,6 +37,10 @@ export class GameError extends AppError<GameErrorType> {
 	static InvalidActivationCount(d?: string)      { return new GameError(GameErrorType.InvalidActivationCount, d); }
 	static InvalidDrawSelection(d?: string)        { return new GameError(GameErrorType.InvalidDrawSelection, d); }
 	static InvalidPhase(d?: string)                { return new GameError(GameErrorType.InvalidPhase, d); }
+	static InvalidSpellSelection(d?: string)       { return new GameError(GameErrorType.InvalidSpellSelection, d); }
+	static InvalidSpellTarget(d?: string)          { return new GameError(GameErrorType.InvalidSpellTarget, d); }
+	static InsufficientForce(d?: string)           { return new GameError(GameErrorType.InsufficientForce, d); }
+	static SpellsDisabled()                        { return new GameError(GameErrorType.SpellsDisabled); }
 	static NotYourTurn()                           { return new GameError(GameErrorType.NotYourTurn); }
 	static TooManyCardsPaid(d?: string)            { return new GameError(GameErrorType.TooManyCardsPaid, d); }
 	static WastefulPayment(d?: string)             { return new GameError(GameErrorType.WastefulPayment, d); }

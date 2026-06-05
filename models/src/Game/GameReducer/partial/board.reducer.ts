@@ -29,6 +29,22 @@ export function boardReducer(event: GameEvent, state: Game): Game {
 
 			return { ...state, board };
 		}
+
+		case 'Spell Cast': {
+			// Charge: +1 Flux to each of the caster's runes within the footprint.
+			const { player, footprint, spell } = event.payload;
+			if (spell.effect !== 'charge') return state;
+
+			const board = state.board.map(r => r.map(cell => ({ ...cell })));
+			for (const pos of footprint) {
+				const cell = board[pos.row][pos.col];
+				if (cell.rune && cell.rune.owner === player) {
+					cell.rune = { ...cell.rune, flux: cell.rune.flux + 1 };
+				}
+			}
+			return { ...state, board };
+		}
+
 		default:
 			return state;
 	}

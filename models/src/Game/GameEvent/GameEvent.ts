@@ -3,6 +3,7 @@ import { Card } from '../../Card/Card';
 import { PlayerSide } from '../../Player/Player';
 import { Position } from '../../Zone/Zone';
 import { Glyph } from '../../Glyph/Glyph';
+import { SpellCard } from '../../Spell/Spell';
 import { Rune } from '../Game';
 import { GameSeed } from '../GameSeed/GameSeed';
 
@@ -14,6 +15,9 @@ export const GAME_EVENT_TYPES = [
 	'Game Ended',
 	'Game Started',
 	'Rune Inscribed',
+	'Spell Cast',
+	'Spell Deck Reshuffled',
+	'Spell Display Refilled',
 	'Turn Ended'
 ] as const;
 
@@ -79,6 +83,29 @@ export class RuneInscribed extends GameEvents<RuneInscribedPayload> {
 	override readonly type = 'Rune Inscribed';
 }
 
+// ─── Spell Cast ──────────────────────────────────────────────────────────────
+type SpellCastPayload = PlayerPayload & {
+	spell: SpellCard;
+	anchor: Position;
+	/** On-board cells the footprint covers (already clipped to the board). */
+	footprint: Position[];
+};
+export class SpellCast extends GameEvents<SpellCastPayload> {
+	override readonly type = 'Spell Cast';
+}
+
+// ─── Spell Deck Reshuffled ───────────────────────────────────────────────────
+type SpellDeckReshuffledPayload = { newDeck: SpellCard[] };
+export class SpellDeckReshuffled extends GameEvents<SpellDeckReshuffledPayload> {
+	override readonly type = 'Spell Deck Reshuffled';
+}
+
+// ─── Spell Display Refilled ──────────────────────────────────────────────────
+type SpellDisplayRefilledPayload = { spell: SpellCard };
+export class SpellDisplayRefilled extends GameEvents<SpellDisplayRefilledPayload> {
+	override readonly type = 'Spell Display Refilled';
+}
+
 // ─── Turn Ended ──────────────────────────────────────────────────────────────
 type TurnEndedPayload = PlayerPayload;
 export class TurnEnded extends GameEvents<TurnEndedPayload> {
@@ -93,4 +120,7 @@ export type GameEvent =
 	GameEnded |
 	GameStarted |
 	RuneInscribed |
+	SpellCast |
+	SpellDeckReshuffled |
+	SpellDisplayRefilled |
 	TurnEnded;
