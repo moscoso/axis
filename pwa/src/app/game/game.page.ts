@@ -16,9 +16,11 @@ import {
     PlayerSide,
     Position,
     Seat,
+    SpellCard,
     autoSelectInscription,
     clientGameCommand,
     clientTableCommand,
+    getForceRoom,
     simulateGameCommand,
 } from 'axis-models';
 import { LogoutButton } from '../account/components/logout-button/logout-button';
@@ -40,6 +42,7 @@ import { Lobby } from './components/lobby/lobby';
 import { PlayerPanel } from './components/player-panel/player-panel';
 import { RiftTrack } from './components/rift-track/rift-track';
 import { Settings } from './components/settings/settings';
+import { SpellDisplay } from './components/spell-display/spell-display';
 import { TurnIndicator } from './components/turn-indicator/turn-indicator';
 import { VictoryModal } from './components/victory-modal/victory-modal';
 
@@ -62,6 +65,7 @@ import { VictoryModal } from './components/victory-modal/victory-modal';
         PlayerPanel,
         RiftTrack,
         Settings,
+        SpellDisplay,
         TurnIndicator,
         UserBadge,
         VictoryModal,
@@ -222,6 +226,18 @@ export class GamePage {
     readonly paidCardIds = signal<Set<string>>(new Set());
     readonly chosenActivations = signal<Map<GlyphSymbol, number>>(new Map());
 
+    // ─── Spells ────────────────────────────────────────────────────────────────
+    readonly spellsEnabled = computed(() => this.game().options.spells);
+    readonly spellDisplay = computed(() => this.game().spellDisplay);
+    readonly spellDeckSize = computed(() => this.game().spellDeck.length);
+    /** Force the active player can spend on Spells right now (Rift room). */
+    readonly forceRoom = computed(() => getForceRoom(this.game(), this.mySide()));
+    /** Casting is available under the same conditions as inscribing, plus the option. */
+    readonly canCast = computed(() => this.canInscribe() && this.spellsEnabled());
+    /** The Spell currently selected for targeting, or null. */
+    readonly selectedSpell = signal<SpellCard | null>(null);
+    readonly castShape = computed(() => this.selectedSpell()?.shape ?? null);
+
     /**
      * What-if outcome of the move currently being composed, run through the
      * pure simulator so the UI can preview results (rift shift, draws, crux
@@ -250,8 +266,18 @@ export class GamePage {
         }
     });
 
-    /** Rift after the composed move, or null when there's no live preview. */
-    readonly previewRift = computed(() => this.previewState()?.rift ?? null);
+    /**
+     * Rift after the pending action: the Force cost of a selected Spell (slides
+     * toward the opponent), else the composed inscribe's result, else null.
+     */
+    readonly previewRift = computed(() => {
+        const spell = this.selectedSpell();
+        if (spell) {
+            const delta = this.mySide() === 'light' ? -spell.forceCost : spell.forceCost;
+            return Math.max(-8, Math.min(8, this.game().rift + delta));
+        }
+        return this.previewState()?.rift ?? null;
+    });
 
     /** The rune as it would land on the selected cell (carrying any charged flux). */
     readonly previewRune = computed(() => {
@@ -271,12 +297,30 @@ export class GamePage {
         if (!this.canInscribe()) return;
         const cell = this.game().board[pos.row]?.[pos.col];
         if (cell?.rune !== null) return;
+        this.selectedSpell.set(null); // inscribing and casting are mutually exclusive
         this.selectedCell.set(pos);
         // Pre-fill a sensible default move (cheapest payment + flux-first activations)
         // so the player can confirm in one click — still fully editable below.
         const auto = autoSelectInscription(this.game(), this.mySide(), pos);
         this.paidCardIds.set(new Set(auto?.paidCardIds ?? []));
         this.chosenActivations.set(this.collapseActivations(auto?.activations ?? []));
+    }
+
+    /** Select (or toggle off) a Spell from the display, entering targeting mode. */
+    onSpellPicked(spell: SpellCard): void {
+        if (!this.canCast() || this.forceRoom() < spell.forceCost) return;
+        this.clearSelection(); // leaving any inscribe composition
+        this.selectedSpell.update(prev => (prev?.id === spell.id ? null : spell));
+    }
+
+    /** Cast the selected Spell at the chosen anchor. */
+    onCastAnchor(anchor: Position): void {
+        const spell = this.selectedSpell();
+        if (!spell) return;
+        this.dealer.signalAsPlayer(
+            clientGameCommand('CastSpell', { player: this.mySide(), spellId: spell.id, anchor })
+        );
+        this.selectedSpell.set(null);
     }
 
     /** Flattened activation list → the per-glyph count map the panel/preview use. */

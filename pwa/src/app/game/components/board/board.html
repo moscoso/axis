@@ -12,6 +12,8 @@
                         [selected]="isSelected(cell.position)"
                         [dim]="selectable() && !cell.hasCrux && !isAffordable(cell.position)"
                         [inCross]="isInCross(cell.position)"
+                        [inFootprint]="inFootprint(cell.position)"
+                        [willCharge]="willCharge(cell.position)"
                         [cruxBadge]="cruxBadge(cell.position)"
                         [ghost]="ghostFor(cell.position)"
                         (click)="onCellClick(cell.position)"

@@ -36,6 +36,15 @@
         Crux Force
         <span class="state">{{ force() ? 'On' : 'Off' }}</span>
     </button>
+    <button type="button"
+            class="toggle"
+            [class.active]="spells()"
+            [disabled]="disabled()"
+            [attr.aria-pressed]="spells()"
+            (click)="toggleSpells()">
+        Spells
+        <span class="state">{{ spells() ? 'On' : 'Off' }}</span>
+    </button>
     <div class="stepper" [class.active]="baseRuneCharge() > 0">
         Base Charge
         <div class="stepper-controls">

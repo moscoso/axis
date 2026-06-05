@@ -25,6 +25,8 @@ const ELEMENT_SYMBOL: Record<Element, string> = {
         '[class.selected]': 'selected()',
         '[class.dim]': 'dim()',
         '[class.in-cross]': 'inCross()',
+        '[class.in-footprint]': 'inFootprint()',
+        '[class.will-charge]': 'willCharge()',
     },
 })
 export class BoardCell {
@@ -36,6 +38,10 @@ export class BoardCell {
     readonly dim = input<boolean>(false);
     /** Part of the row/column cross of the currently-hovered rune. */
     readonly inCross = input<boolean>(false);
+    /** Covered by the hovered Spell footprint (casting mode). */
+    readonly inFootprint = input<boolean>(false);
+    /** Inside the footprint AND holds a rune the Spell would charge. */
+    readonly willCharge = input<boolean>(false);
     /**
      * Crux control badge: signed flux lead + the side that controls the Zone.
      * `preview` is true when this is a projected (pending-move) result — rendered

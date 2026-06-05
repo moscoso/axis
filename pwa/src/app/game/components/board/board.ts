@@ -4,12 +4,14 @@ import {
     PlayerSide,
     Position,
     Rune,
+    SpellShape,
     Zone,
     getBaseCost,
     getCardValue,
     getBondElements,
     getDiscountedCost,
     getFluxTotalForCruxLines,
+    getSpellFootprint,
 } from 'axis-models';
 import { BoardCell } from '../board-cell/board-cell';
 
@@ -33,8 +35,12 @@ export class Board {
     readonly previewGame = input<Game | null>(null);
     /** Show the discount guideline edges (per-row/column rune tallies). */
     readonly showGuides = input<boolean>(true);
+    /** When set, the board is in Spell targeting mode for this footprint shape. */
+    readonly castShape = input<SpellShape | null>(null);
 
     readonly cellClicked = output<Position>();
+    /** Fired when a cell is chosen as a Spell anchor (casting mode only). */
+    readonly anchorPicked = output<Position>();
 
     readonly rows = computed(() => this.game().board);
 
@@ -178,6 +184,11 @@ export class Board {
     }
 
     onCellClick(pos: Position): void {
+        // Casting mode: any cell is a valid anchor.
+        if (this.castShape()) {
+            this.anchorPicked.emit(pos);
+            return;
+        }
         if (!this.selectable()) return;
         if (!this.isAffordable(pos)) return;
         this.cellClicked.emit(pos);
@@ -193,9 +204,13 @@ export class Board {
     /** Tracks the mouse over an empty cell — drives the "you can play here" ghost. */
     readonly hoveredEmpty = signal<Position | null>(null);
 
+    /** Tracks the hovered anchor while in Spell casting mode. */
+    readonly hoveredAnchor = signal<Position | null>(null);
+
     onCellHover(pos: Position): void {
         const cell = this.game().board[pos.row]?.[pos.col];
         if (!cell) return;
+        if (this.castShape()) { this.hoveredAnchor.set(pos); return; }
         if (cell.rune) this.hoveredRune.set(pos);
         else this.hoveredEmpty.set(pos);
     }
@@ -204,6 +219,34 @@ export class Board {
         const here = (p: Position | null) => p?.row === pos.row && p.col === pos.col;
         if (here(this.hoveredRune())) this.hoveredRune.set(null);
         if (here(this.hoveredEmpty())) this.hoveredEmpty.set(null);
+        if (here(this.hoveredAnchor())) this.hoveredAnchor.set(null);
+    }
+
+    /**
+     * The hovered Spell footprint, split into the cells it covers and the subset
+     * that would actually be charged (the caster's own runes). Empty when not
+     * casting or nothing is hovered.
+     */
+    private readonly footprint = computed<{ cells: Set<string>; charge: Set<string> }>(() => {
+        const shape = this.castShape();
+        const anchor = this.hoveredAnchor();
+        const cells = new Set<string>();
+        const charge = new Set<string>();
+        if (!shape || !anchor) return { cells, charge };
+        const player = this.player();
+        for (const p of getSpellFootprint(shape, anchor)) {
+            const key = `${p.row},${p.col}`;
+            cells.add(key);
+            if (player && this.game().board[p.row]?.[p.col]?.rune?.owner === player) charge.add(key);
+        }
+        return { cells, charge };
+    });
+
+    inFootprint(pos: Position): boolean {
+        return this.footprint().cells.has(`${pos.row},${pos.col}`);
+    }
+    willCharge(pos: Position): boolean {
+        return this.footprint().charge.has(`${pos.row},${pos.col}`);
     }
 
     /**
@@ -214,7 +257,7 @@ export class Board {
      */
     ghostFor(pos: Position): Rune | null {
         const player = this.player();
-        if (!player || !this.selectable()) return null;
+        if (!player || !this.selectable() || this.castShape()) return null;
         const cell = this.game().board[pos.row]?.[pos.col];
         if (!cell || cell.rune !== null || cell.hasCrux) return null;
         if (!this.isAffordable(pos)) return null;

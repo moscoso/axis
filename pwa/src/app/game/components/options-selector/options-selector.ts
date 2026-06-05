@@ -28,6 +28,7 @@ export class OptionsSelector {
     readonly shiftGlyphs = computed(() => this.current().shiftGlyphs);
     readonly affinity = computed(() => this.current().affinity);
     readonly baseRuneCharge = computed(() => this.current().baseRuneCharge);
+    readonly spells = computed(() => this.current().spells);
     readonly bond = computed(() => this.current().cruxBonus.bond);
     readonly force = computed(() => this.current().cruxBonus.force);
 
@@ -38,6 +39,7 @@ export class OptionsSelector {
 
     toggleShiftGlyphs(): void { this.patch({ shiftGlyphs: !this.shiftGlyphs() }); }
     toggleAffinity(): void { this.patch({ affinity: !this.affinity() }); }
+    toggleSpells(): void { this.patch({ spells: !this.spells() }); }
 
     stepBaseCharge(delta: number): void {
         const next = Math.max(0, Math.min(OptionsSelector.MAX_BASE_CHARGE, this.baseRuneCharge() + delta));

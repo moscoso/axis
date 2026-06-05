@@ -1,0 +1,21 @@
+<header>
+    <span class="label">Spells</span>
+    <span class="deck" title="Spells left in the deck">{{ deckSize() }}</span>
+</header>
+
+<div class="spells">
+    @for (s of spells(); track s.id) {
+        <button type="button"
+                class="spell"
+                [class.selected]="isSelected(s)"
+                [class.unaffordable]="castable() && !affordable(s)"
+                [disabled]="!castable() || !affordable(s)"
+                (click)="onPick(s)">
+            <app-spell-icon [shape]="s.shape"></app-spell-icon>
+            <span class="name">{{ s.name }}</span>
+            <span class="cost" [attr.aria-label]="s.forceCost + ' Force'">{{ cost(s) }}</span>
+        </button>
+    } @empty {
+        <div class="placeholder">No spells</div>
+    }
+</div>

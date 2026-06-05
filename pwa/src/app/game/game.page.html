@@ -71,8 +71,10 @@
                     [selectedCell]="selectedCell()"
                     [previewRune]="previewRune()"
                     [previewGame]="previewState()"
+                    [castShape]="castShape()"
                     [showGuides]="boardGuides()"
-                    (cellClicked)="onCellClick($event)">
+                    (cellClicked)="onCellClick($event)"
+                    (anchorPicked)="onCastAnchor($event)">
                 </app-board>
             </section>
 
@@ -99,6 +101,16 @@
                 (cardSelected)="onDisplayCardPicked($event)"
                 (drawFromDeck)="onDrawFromDeck()">
             </app-card-display>
+            @if (spellsEnabled()) {
+                <app-spell-display
+                    [spells]="spellDisplay()"
+                    [deckSize]="spellDeckSize()"
+                    [forceRoom]="forceRoom()"
+                    [castable]="canCast()"
+                    [selectedId]="selectedSpell()?.id ?? null"
+                    (spellSelected)="onSpellPicked($event)">
+                </app-spell-display>
+            }
             <app-flux-scoreboard [game]="g"></app-flux-scoreboard>
             <app-action-panel
                 [game]="g"
