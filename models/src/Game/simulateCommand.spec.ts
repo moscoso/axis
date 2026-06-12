@@ -91,14 +91,14 @@ describe('simulateGameCommand', () => {
 			currentTurn: 'dark',
 			board,
 			zones: [
-				{ id: 'z-water', element: 'water', topLeft: { row: 0, col: 0 }, cruxPosition: { row: 0, col: 2 }, control: 'unbound' },
-				{ id: 'z-fire',  element: 'fire',  topLeft: { row: 0, col: 3 }, cruxPosition: { row: 0, col: 5 }, control: 'unbound' },
-				{ id: 'z-earth', element: 'earth', topLeft: { row: 3, col: 0 }, cruxPosition: { row: 5, col: 2 }, control: 'unbound' },
-				{ id: 'z-air',   element: 'air',   topLeft: { row: 3, col: 3 }, cruxPosition: { row: 5, col: 5 }, control: 'unbound' },
+				{ id: 'z-comet', element: 'comet', topLeft: { row: 0, col: 0 }, width: 3, height: 3, cruxPosition: { row: 0, col: 2 }, control: 'unbound' },
+				{ id: 'z-sun',  element: 'sun',  topLeft: { row: 0, col: 3 }, width: 3, height: 3, cruxPosition: { row: 0, col: 5 }, control: 'unbound' },
+				{ id: 'z-moon', element: 'moon', topLeft: { row: 3, col: 0 }, width: 3, height: 3, cruxPosition: { row: 5, col: 2 }, control: 'unbound' },
+				{ id: 'z-star',   element: 'star',   topLeft: { row: 3, col: 3 }, width: 3, height: 3, cruxPosition: { row: 5, col: 5 }, control: 'unbound' },
 			],
 			players: {
 				light: { side: 'light', hand: [] },
-				dark:  { side: 'dark',  hand: [{ id: 'w1', element: 'water' }] },
+				dark:  { side: 'dark',  hand: [{ id: 'w1', element: 'comet' }] },
 			},
 		};
 
@@ -138,14 +138,14 @@ describe('simulateGameCommand', () => {
 			currentTurn: 'dark',
 			board,
 			zones: [
-				{ id: 'z-water', element: 'water', topLeft: { row: 0, col: 0 }, cruxPosition: { row: 0, col: 2 }, control: 'unbound' },
-				{ id: 'z-fire',  element: 'fire',  topLeft: { row: 0, col: 3 }, cruxPosition: { row: 0, col: 5 }, control: 'unbound' },
-				{ id: 'z-earth', element: 'earth', topLeft: { row: 3, col: 0 }, cruxPosition: { row: 5, col: 2 }, control: 'unbound' },
-				{ id: 'z-air',   element: 'air',   topLeft: { row: 3, col: 3 }, cruxPosition: { row: 5, col: 5 }, control: 'unbound' },
+				{ id: 'z-comet', element: 'comet', topLeft: { row: 0, col: 0 }, width: 3, height: 3, cruxPosition: { row: 0, col: 2 }, control: 'unbound' },
+				{ id: 'z-sun',  element: 'sun',  topLeft: { row: 0, col: 3 }, width: 3, height: 3, cruxPosition: { row: 0, col: 5 }, control: 'unbound' },
+				{ id: 'z-moon', element: 'moon', topLeft: { row: 3, col: 0 }, width: 3, height: 3, cruxPosition: { row: 5, col: 2 }, control: 'unbound' },
+				{ id: 'z-star',   element: 'star',   topLeft: { row: 3, col: 3 }, width: 3, height: 3, cruxPosition: { row: 5, col: 5 }, control: 'unbound' },
 			],
 			players: {
 				light: { side: 'light', hand: [] },
-				dark:  { side: 'dark',  hand: [{ id: 'w1', element: 'water' }, { id: 'w2', element: 'water' }] },
+				dark:  { side: 'dark',  hand: [{ id: 'w1', element: 'comet' }, { id: 'w2', element: 'comet' }] },
 			},
 		};
 

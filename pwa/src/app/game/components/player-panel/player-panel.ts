@@ -2,10 +2,12 @@ import { ChangeDetectionStrategy, Component, computed, input } from '@angular/co
 import { Element, PlayerSide, Seat, Zone } from 'axis-models';
 
 const ELEMENT_SYMBOL: Record<Element, string> = {
-    fire: '🔥',
-    earth: '🌱',
-    air: '💨',
-    water: '💧',
+    sun: '☀️',
+    moon: '🌙',
+    star: '⭐',
+    comet: '☄️',
+    planet: '🪐',
+    'black-hole': '🌀',
 };
 
 @Component({

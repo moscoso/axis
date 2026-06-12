@@ -4,10 +4,12 @@ import { Glyph } from '../glyph/glyph';
 import { Rune } from '../rune/rune';
 
 const ELEMENT_SYMBOL: Record<Element, string> = {
-    fire: '🔥',
-    earth: '🌱',
-    air: '💨',
-    water: '💧',
+    sun: '☀️',
+    moon: '🌙',
+    star: '⭐',
+    comet: '☄️',
+    planet: '🪐',
+    'black-hole': '🌀',
 };
 
 @Component({

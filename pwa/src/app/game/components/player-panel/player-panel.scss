@@ -99,10 +99,12 @@ header {
     line-height: 1;
 }
 
-.crux[data-element="fire"]  { border-left-color: #ff6a3d; }
-.crux[data-element="earth"] { border-left-color: #6ed26a; }
-.crux[data-element="air"]   { border-left-color: #f2e36a; }
-.crux[data-element="water"] { border-left-color: #6abeff; }
+.crux[data-element="sun"]        { border-left-color: #f2c94c; }
+.crux[data-element="moon"]       { border-left-color: #8fd3ff; }
+.crux[data-element="star"]       { border-left-color: #ff6ad5; }
+.crux[data-element="comet"]      { border-left-color: #ff7a45; }
+.crux[data-element="planet"]     { border-left-color: #6ed26a; }
+.crux[data-element="black-hole"] { border-left-color: #3fd6c5; }
 
 .no-cruxes {
     font-size: 0.75rem;

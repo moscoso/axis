@@ -27,13 +27,13 @@ function stuckState(overrides: Partial<Game> = {}): Game {
 		// The four 3×3 elemental Zones every real game has. hasAnyLegalMove now
 		// resolves each cell's Zone (for Affinity), so the state must be valid.
 		zones: [
-			{ id: 'z-fire',  element: 'fire',  topLeft: { row: 0, col: 0 }, cruxPosition: { row: 0, col: 0 }, control: 'unbound' },
-			{ id: 'z-earth', element: 'earth', topLeft: { row: 0, col: 3 }, cruxPosition: { row: 0, col: 3 }, control: 'unbound' },
-			{ id: 'z-air',   element: 'air',   topLeft: { row: 3, col: 0 }, cruxPosition: { row: 3, col: 0 }, control: 'unbound' },
-			{ id: 'z-water', element: 'water', topLeft: { row: 3, col: 3 }, cruxPosition: { row: 3, col: 3 }, control: 'unbound' },
+			{ id: 'z-sun',  element: 'sun',  topLeft: { row: 0, col: 0 }, width: 3, height: 3, cruxPosition: { row: 0, col: 0 }, control: 'unbound' },
+			{ id: 'z-moon', element: 'moon', topLeft: { row: 0, col: 3 }, width: 3, height: 3, cruxPosition: { row: 0, col: 3 }, control: 'unbound' },
+			{ id: 'z-star',   element: 'star',   topLeft: { row: 3, col: 0 }, width: 3, height: 3, cruxPosition: { row: 3, col: 0 }, control: 'unbound' },
+			{ id: 'z-comet', element: 'comet', topLeft: { row: 3, col: 3 }, width: 3, height: 3, cruxPosition: { row: 3, col: 3 }, control: 'unbound' },
 		],
 		players: {
-			light: { side: 'light', hand: [{ id: 'c-light', element: 'fire' }] },
+			light: { side: 'light', hand: [{ id: 'c-light', element: 'sun' }] },
 			dark:  { side: 'dark',  hand: [] },
 		},
 		playerIds: { light: 'u-light', dark: 'u-dark' },
@@ -66,8 +66,8 @@ describe('winnerReducer — Turn Ended stuck state', () => {
 		// Dark has a card — can inscribe any cost-1 cell.
 		const state = stuckState({
 			players: {
-				light: { side: 'light', hand: [{ id: 'c-light', element: 'fire' }] },
-				dark:  { side: 'dark',  hand: [{ id: 'c-dark',  element: 'fire' }] },
+				light: { side: 'light', hand: [{ id: 'c-light', element: 'sun' }] },
+				dark:  { side: 'dark',  hand: [{ id: 'c-dark',  element: 'sun' }] },
 			},
 		});
 

@@ -26,12 +26,10 @@ export function winnerReducer(event: GameEvent, state: Game): Game {
 			if (state.rift >= 8)  return declareWinner(state, 'light', 'rift-break');
 			if (state.rift <= -8) return declareWinner(state, 'dark',  'rift-break');
 
-			// 2. Fluxmate — all four Cruxes controlled by the same player
+			// 2. Fluxmate — every Crux controlled by the same player
 			// (zones.reducer has already recomputed control before this reducer runs)
-			const lightCruxes = state.zones.filter(z => z.control === 'light').length;
-			const darkCruxes  = state.zones.filter(z => z.control === 'dark').length;
-			if (lightCruxes === 4) return declareWinner(state, 'light', 'fluxmate');
-			if (darkCruxes  === 4) return declareWinner(state, 'dark',  'fluxmate');
+			const fluxmate = checkFluxmate(state);
+			if (fluxmate) return declareWinner(state, fluxmate, 'fluxmate');
 
 			// 3. Last Rune — board is full
 			if (isBoardFull(state)) {
@@ -58,10 +56,8 @@ export function winnerReducer(event: GameEvent, state: Game): Game {
 			if (state.rift >= 8)  return declareWinner(state, 'light', 'rift-break');
 			if (state.rift <= -8) return declareWinner(state, 'dark',  'rift-break');
 
-			const lightCruxes = state.zones.filter(z => z.control === 'light').length;
-			const darkCruxes  = state.zones.filter(z => z.control === 'dark').length;
-			if (lightCruxes === 4) return declareWinner(state, 'light', 'fluxmate');
-			if (darkCruxes  === 4) return declareWinner(state, 'dark',  'fluxmate');
+			const fluxmate = checkFluxmate(state);
+			if (fluxmate) return declareWinner(state, fluxmate, 'fluxmate');
 
 			return state;
 		}
@@ -69,6 +65,23 @@ export function winnerReducer(event: GameEvent, state: Game): Game {
 		default:
 			return state;
 	}
+}
+
+/** Cruxes a side must control simultaneously to win by Fluxmate. */
+const FLUXMATE_THRESHOLD = 5;
+
+/**
+ * The side controlling {@link FLUXMATE_THRESHOLD}+ Cruxes, or null. All six is
+ * practically unreachable (the opponent only needs to contest one line), while
+ * 4 of 6 ends bot self-play in ~23 moves before the rest of the game matters —
+ * 5 benchmarks to a healthy mix of win conditions.
+ */
+function checkFluxmate(state: Game): PlayerSide | null {
+	const lightCruxes = state.zones.filter(z => z.control === 'light').length;
+	const darkCruxes  = state.zones.filter(z => z.control === 'dark').length;
+	if (lightCruxes >= FLUXMATE_THRESHOLD) return 'light';
+	if (darkCruxes  >= FLUXMATE_THRESHOLD) return 'dark';
+	return null;
 }
 
 function declareWinner(state: Game, winner: PlayerSide, reason: 'rift-break' | 'fluxmate'): Game {

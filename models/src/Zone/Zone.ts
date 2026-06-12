@@ -12,6 +12,10 @@ export interface Zone {
 	id: string;
 	element: Element;
 	topLeft: Position;
+	/** Cells spanned horizontally (zones are 2×3 rectangles, either orientation). */
+	width: number;
+	/** Cells spanned vertically. */
+	height: number;
 	cruxPosition: Position;
 	control: CruxControl;
 }

@@ -1,34 +1,96 @@
-import { Element } from '../Element/Element';
+import { ELEMENTS } from '../Element/Element';
 import { Glyph, ShiftGlyph, SHIFT_GLYPHS } from '../Glyph/Glyph';
 import { BoardCell, Game } from '../Game/Game';
 import { shuffle } from '../Utility/shuffle';
-import { Zone } from '../Zone/Zone';
+import { Position, Zone } from '../Zone/Zone';
 
-const ELEMENTS: Element[] = ['fire', 'earth', 'air', 'water'];
 const NON_SHIFT_GLYPHS: Glyph[] = ['+', '▲', '◇'];
 const GLYPH_ORDER: Record<Glyph, number> = {
 	'+': 0, '▲': 1, '◇': 2, '↑': 3, '→': 4, '↓': 5, '←': 6,
 };
 
-const QUADRANTS = [
-	{ id: 'TL', topLeft: { row: 0, col: 0 } },
-	{ id: 'TR', topLeft: { row: 0, col: 3 } },
-	{ id: 'BL', topLeft: { row: 3, col: 0 } },
-	{ id: 'BR', topLeft: { row: 3, col: 3 } },
-] as const;
+/** Glyph counts dealt to each zone's 5 non-crux cells — one cell of each cost. */
+const ZONE_COSTS = [2, 3, 4, 5, 6];
 
-function placeCruxes(): { TL: { row: number; col: number }; TR: { row: number; col: number }; BL: { row: number; col: number }; BR: { row: number; col: number } } {
-	const [tlRow, trRow] = shuffle([0, 1, 2]);
-	const [blRow, brRow] = shuffle([3, 4, 5]);
-	const [tlCol, blCol] = shuffle([0, 1, 2]);
-	const [trCol, brCol] = shuffle([3, 4, 5]);
+/** 6 zones × (2+3+4+5+6) printed symbols. */
+const TOTAL_GLYPHS = 120;
+/** Shift mix: 6 per direction (24 total), leaving 96 = 32 of each non-shift. */
+const SHIFTS_PER_DIRECTION = 6;
+const NON_SHIFTS_PER_TYPE = 32;
 
-	return {
-		TL: { row: tlRow, col: tlCol },
-		TR: { row: trRow, col: trCol },
-		BL: { row: blRow, col: blCol },
-		BR: { row: brRow, col: brCol },
-	};
+interface Region {
+	id: string;
+	topLeft: Position;
+	width: number;
+	height: number;
+}
+
+/**
+ * Carves the 6×6 board into six 2×3 regions. One orientation per game,
+ * chosen at random:
+ * - 'wide': 3-wide × 2-tall zones in a 2-across × 3-down grid.
+ * - 'tall': 2-wide × 3-tall zones in a 3-across × 2-down grid.
+ */
+function carveRegions(): Region[] {
+	const wide = Math.random() < 0.5;
+	const regions: Region[] = [];
+	if (wide) {
+		for (let band = 0; band < 3; band++) {
+			for (let side = 0; side < 2; side++) {
+				regions.push({
+					id: `Z${regions.length + 1}`,
+					topLeft: { row: band * 2, col: side * 3 },
+					width: 3,
+					height: 2,
+				});
+			}
+		}
+	} else {
+		for (let band = 0; band < 2; band++) {
+			for (let side = 0; side < 3; side++) {
+				regions.push({
+					id: `Z${regions.length + 1}`,
+					topLeft: { row: band * 3, col: side * 2 },
+					width: 2,
+					height: 3,
+				});
+			}
+		}
+	}
+	return regions;
+}
+
+/**
+ * Places one Crux per region obeying Cross Exclusivity: all six Cruxes occupy
+ * distinct rows AND distinct columns (a permutation of the board's lines).
+ *
+ * Regions tile the board in bands, so exclusivity decomposes per band: the
+ * regions sharing a row-band split that band's rows between them, and the
+ * regions sharing a column-band split that band's columns — both via shuffle.
+ */
+function placeCruxes(regions: Region[]): Position[] {
+	const rowOf = new Map<Region, number>();
+	const colOf = new Map<Region, number>();
+
+	const rowBands = new Map<number, Region[]>();
+	const colBands = new Map<number, Region[]>();
+	for (const region of regions) {
+		rowBands.set(region.topLeft.row, [...(rowBands.get(region.topLeft.row) ?? []), region]);
+		colBands.set(region.topLeft.col, [...(colBands.get(region.topLeft.col) ?? []), region]);
+	}
+
+	for (const [bandStart, members] of rowBands) {
+		const height = members[0].height;
+		const rows = shuffle(Array.from({ length: height }, (_, i) => bandStart + i));
+		members.forEach((region, i) => rowOf.set(region, rows[i]));
+	}
+	for (const [bandStart, members] of colBands) {
+		const width = members[0].width;
+		const cols = shuffle(Array.from({ length: width }, (_, i) => bandStart + i));
+		members.forEach((region, i) => colOf.set(region, cols[i]));
+	}
+
+	return regions.map(region => ({ row: rowOf.get(region)!, col: colOf.get(region)! }));
 }
 
 /** Legacy distribution: each slot gets `cost` glyphs picked uniformly from +, ▲, ◇. */
@@ -40,9 +102,9 @@ function dealLegacyGlyphs(capacities: number[]): Glyph[][] {
 }
 
 /**
- * Distributes 144 glyphs across 32 cells given each cell's capacity.
- * - 36 of each non-shift type (+, ▲, ◇).
- * - 9 of each shift direction (↑, →, ↓, ←).
+ * Distributes 120 glyphs across the 30 non-crux cells given each cell's capacity.
+ * - 32 of each non-shift type (+, ▲, ◇).
+ * - 6 of each shift direction (↑, →, ↓, ←).
  * - Per-cell rule: shifts on a single cell must all share one direction.
  */
 function dealGlyphs(capacities: number[]): Glyph[][] {
@@ -53,7 +115,7 @@ function dealGlyphs(capacities: number[]): Glyph[][] {
 	}));
 
 	for (const dir of shuffle([...SHIFT_GLYPHS])) {
-		for (let i = 0; i < 9; i++) {
+		for (let i = 0; i < SHIFTS_PER_DIRECTION; i++) {
 			const eligible = cells.filter(c =>
 				c.remaining > 0 && (c.shiftDir === null || c.shiftDir === dir)
 			);
@@ -68,9 +130,9 @@ function dealGlyphs(capacities: number[]): Glyph[][] {
 	}
 
 	const nonShifts: Glyph[] = shuffle([
-		...Array(36).fill('+' as Glyph),
-		...Array(36).fill('▲' as Glyph),
-		...Array(36).fill('◇' as Glyph),
+		...Array(NON_SHIFTS_PER_TYPE).fill('+' as Glyph),
+		...Array(NON_SHIFTS_PER_TYPE).fill('▲' as Glyph),
+		...Array(NON_SHIFTS_PER_TYPE).fill('◇' as Glyph),
 	]);
 	let nsIdx = 0;
 	for (const cell of cells) {
@@ -86,12 +148,14 @@ function dealGlyphs(capacities: number[]): Glyph[][] {
 }
 
 /**
- * Generates a randomised 6×6 board and 4 zones for a new AXIS game.
- * - Elements are randomly assigned to quadrants.
- * - Cruxes are placed obeying row/column exclusivity at generation time.
- * - Each zone's 8 non-crux cells receive costs 1–8 exactly once (shuffled).
- * - When `shiftGlyphs` is true (default), 144 glyphs are distributed as 36 each
- *   of +, ▲, ◇ and 9 each of ↑, →, ↓, ←. A cell's shifts are all the same
+ * Generates a randomised 6×6 board and 6 zones for a new AXIS game.
+ * - The board is carved into six 2×3 regions; orientation (wide/tall) is
+ *   rolled once per game.
+ * - The six celestial suits are randomly assigned, one per zone.
+ * - Cruxes obey Cross Exclusivity: six distinct rows, six distinct columns.
+ * - Each zone's 5 non-crux cells receive costs 2–6 exactly once (shuffled).
+ * - When `shiftGlyphs` is true (default), 120 glyphs are distributed as 32 each
+ *   of +, ▲, ◇ and 6 each of ↑, →, ↓, ←. A cell's shifts are all the same
  *   direction (mixed shift directions on one cell are forbidden); non-shift
  *   glyphs may freely co-exist with shifts. When false, every glyph is picked
  *   uniformly from +, ▲, ◇ and no shifts appear.
@@ -99,9 +163,9 @@ function dealGlyphs(capacities: number[]): Glyph[][] {
 export function generateBoard(
 	{ shiftGlyphs = true }: { shiftGlyphs?: boolean } = {}
 ): Pick<Game, 'board' | 'zones'> {
+	const regions = carveRegions();
 	const elements = shuffle(ELEMENTS);
-	const cruxes = placeCruxes();
-	const cruxKeys = ['TL', 'TR', 'BL', 'BR'] as const;
+	const cruxes = placeCruxes(regions);
 
 	const board: BoardCell[][] = Array.from({ length: 6 }, (_, row) =>
 		Array.from({ length: 6 }, (_, col) => ({
@@ -116,18 +180,15 @@ export function generateBoard(
 	type Slot = { row: number; col: number; cost: number };
 	const slots: Slot[] = [];
 
-	const zones: Zone[] = QUADRANTS.map(({ id, topLeft }, i) => {
-		const key = cruxKeys[i];
-		const cruxPosition = cruxes[key];
-		const element = elements[i];
-
-		const costs = shuffle([1, 2, 3, 4, 5, 6, 7, 8]);
+	const zones: Zone[] = regions.map((region, i) => {
+		const cruxPosition = cruxes[i];
+		const costs = shuffle([...ZONE_COSTS]);
 		let costIndex = 0;
 
-		for (let r = topLeft.row; r < topLeft.row + 3; r++) {
-			for (let c = topLeft.col; c < topLeft.col + 3; c++) {
+		for (let r = region.topLeft.row; r < region.topLeft.row + region.height; r++) {
+			for (let c = region.topLeft.col; c < region.topLeft.col + region.width; c++) {
 				const isCrux = r === cruxPosition.row && c === cruxPosition.col;
-				board[r][c].zoneId = id;
+				board[r][c].zoneId = region.id;
 				board[r][c].hasCrux = isCrux;
 				if (!isCrux) {
 					slots.push({ row: r, col: c, cost: costs[costIndex++] });
@@ -136,11 +197,13 @@ export function generateBoard(
 		}
 
 		return {
-			id,
-			element,
-			topLeft,
+			id: region.id,
+			element: elements[i],
+			topLeft: region.topLeft,
+			width: region.width,
+			height: region.height,
 			cruxPosition,
-			control: 'unbound',
+			control: 'unbound' as const,
 		};
 	});
 

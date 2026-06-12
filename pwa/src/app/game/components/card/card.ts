@@ -4,10 +4,12 @@ import { Card as CardModel, Element } from 'axis-models';
 export type CardSize = 'sm' | 'md' | 'lg';
 
 const ELEMENT_GLYPH: Record<Element, string> = {
-    fire: '🔥',
-    earth: '🌱',
-    air: '💨',
-    water: '💧',
+    sun: '☀️',
+    moon: '🌙',
+    star: '⭐',
+    comet: '☄️',
+    planet: '🪐',
+    'black-hole': '🌀',
 };
 
 @Component({
@@ -30,5 +32,6 @@ export class Card {
     readonly selected = input<boolean>(false);
 
     readonly glyph = computed(() => ELEMENT_GLYPH[this.card().element]);
-    readonly elementLabel = computed(() => this.card().element);
+    /** Suit ids are kebab-case ('black-hole'); display them with spaces. */
+    readonly elementLabel = computed(() => this.card().element.replace('-', ' '));
 }

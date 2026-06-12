@@ -95,7 +95,7 @@ function toSimulationState(publicState: PublicGameState): Game {
 	const opp: PlayerSide = publicState.side === 'light' ? 'dark' : 'light';
 	const deck = Array.from({ length: publicState.deckSize }, (_, i) => ({
 		id: `__sim-deck-${i}__`,
-		element: 'fire' as const,
+		element: 'sun' as const,
 	}));
 	return {
 		id: publicState.id,

@@ -89,10 +89,12 @@
     font-variant-numeric: tabular-nums;
 }
 
-.crux-row[data-element="fire"]  { border-left-color: rgba(255, 106, 61, 0.7); }
-.crux-row[data-element="earth"] { border-left-color: rgba(110, 210, 106, 0.7); }
-.crux-row[data-element="air"]   { border-left-color: rgba(242, 227, 106, 0.7); }
-.crux-row[data-element="water"] { border-left-color: rgba(106, 190, 255, 0.7); }
+.crux-row[data-element="sun"]        { border-left-color: rgba(242, 201, 76, 0.7); }
+.crux-row[data-element="moon"]       { border-left-color: rgba(143, 211, 255, 0.7); }
+.crux-row[data-element="star"]       { border-left-color: rgba(255, 106, 213, 0.7); }
+.crux-row[data-element="comet"]      { border-left-color: rgba(255, 122, 69, 0.7); }
+.crux-row[data-element="planet"]     { border-left-color: rgba(110, 210, 106, 0.7); }
+.crux-row[data-element="black-hole"] { border-left-color: rgba(63, 214, 197, 0.7); }
 
 /* Slight glow when this Crux is currently controlled. */
 .crux-row[data-control="light"] { background: rgba(245, 239, 224, 0.05); }

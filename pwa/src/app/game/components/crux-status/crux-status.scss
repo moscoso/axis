@@ -31,10 +31,12 @@ li {
     font-size: 0.8rem;
 }
 
-li[data-element="fire"]  { border-left-color: #ff6a3d; }
-li[data-element="earth"] { border-left-color: #6ed26a; }
-li[data-element="air"]   { border-left-color: #f2e36a; }
-li[data-element="water"] { border-left-color: #6abeff; }
+li[data-element="sun"]        { border-left-color: #f2c94c; }
+li[data-element="moon"]       { border-left-color: #8fd3ff; }
+li[data-element="star"]       { border-left-color: #ff6ad5; }
+li[data-element="comet"]      { border-left-color: #ff7a45; }
+li[data-element="planet"]     { border-left-color: #6ed26a; }
+li[data-element="black-hole"] { border-left-color: #3fd6c5; }
 
 li[data-control="light"] .ctl { color: #f5efe0; font-weight: 600; }
 li[data-control="dark"]  .ctl { color: #b19cff; font-weight: 600; }

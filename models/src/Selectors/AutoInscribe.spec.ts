@@ -71,7 +71,7 @@ describe('autoSelectInscription', () => {
 		const target: Position = { row: 0, col: 0 };
 		let state = setCell(mainTurnState(), target, { glyphs: ['+'], rune: null, hasCrux: false });
 		const zoneEl = getZoneForPosition(state, target).element;
-		const otherEl = (['fire', 'earth', 'air', 'water'] as Element[]).find(e => e !== zoneEl)!;
+		const otherEl = (['sun', 'moon', 'star', 'comet'] as Element[]).find(e => e !== zoneEl)!;
 		// 'match' is worth 2 here via Affinity; 'other' is worth 1. Cost is 1.
 		state = withLightHand(state, [{ id: 'match', element: zoneEl }, { id: 'other', element: otherEl }]);
 
@@ -89,7 +89,7 @@ describe('autoSelectInscription', () => {
 		// so only 2 activations are paid — flux + force should win over draw.
 		state = setCell(state, target, { glyphs: ['◇', '▲', '+'], rune: null, hasCrux: false });
 		state = setCell(state, { row: 0, col: 1 }, { rune: { owner: 'light', flux: 0 } });
-		state = withLightHand(state, [{ id: 'a', element: 'fire' }, { id: 'b', element: 'fire' }]);
+		state = withLightHand(state, [{ id: 'a', element: 'sun' }, { id: 'b', element: 'sun' }]);
 
 		const auto = autoSelectInscription(state, 'light', target)!;
 		expect(auto.paidCardIds.slice().sort()).to.deep.equal(['a', 'b']);
@@ -103,8 +103,8 @@ describe('autoSelectInscription', () => {
 	it('every auto-selected inscription is engine-legal', () => {
 		let state = mainTurnState();
 		state = withLightHand(state, [
-			{ id: 'h1', element: 'fire' }, { id: 'h2', element: 'earth' },
-			{ id: 'h3', element: 'air' }, { id: 'h4', element: 'water' },
+			{ id: 'h1', element: 'sun' }, { id: 'h2', element: 'moon' },
+			{ id: 'h3', element: 'star' }, { id: 'h4', element: 'comet' },
 		]);
 
 		let tested = 0;

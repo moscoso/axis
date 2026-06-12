@@ -17,7 +17,7 @@ const rune = (owner: 'light' | 'dark', flux: number): Rune => ({ owner, flux });
 
 const rowSpell: SpellCard = { id: 's-row', name: 'Charge Row', shape: 'row3', effect: 'charge', forceCost: 2 };
 const refill: SpellCard   = { id: 's-fill', name: 'Charge', shape: 'single', effect: 'charge', forceCost: 1 };
-const deckCards: Card[]    = [{ id: 'c0', element: 'fire' }, { id: 'c1', element: 'fire' }];
+const deckCards: Card[]    = [{ id: 'c0', element: 'sun' }, { id: 'c1', element: 'sun' }];
 
 function baseState(over: Partial<Game> = {}): Game {
 	const board = emptyBoard();

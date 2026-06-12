@@ -1,6 +1,6 @@
 import { UserID } from '@moscoso/models';
 import { Card } from '../../../Card/Card';
-import { Element } from '../../../Element/Element';
+import { ELEMENTS } from '../../../Element/Element';
 import { generateBoard } from '../../../Board/generateBoard';
 import { createSpellDeck } from '../../../Spell/createSpellDeck';
 import { GameSeed } from '../../GameSeed/GameSeed';
@@ -73,11 +73,14 @@ export class StartGame implements GameCommand<StartGameParams> {
 	}
 }
 
-const ELEMENTS: Element[] = ['fire', 'earth', 'air', 'water'];
-const CARDS_PER_ELEMENT = 8;
+/**
+ * 6 suits × 5 = a 30-card deck, mirroring the 30 inscribable cells (the four-
+ * zone game kept the same invariant: 32 cards for 32 cells). Tunable.
+ */
+const CARDS_PER_ELEMENT = 5;
 const SPELL_DISPLAY_SIZE = 3;
 
-/** Builds the 32-card AXIS deck: 8 of each element, id'd by element + index. */
+/** Builds the 30-card AXIS deck: 5 of each suit, id'd by suit + index. */
 function createDeck(): Card[] {
 	const deck: Card[] = [];
 	for (const element of ELEMENTS) {

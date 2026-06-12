@@ -8,10 +8,12 @@ import {
 } from 'axis-models';
 
 const ELEMENT_SYMBOL: Record<Element, string> = {
-    fire: '🔥',
-    earth: '🌱',
-    air: '💨',
-    water: '💧',
+    sun: '☀️',
+    moon: '🌙',
+    star: '⭐',
+    comet: '☄️',
+    planet: '🪐',
+    'black-hole': '🌀',
 };
 
 interface CruxRow {

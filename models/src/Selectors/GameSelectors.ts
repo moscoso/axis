@@ -7,9 +7,9 @@ import { BoardCell, Game } from '../Game/Game';
 export function getZoneForPosition(state: Game, position: Position): Zone {
 	return state.zones.find(z =>
 		position.row >= z.topLeft.row &&
-		position.row < z.topLeft.row + 3 &&
+		position.row < z.topLeft.row + z.height &&
 		position.col >= z.topLeft.col &&
-		position.col < z.topLeft.col + 3
+		position.col < z.topLeft.col + z.width
 	)!;
 }
 
@@ -120,8 +120,8 @@ export function getZoneAuraScore(state: Game, player: PlayerSide): number {
 	let score = 0;
 	for (const zone of state.zones) {
 		if (zone.control !== player) continue;
-		for (let row = zone.topLeft.row; row < zone.topLeft.row + 3; row++) {
-			for (let col = zone.topLeft.col; col < zone.topLeft.col + 3; col++) {
+		for (let row = zone.topLeft.row; row < zone.topLeft.row + zone.height; row++) {
+			for (let col = zone.topLeft.col; col < zone.topLeft.col + zone.width; col++) {
 				const rune = state.board[row][col].rune;
 				// Every Null Rune (flux === 0) inside a controlled Zone scores +1
 				if (rune !== null && rune.flux === 0) score++;

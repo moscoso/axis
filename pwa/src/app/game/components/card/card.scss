@@ -24,25 +24,35 @@
 :host([data-size="md"]) { --card-w: 6.5rem; --card-h: 9.5rem; font-size: 1rem; }
 :host([data-size="lg"]) { --card-w: 9rem;   --card-h: 13rem;  font-size: 1.15rem; border-radius: 14px; }
 
-:host([data-element="fire"]) {
-    --card-bg: radial-gradient(circle at 50% 30%, #8a2415 0%, #3a0d0d 70%);
-    --card-border: #ff6a3d;
-    --card-glow: rgba(255, 106, 61, 0.3);
+:host([data-element="sun"]) {
+    --card-bg: radial-gradient(circle at 50% 30%, #8a6f1c 0%, #3a2f0d 70%);
+    --card-border: #f2c94c;
+    --card-glow: rgba(242, 201, 76, 0.3);
 }
-:host([data-element="earth"]) {
+:host([data-element="moon"]) {
+    --card-bg: radial-gradient(circle at 50% 30%, #3a6286 0%, #16283a 70%);
+    --card-border: #8fd3ff;
+    --card-glow: rgba(143, 211, 255, 0.28);
+}
+:host([data-element="star"]) {
+    --card-bg: radial-gradient(circle at 50% 30%, #8a2a72 0%, #3a0d2f 70%);
+    --card-border: #ff6ad5;
+    --card-glow: rgba(255, 106, 213, 0.3);
+}
+:host([data-element="comet"]) {
+    --card-bg: radial-gradient(circle at 50% 30%, #8a3c15 0%, #3a160d 70%);
+    --card-border: #ff7a45;
+    --card-glow: rgba(255, 122, 69, 0.3);
+}
+:host([data-element="planet"]) {
     --card-bg: radial-gradient(circle at 50% 30%, #3a6b3a 0%, #0f2a18 70%);
     --card-border: #6ed26a;
     --card-glow: rgba(110, 210, 106, 0.25);
 }
-:host([data-element="air"]) {
-    --card-bg: radial-gradient(circle at 50% 30%, #8a7a2a 0%, #2a2a1a 70%);
-    --card-border: #f2e36a;
-    --card-glow: rgba(242, 227, 106, 0.25);
-}
-:host([data-element="water"]) {
-    --card-bg: radial-gradient(circle at 50% 30%, #1a509a 0%, #0d1f3a 70%);
-    --card-border: #6abeff;
-    --card-glow: rgba(106, 190, 255, 0.28);
+:host([data-element="black-hole"]) {
+    --card-bg: radial-gradient(circle at 50% 30%, #16635a 0%, #08211f 70%);
+    --card-border: #3fd6c5;
+    --card-glow: rgba(63, 214, 197, 0.28);
 }
 
 :host(.selectable) { cursor: pointer; }
