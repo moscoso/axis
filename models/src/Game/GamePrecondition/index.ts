@@ -1,4 +1,3 @@
-export * from './CanActivate';
 export * from './CanPay';
 export * from './GamePrecondition';
 export * from './HasNoPendingDraws';

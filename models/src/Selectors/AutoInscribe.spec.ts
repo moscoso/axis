@@ -40,10 +40,10 @@ function withLightHand(state: Game, hand: { id: string; element: Element }[]): G
 	return { ...state, players: { ...state.players, light: { ...state.players.light, hand } } };
 }
 
-function inscribe(state: Game, target: Position, paidCardIds: string[], activations: string[]) {
+function inscribe(state: Game, target: Position, paidCardIds: string[]) {
 	return simulateGameCommand(
 		state,
-		clientGameCommand('InscribeRune', { player: 'light', target, paidCardIds, chosenActivations: activations as any })
+		clientGameCommand('InscribeRune', { player: 'light', target, paidCardIds })
 	);
 }
 
@@ -63,8 +63,8 @@ describe('autoSelectInscription', () => {
 		const state = setCell(mainTurnState(), target, { glyphs: [], rune: null, hasCrux: false });
 
 		const auto = autoSelectInscription(state, 'light', target);
-		expect(auto).to.deep.equal({ paidCardIds: [], activations: [] });
-		expect(inscribe(state, target, [], []).ok).to.equal(true);
+		expect(auto).to.deep.equal({ paidCardIds: [] });
+		expect(inscribe(state, target, []).ok).to.equal(true);
 	});
 
 	it('prefers the cheaper card by VALUE, not just count (Affinity-aware)', () => {
@@ -77,27 +77,23 @@ describe('autoSelectInscription', () => {
 
 		const auto = autoSelectInscription(state, 'light', target)!;
 		expect(auto.paidCardIds).to.deep.equal(['other']);
-		expect(auto.activations).to.deep.equal(['+']);
-		expect(inscribe(state, target, auto.paidCardIds, auto.activations).ok).to.equal(true);
+		expect(inscribe(state, target, auto.paidCardIds).ok).to.equal(true);
 	});
 
-	it('fills activations flux-first, dropping the lowest priority when capped', () => {
+	it('covers the full printed cost — no row/column discount', () => {
 		const target: Position = { row: 0, col: 0 };
 		let state = mainTurnState();
 		state = { ...state, options: { ...state.options, affinity: false } };
-		// 3 printed glyphs, but a friendly rune in the row discounts the cost to 2,
-		// so only 2 activations are paid — flux + force should win over draw.
+		// 3 printed glyphs: cost is the full 3 even with a friendly rune in the row.
 		state = setCell(state, target, { glyphs: ['◇', '▲', '+'], rune: null, hasCrux: false });
 		state = setCell(state, { row: 0, col: 1 }, { rune: { owner: 'light', flux: 0 } });
-		state = withLightHand(state, [{ id: 'a', element: 'sun' }, { id: 'b', element: 'sun' }]);
+		state = withLightHand(state, [
+			{ id: 'a', element: 'sun' }, { id: 'b', element: 'sun' }, { id: 'c', element: 'sun' },
+		]);
 
 		const auto = autoSelectInscription(state, 'light', target)!;
-		expect(auto.paidCardIds.slice().sort()).to.deep.equal(['a', 'b']);
-		expect(auto.activations.length).to.equal(2);
-		expect(auto.activations).to.include('+');
-		expect(auto.activations).to.include('▲');
-		expect(auto.activations).to.not.include('◇');
-		expect(inscribe(state, target, auto.paidCardIds, auto.activations).ok).to.equal(true);
+		expect(auto.paidCardIds.slice().sort()).to.deep.equal(['a', 'b', 'c']);
+		expect(inscribe(state, target, auto.paidCardIds).ok).to.equal(true);
 	});
 
 	it('every auto-selected inscription is engine-legal', () => {
@@ -114,7 +110,7 @@ describe('autoSelectInscription', () => {
 				if (cell.rune !== null || cell.hasCrux) continue;
 				const auto = autoSelectInscription(state, 'light', { row: r, col: c });
 				if (!auto) continue;
-				const sim = inscribe(state, { row: r, col: c }, auto.paidCardIds, auto.activations);
+				const sim = inscribe(state, { row: r, col: c }, auto.paidCardIds);
 				expect(sim.ok, `cell ${r},${c}: ${sim.error?.message ?? ''}`).to.equal(true);
 				tested++;
 			}

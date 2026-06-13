@@ -108,13 +108,12 @@ describe('simulateGameCommand', () => {
 				player: 'dark',
 				target: { row: 0, col: 0 },
 				paidCardIds: ['w1'],
-				chosenActivations: ['+'] as Glyph[],
 			})
 		);
 
 		expect(result.ok).to.equal(true);
-		// Base charge 1 + one `+` activation (surplus payment wasted) = flux 2.
-		expect(result.state.board[0][0].rune).to.deep.equal({ owner: 'dark', flux: 2 });
+		// Base charge 0 + one `+` activation (surplus payment wasted) = flux 1.
+		expect(result.state.board[0][0].rune).to.deep.equal({ owner: 'dark', flux: 1 });
 	});
 
 	it('rejects a wasteful overpay where a paid card buys no activation', () => {
@@ -155,7 +154,6 @@ describe('simulateGameCommand', () => {
 				player: 'dark',
 				target: { row: 0, col: 0 },
 				paidCardIds: ['w1', 'w2'],
-				chosenActivations: ['+', '+'] as Glyph[],
 			})
 		);
 

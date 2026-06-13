@@ -33,8 +33,8 @@ describe('boardReducer — Rune Inscribed shift activations', () => {
 
 		const next = boardReducer(event, state);
 
-		// Default base charge is 1, so two `+` activations land flux 3.
-		expect(next.board[2][2].rune).to.deep.equal({ owner: 'light', flux: 3 });
+		// Default base charge is 0, so two `+` activations land flux 2.
+		expect(next.board[2][2].rune).to.deep.equal({ owner: 'light', flux: 2 });
 	});
 
 	it('honors a base charge of 0 (classic Null Rune semantics)', () => {

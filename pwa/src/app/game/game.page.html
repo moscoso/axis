@@ -117,10 +117,8 @@
                 [player]="mySide()"
                 [target]="selectedCell()"
                 [paidCardIds]="paidCardIds()"
-                [chosenActivations]="chosenActivations()"
                 (confirm)="onConfirmInscribe()"
-                (cancel)="onCancelInscribe()"
-                (activationChanged)="onActivationChanged($event)">
+                (cancel)="onCancelInscribe()">
             </app-action-panel>
         </aside>
     </div>

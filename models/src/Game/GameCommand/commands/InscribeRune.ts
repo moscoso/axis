@@ -2,7 +2,6 @@ import { GameCommand, GameCommandResult, okGameCommand, failGameCommand, clientG
 import { Game, Rune } from '../../Game';
 import { GameEvent, RuneInscribed } from '../../GameEvent/GameEvent';
 import {
-	CAN_ACTIVATE,
 	CAN_PAY,
 	HAS_NO_PENDING_DRAWS,
 	IS_CELL_EMPTY,
@@ -12,22 +11,20 @@ import {
 } from '../../GamePrecondition';
 import { PlayerSide } from '../../../Player/Player';
 import { Position } from '../../../Zone/Zone';
-import { Glyph } from '../../../Glyph/Glyph';
 
 export type InscribeRuneParams = {
 	game: Game;
 	player: PlayerSide;
 	target: Position;
 	paidCardIds: string[];
-	chosenActivations: Glyph[];
 };
 
-/** Places a Rune on the board, validates payment and activations, and queues draw follow-ups if needed. */
+/** Places a Rune on the board, validates payment, and queues draw follow-ups if needed. */
 export class InscribeRune implements GameCommand<InscribeRuneParams> {
 	constructor(public name: string, public params: InscribeRuneParams) {}
 
 	public execute(): GameCommandResult {
-		const { game, player, target, paidCardIds, chosenActivations } = this.params;
+		const { game, player, target, paidCardIds } = this.params;
 
 		const error = validateGame(
 			[
@@ -36,18 +33,19 @@ export class InscribeRune implements GameCommand<InscribeRuneParams> {
 				HAS_NO_PENDING_DRAWS,
 				IS_CELL_EMPTY,
 				CAN_PAY,
-				CAN_ACTIVATE,
 			],
-			{ game, player, target, paidCardIds, chosenActivations }
+			{ game, player, target, paidCardIds }
 		);
 		if (error) return failGameCommand(error);
 
+		// Every printed symbol on the cell activates — no choice, no partial payment.
+		const activations = [...game.board[target.row][target.col].glyphs];
 		const resolvedCards = paidCardIds.map(id => game.players[player].hand.find(c => c.id === id)!);
-		const drawCount = chosenActivations.filter(a => a === '◇').length;
+		const drawCount = activations.filter(a => a === '◇').length;
 		const rune: Rune = { owner: player, flux: 0 };
 
 		const events: GameEvent[] = [
-			new RuneInscribed({ player, position: target, rune, paidCards: resolvedCards, activations: chosenActivations })
+			new RuneInscribed({ player, position: target, rune, paidCards: resolvedCards, activations })
 		];
 
 		// If no draws, end the turn immediately; otherwise the player resolves draws via DrawCard

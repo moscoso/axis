@@ -10,7 +10,6 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import {
     Card as CardModel,
-    Glyph as GlyphSymbol,
     INIT_GAME_STATE,
     INIT_TABLE_STATE,
     PlayerSide,
@@ -224,7 +223,6 @@ export class GamePage {
 
     readonly selectedCell = signal<Position | null>(null);
     readonly paidCardIds = signal<Set<string>>(new Set());
-    readonly chosenActivations = signal<Map<GlyphSymbol, number>>(new Map());
 
     // ─── Spells ────────────────────────────────────────────────────────────────
     readonly spellsEnabled = computed(() => this.game().options.spells);
@@ -257,7 +255,6 @@ export class GamePage {
                 player: this.mySide(),
                 target,
                 paidCardIds: Array.from(this.paidCardIds()),
-                chosenActivations: this.expandActivations(this.chosenActivations()),
             });
             const result = simulateGameCommand(this.game(), command);
             return result.ok ? result.state : null;
@@ -299,11 +296,10 @@ export class GamePage {
         if (cell?.rune !== null) return;
         this.selectedSpell.set(null); // inscribing and casting are mutually exclusive
         this.selectedCell.set(pos);
-        // Pre-fill a sensible default move (cheapest payment + flux-first activations)
-        // so the player can confirm in one click — still fully editable below.
+        // Pre-fill the cheapest legal payment so the player can confirm in one
+        // click — still editable below. Every symbol activates automatically.
         const auto = autoSelectInscription(this.game(), this.mySide(), pos);
         this.paidCardIds.set(new Set(auto?.paidCardIds ?? []));
-        this.chosenActivations.set(this.collapseActivations(auto?.activations ?? []));
     }
 
     /** Select (or toggle off) a Spell from the display, entering targeting mode. */
@@ -323,13 +319,6 @@ export class GamePage {
         this.selectedSpell.set(null);
     }
 
-    /** Flattened activation list → the per-glyph count map the panel/preview use. */
-    private collapseActivations(activations: GlyphSymbol[]): Map<GlyphSymbol, number> {
-        const map = new Map<GlyphSymbol, number>();
-        for (const g of activations) map.set(g, (map.get(g) ?? 0) + 1);
-        return map;
-    }
-
     onHandCardPicked(card: CardModel): void {
         if (!this.canInscribe() || this.selectedCell() === null) return;
         this.paidCardIds.update(prev => {
@@ -338,32 +327,15 @@ export class GamePage {
             else next.add(card.id);
             return next;
         });
-        // Activations used to reset on every payment change, which punished the
-        // player mid-composition. Keep them and let the ActionPanel's own
-        // validation gate `canConfirm` instead — the player just sees that the
-        // totals don't match and can adjust.
-    }
-
-    onActivationChanged(change: { glyph: GlyphSymbol; delta: number }): void {
-        this.chosenActivations.update(prev => {
-            const next = new Map(prev);
-            const current = next.get(change.glyph) ?? 0;
-            const updated = Math.max(0, current + change.delta);
-            if (updated === 0) next.delete(change.glyph);
-            else next.set(change.glyph, updated);
-            return next;
-        });
     }
 
     onConfirmInscribe(): void {
         const target = this.selectedCell();
         if (!target) return;
-        const activations = this.expandActivations(this.chosenActivations());
         const command = clientGameCommand('InscribeRune', {
             player: this.mySide(),
             target,
             paidCardIds: Array.from(this.paidCardIds()),
-            chosenActivations: activations,
         });
         this.dealer.signalAsPlayer(command);
         this.clearSelection();
@@ -431,14 +403,5 @@ export class GamePage {
     private clearSelection(): void {
         this.selectedCell.set(null);
         this.paidCardIds.set(new Set());
-        this.chosenActivations.set(new Map());
-    }
-
-    private expandActivations(map: ReadonlyMap<GlyphSymbol, number>): GlyphSymbol[] {
-        const out: GlyphSymbol[] = [];
-        for (const [glyph, count] of map) {
-            for (let i = 0; i < count; i++) out.push(glyph);
-        }
-        return out;
     }
 }

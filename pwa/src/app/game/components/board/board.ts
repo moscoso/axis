@@ -9,7 +9,6 @@ import {
     getBaseCost,
     getCardValue,
     getBondElements,
-    getDiscountedCost,
     getFluxTotalForCruxLines,
     getSpellFootprint,
 } from 'axis-models';
@@ -133,10 +132,10 @@ export class Board {
     }
 
     /**
-     * A cell is "affordable" when it's an empty inscribe target whose discounted
-     * cost (base glyphs − friendly runes in row/col) is within the active
-     * player's max possible payment. Returns true for non-empty cells so we
-     * don't pointlessly dim cells that aren't inscribe targets anyway.
+     * A cell is "affordable" when it's an empty inscribe target whose full
+     * printed cost is within the active player's max possible payment. Returns
+     * true for non-empty cells so we don't pointlessly dim cells that aren't
+     * inscribe targets anyway.
      */
     isAffordable(pos: Position): boolean {
         const player = this.player();
@@ -145,7 +144,7 @@ export class Board {
         const cell = g.board[pos.row]?.[pos.col];
         if (cell?.rune !== null) return true;
         if (cell.hasCrux) return false; // Crux cells are permanently off-limits for inscribing.
-        return getDiscountedCost(g, player, pos) <= this.maxPaymentFor(pos);
+        return getBaseCost(cell) <= this.maxPaymentFor(pos);
     }
 
     /**
@@ -259,7 +258,7 @@ export class Board {
         const player = this.player();
         if (!player || !this.selectable() || this.castShape()) return null;
         const cell = this.game().board[pos.row]?.[pos.col];
-        if (!cell || cell.rune !== null || cell.hasCrux) return null;
+        if (cell?.rune !== null || cell.hasCrux) return null;
         if (!this.isAffordable(pos)) return null;
         if (this.isSelected(pos)) return this.previewRune() ?? { owner: player, flux: 0 };
         const hovered = this.hoveredEmpty();

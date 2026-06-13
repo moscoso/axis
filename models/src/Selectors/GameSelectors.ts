@@ -13,21 +13,6 @@ export function getZoneForPosition(state: Game, position: Position): Zone {
 	)!;
 }
 
-export function countFriendlyRunesInRowOrColumn(state: Game, player: PlayerSide, position: Position): number {
-	let count = 0;
-	for (let col = 0; col < 6; col++) {
-		if (col === position.col) continue;
-		const rune = state.board[position.row][col].rune;
-		if (rune?.owner === player) count++;
-	}
-	for (let row = 0; row < 6; row++) {
-		if (row === position.row) continue;
-		const rune = state.board[row][position.col].rune;
-		if (rune?.owner === player) count++;
-	}
-	return count;
-}
-
 export function getBaseCost(cell: BoardCell): number {
 	return cell.glyphs.length;
 }
@@ -60,13 +45,6 @@ export function getCardValue(
 	if (targetElement !== null && card.element === targetElement) return 2; // Affinity (home Zone)
 	if (controlledElements.includes(card.element)) return 2;                // Bond (controlled Crux, any Zone)
 	return 1;
-}
-
-export function getDiscountedCost(state: Game, player: PlayerSide, position: Position): number {
-	const cell = state.board[position.row][position.col];
-	const baseCost = getBaseCost(cell);
-	const discount = countFriendlyRunesInRowOrColumn(state, player, position);
-	return Math.max(0, baseCost - discount);
 }
 
 export function getFluxTotalForCruxLines(state: Game, cruxPosition: Position, player: PlayerSide): number {
@@ -166,8 +144,8 @@ export function hasAnyLegalMove(state: Game, player: PlayerSide): boolean {
 			if (cell.hasCrux) continue;
 
 			const position: Position = { row: r, col: c };
-			const discountedCost = getDiscountedCost(state, player, position);
-			if (discountedCost === 0) return true;
+			const cost = getBaseCost(cell);
+			if (cost === 0) return true;
 
 			// Card values are Zone-dependent (Affinity), so rank per target.
 			const targetElement = state.options.affinity ? getZoneForPosition(state, position).element : null;
@@ -175,11 +153,10 @@ export function hasAnyLegalMove(state: Game, player: PlayerSide): boolean {
 				.map(card => getCardValue(card, targetElement, controlled))
 				.sort((a, b) => b - a);
 
-			const baseCost = getBaseCost(cell);
-			const limit = Math.min(baseCost, sortedValues.length);
+			const limit = Math.min(cost, sortedValues.length);
 			let sum = 0;
 			for (let i = 0; i < limit; i++) sum += sortedValues[i];
-			if (sum >= discountedCost) return true;
+			if (sum >= cost) return true;
 		}
 	}
 	return false;

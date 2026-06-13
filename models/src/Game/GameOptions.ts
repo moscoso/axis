@@ -30,12 +30,12 @@ export interface CruxBonus {
 	force: boolean;
 }
 
-/** Baseline rulebook (v17) config: Affinity + Crux Force on, Bond off, Runes start charged. */
+/** Baseline rulebook (v17) config: Affinity + Crux Force on, Bond off, Runes start at 0 Flux. */
 export const DEFAULT_OPTIONS: GameOptions = Object.freeze<GameOptions>({
 	startOfTurnDraws: 0,
 	shiftGlyphs: false,
 	affinity: true,
-	baseRuneCharge: 1,
+	baseRuneCharge: 0,
 	cruxBonus: Object.freeze({ bond: false, force: true }),
 	spells: true,
 });
