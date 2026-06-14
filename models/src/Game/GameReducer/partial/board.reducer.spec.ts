@@ -37,6 +37,31 @@ describe('boardReducer — Rune Inscribed shift activations', () => {
 		expect(next.board[2][2].rune).to.deep.equal({ owner: 'light', flux: 2 });
 	});
 
+	it("charges every friendly rune in the placed rune's row or column, once per '+'", () => {
+		const board = emptyBoard();
+		board[2][0].rune = { owner: 'light', flux: 1 }; // friendly, same row
+		board[0][2].rune = { owner: 'light', flux: 1 }; // friendly, same column
+		board[2][5].rune = { owner: 'dark',  flux: 1 }; // enemy, same row — untouched
+		board[0][0].rune = { owner: 'light', flux: 1 }; // friendly, off the lines — untouched
+		const state = gameWith(board);
+
+		const event = new RuneInscribed({
+			player: 'light',
+			position: { row: 2, col: 2 },
+			rune: { owner: 'light', flux: 0 },
+			paidCards: [],
+			activations: ['+', '+'] as Glyph[], // N = 2
+		});
+
+		const next = boardReducer(event, state);
+
+		expect(next.board[2][2].rune).to.deep.equal({ owner: 'light', flux: 2 }); // placed: base 0 + 2
+		expect(next.board[2][0].rune).to.deep.equal({ owner: 'light', flux: 3 }); // 1 + 2 (same row)
+		expect(next.board[0][2].rune).to.deep.equal({ owner: 'light', flux: 3 }); // 1 + 2 (same col)
+		expect(next.board[2][5].rune).to.deep.equal({ owner: 'dark',  flux: 1 }); // enemy: unchanged
+		expect(next.board[0][0].rune).to.deep.equal({ owner: 'light', flux: 1 }); // off-line: unchanged
+	});
+
 	it('honors a base charge of 0 (classic Null Rune semantics)', () => {
 		const state: Game = {
 			...gameWith(emptyBoard()),
