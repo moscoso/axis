@@ -29,6 +29,7 @@ function baseState(over: Partial<Game> = {}): Game {
 		id: 'spell-test',
 		phase: 'main-turn',
 		currentTurn: 'light',
+		options: { ...INIT_GAME_STATE.options, spells: true },
 		board,
 		zones: [],
 		rift: 0,

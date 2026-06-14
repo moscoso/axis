@@ -23,6 +23,7 @@ function stuckState(overrides: Partial<Game> = {}): Game {
 		...INIT_GAME_STATE,
 		id: 'stuck',
 		phase: 'main-turn',
+		options: { ...INIT_GAME_STATE.options, startOfTurnDraws: 0 },
 		board: buildEmptyBoard(),
 		// The four 3×3 elemental Zones every real game has. hasAnyLegalMove now
 		// resolves each cell's Zone (for Affinity), so the state must be valid.

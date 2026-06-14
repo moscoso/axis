@@ -53,14 +53,14 @@ bench(
 	'Heuristic vs Random — Affinity ON (target: >55% for Heuristic)',
 	() => new HeuristicBot({ name: 'Heur' }),
 	() => new RandomBot({ name: 'Rand' }),
-	{ ...DEFAULT_OPTIONS, affinity: true },
+	{ ...DEFAULT_OPTIONS, affinity: 'value' },
 );
 
 bench(
 	'Heuristic vs Random — Affinity OFF (isolates Affinity\'s effect)',
 	() => new HeuristicBot({ name: 'Heur' }),
 	() => new RandomBot({ name: 'Rand' }),
-	{ ...DEFAULT_OPTIONS, affinity: false },
+	{ ...DEFAULT_OPTIONS, affinity: 'off' },
 );
 
 console.log();

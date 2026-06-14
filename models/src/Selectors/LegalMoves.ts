@@ -134,7 +134,7 @@ function enumerateInscribes(state: Game, side: PlayerSide): GameCommand[] {
 			}
 
 			// Otherwise: enumerate every hand subset (size ≤ cost) that covers the cost.
-			const targetElement = state.options.affinity ? getZoneForPosition(state, position).element : null;
+			const targetElement = state.options.affinity === 'value' ? getZoneForPosition(state, position).element : null;
 			forEachPaymentSubset(hand, cost, targetElement, controlled, (subset, paymentValue) => {
 				if (paymentValue < cost) return;
 				// No wasted card: dropping the lowest-value card must fall below the

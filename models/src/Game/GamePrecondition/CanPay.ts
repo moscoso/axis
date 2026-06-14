@@ -32,7 +32,7 @@ export const CAN_PAY: GamePreconditionValidator = (
 	}
 
 	const controlledElements = getBondElements(game, player);
-	const targetElement = game.options.affinity ? getZoneForPosition(game, target).element : null;
+	const targetElement = game.options.affinity === 'value' ? getZoneForPosition(game, target).element : null;
 	const cardValues = resolvedCards.map(card => getCardValue(card!, targetElement, controlledElements));
 	const paymentValue = cardValues.reduce((sum, v) => sum + v, 0);
 

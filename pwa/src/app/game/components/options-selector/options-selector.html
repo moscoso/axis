@@ -11,12 +11,12 @@
     </button>
     <button type="button"
             class="toggle"
-            [class.active]="affinity()"
+            [class.active]="affinityActive()"
             [disabled]="disabled()"
-            [attr.aria-pressed]="affinity()"
-            (click)="toggleAffinity()">
+            [attr.aria-pressed]="affinityActive()"
+            (click)="cycleAffinity()">
         Affinity
-        <span class="state">{{ affinity() ? 'On' : 'Off' }}</span>
+        <span class="state">{{ affinityLabel() }}</span>
     </button>
     <button type="button"
             class="toggle"

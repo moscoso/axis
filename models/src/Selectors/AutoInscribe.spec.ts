@@ -11,7 +11,9 @@ import { getZoneForPosition } from './GameSelectors';
 
 function startedState(): Game {
 	const table: Table = {
-		id: 't', status: 'ready', options: DEFAULT_OPTIONS, createdAt: 0, updatedAt: 0,
+		id: 't', status: 'ready',
+		options: { ...DEFAULT_OPTIONS, startOfTurnDraws: 0, affinity: 'value' },
+		createdAt: 0, updatedAt: 0,
 		seats: [
 			{ user: { id: 'L', name: 'L', photoURL: '' }, sidePreference: 'light' },
 			{ user: { id: 'D', name: 'D', photoURL: '' }, sidePreference: 'dark' },
@@ -83,7 +85,7 @@ describe('autoSelectInscription', () => {
 	it('covers the full printed cost — no row/column discount', () => {
 		const target: Position = { row: 0, col: 0 };
 		let state = mainTurnState();
-		state = { ...state, options: { ...state.options, affinity: false } };
+		state = { ...state, options: { ...state.options, affinity: 'off' } };
 		// 3 printed glyphs: cost is the full 3 even with a friendly rune in the row.
 		state = setCell(state, target, { glyphs: ['◇', '▲', '+'], rune: null, hasCrux: false });
 		state = setCell(state, { row: 0, col: 1 }, { rune: { owner: 'light', flux: 0 } });

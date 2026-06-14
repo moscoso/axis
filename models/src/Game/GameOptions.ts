@@ -9,8 +9,8 @@ export interface GameOptions {
 	/** Deal shift glyphs (↑→↓←) that slide their row/column (wrapping) when activated. */
 	shiftGlyphs: boolean;
 
-	/** A card counts as 2 (cost + activations) in its own element's Zone. */
-	affinity: boolean;
+	/** How a card behaves when inscribed in its own element's Zone. See {@link AffinityMode} */
+	affinity: AffinityMode;
 
 	/** Amount of Flux a Rune starts with, before any `+` activations add on to it. */
 	baseRuneCharge: number;
@@ -22,6 +22,15 @@ export interface GameOptions {
 	spells: boolean;
 }
 
+/** 
+ * What a card's Affinity (home-Zone match) does.
+ * - `'off'`   — no bonus.
+ * - `'value'` — it counts as 2 (cost + activations); the classic Affinity.
+ * - `'rift'`  — it pulls the Rift one step toward the player (like a ▲),
+ *               once per home-Zone card paid. Its payment value stays 1.
+ */
+export type AffinityMode = 'off' | 'value' | 'rift';
+
 /** Independent rewards for controlling a Crux. */
 export interface CruxBonus {
 	/** That element's cards count as 2 in ANY Zone. */
@@ -30,12 +39,12 @@ export interface CruxBonus {
 	force: boolean;
 }
 
-/** Baseline rulebook (v17) config: Affinity + Crux Force on, Bond off, Runes start at 0 Flux. */
+/** Baseline rulebook (v17) config: Affinity (value) + Crux Force on, Bond off, Runes start at 0 Flux. */
 export const DEFAULT_OPTIONS: GameOptions = Object.freeze<GameOptions>({
-	startOfTurnDraws: 0,
+	startOfTurnDraws: 1,
 	shiftGlyphs: false,
-	affinity: true,
+	affinity: 'rift',
 	baseRuneCharge: 0,
 	cruxBonus: Object.freeze({ bond: false, force: true }),
-	spells: true,
+	spells: false,
 });

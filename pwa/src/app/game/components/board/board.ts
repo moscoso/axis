@@ -6,9 +6,7 @@ import {
     Rune,
     SpellShape,
     Zone,
-    getBaseCost,
-    getCardValue,
-    getBondElements,
+    autoSelectInscription,
     getFluxTotalForCruxLines,
     getSpellFootprint,
 } from 'axis-models';
@@ -96,32 +94,6 @@ export class Board {
         return this.tallies().rows[r][side];
     }
 
-    /**
-     * Best payment value the active player could put toward a *specific* cell.
-     * Card values are Zone-dependent now (Affinity doubles a card in its home
-     * Zone), so this is per-target: take the highest-value cards up to the
-     * cell's base cost (you can't pay with more cards than printed symbols).
-     */
-    private maxPaymentFor(pos: Position): number {
-        const player = this.player();
-        if (!player) return 0;
-        const g = this.game();
-        const cell = g.board[pos.row]?.[pos.col];
-        if (!cell) return 0;
-        // Affinity makes a card's value Zone-dependent; null when the toggle is off
-        // (Bond still applies). Don't bail on a missing zone — Bond is independent.
-        const zoneElement = this.zoneFor(cell.zoneId)?.element ?? null;
-        const targetElement = g.options.affinity ? zoneElement : null;
-        const controlled = getBondElements(g, player);
-        const values = g.players[player].hand
-            .map(card => getCardValue(card, targetElement, controlled))
-            .sort((a, b) => b - a);
-        const limit = Math.min(getBaseCost(cell), values.length);
-        let sum = 0;
-        for (let i = 0; i < limit; i++) sum += values[i];
-        return sum;
-    }
-
     zoneFor(zoneId: string): Zone | undefined {
         return this.zonesById().get(zoneId);
     }
@@ -132,10 +104,13 @@ export class Board {
     }
 
     /**
-     * A cell is "affordable" when it's an empty inscribe target whose full
-     * printed cost is within the active player's max possible payment. Returns
-     * true for non-empty cells so we don't pointlessly dim cells that aren't
-     * inscribe targets anyway.
+     * A cell is "affordable" when the engine would actually accept an
+     * inscription here — i.e. `autoSelectInscription` can find a legal,
+     * non-wasteful payment in hand (honoring Affinity/Bond via the same Zone
+     * geometry the InscribeRune command uses). Gating selection on this exact
+     * check keeps the board from offering cells the engine would then reject.
+     * Returns true for non-empty / out-of-bounds cells so we don't pointlessly
+     * dim cells that aren't inscribe targets anyway.
      */
     isAffordable(pos: Position): boolean {
         const player = this.player();
@@ -144,7 +119,7 @@ export class Board {
         const cell = g.board[pos.row]?.[pos.col];
         if (cell?.rune !== null) return true;
         if (cell.hasCrux) return false; // Crux cells are permanently off-limits for inscribing.
-        return getBaseCost(cell) <= this.maxPaymentFor(pos);
+        return autoSelectInscription(g, player, pos) !== null;
     }
 
     /**

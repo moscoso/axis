@@ -33,7 +33,7 @@ export function autoSelectInscription(
 
 	const cost = getBaseCost(cell);
 
-	const targetElement = game.options.affinity ? getZoneForPosition(game, target).element : null;
+	const targetElement = game.options.affinity === 'value' ? getZoneForPosition(game, target).element : null;
 	const controlled = getBondElements(game, player);
 	const valueOf = (card: Card) => getCardValue(card, targetElement, controlled);
 

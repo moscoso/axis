@@ -57,7 +57,7 @@ export class ActionPanel {
         const t = this.target();
         if (!t) return [];
         const g = this.game();
-        const targetElement = g.options.affinity ? getZoneForPosition(g, t).element : null;
+        const targetElement = g.options.affinity === 'value' ? getZoneForPosition(g, t).element : null;
         const controlled = this.controlledElements();
         return this.paidCards().map(c => getCardValue(c, targetElement, controlled));
     });

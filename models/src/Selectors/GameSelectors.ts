@@ -148,7 +148,7 @@ export function hasAnyLegalMove(state: Game, player: PlayerSide): boolean {
 			if (cost === 0) return true;
 
 			// Card values are Zone-dependent (Affinity), so rank per target.
-			const targetElement = state.options.affinity ? getZoneForPosition(state, position).element : null;
+			const targetElement = state.options.affinity === 'value' ? getZoneForPosition(state, position).element : null;
 			const sortedValues = hand
 				.map(card => getCardValue(card, targetElement, controlled))
 				.sort((a, b) => b - a);

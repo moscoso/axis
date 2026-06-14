@@ -89,6 +89,7 @@ describe('simulateGameCommand', () => {
 			id: 'overpay',
 			phase: 'main-turn',
 			currentTurn: 'dark',
+			options: { ...INIT_GAME_STATE.options, affinity: 'value' },
 			board,
 			zones: [
 				{ id: 'z-comet', element: 'comet', topLeft: { row: 0, col: 0 }, width: 3, height: 3, cruxPosition: { row: 0, col: 2 }, control: 'unbound' },
@@ -135,6 +136,7 @@ describe('simulateGameCommand', () => {
 			id: 'wasteful',
 			phase: 'main-turn',
 			currentTurn: 'dark',
+			options: { ...INIT_GAME_STATE.options, affinity: 'value' },
 			board,
 			zones: [
 				{ id: 'z-comet', element: 'comet', topLeft: { row: 0, col: 0 }, width: 3, height: 3, cruxPosition: { row: 0, col: 2 }, control: 'unbound' },

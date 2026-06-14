@@ -294,12 +294,17 @@ export class GamePage {
         if (!this.canInscribe()) return;
         const cell = this.game().board[pos.row]?.[pos.col];
         if (cell?.rune !== null) return;
+        // Affordability is the engine's call: autoSelectInscription returns null
+        // when no legal, non-wasteful payment exists (honoring Affinity/Bond from
+        // game options). A null here means the cell can't be played — don't select
+        // it, matching the board's dimmed/blocked state.
+        const auto = autoSelectInscription(this.game(), this.mySide(), pos);
+        if (auto === null) return;
         this.selectedSpell.set(null); // inscribing and casting are mutually exclusive
         this.selectedCell.set(pos);
         // Pre-fill the cheapest legal payment so the player can confirm in one
         // click — still editable below. Every symbol activates automatically.
-        const auto = autoSelectInscription(this.game(), this.mySide(), pos);
-        this.paidCardIds.set(new Set(auto?.paidCardIds ?? []));
+        this.paidCardIds.set(new Set(auto.paidCardIds));
     }
 
     /** Select (or toggle off) a Spell from the display, entering targeting mode. */
