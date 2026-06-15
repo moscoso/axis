@@ -1,3 +1,8 @@
+<!-- Glowing axis rails: the horizontal pipe carries the row suit, the vertical
+     the column suit. Same-suit neighbours fuse into one continuous line. -->
+<span class="axis-h" aria-hidden="true"></span>
+<span class="axis-v" aria-hidden="true"></span>
+
 @if (!rune()) {
     <div class="glyphs">
         @for (g of glyphs(); track $index) {

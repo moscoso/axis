@@ -102,15 +102,22 @@ export class Board {
     }
 
     /**
-     * The cell's *second* home suit in the `'cross'` zone model — its column
-     * Crux's element, where {@link zoneFor} (keyed on `cell.zoneId`) supplies the
-     * row Crux's. Null in the region model and on Crux cells (which belong to a
-     * single Zone), so those render a single tone.
+     * Suit driving the cell's horizontal (row) axis rail — the Crux on this
+     * cell's row in the `'cross'` model, or its single Zone in `'region'`.
+     * `getZonesForPosition` returns `[rowZone, colZone]`, so element 0 is the row.
      */
-    secondElementFor(cell: BoardCellModel): Element | null {
-        if (this.game().options.zoneModel !== 'cross') return null;
+    rowElementFor(cell: BoardCellModel): Element | null {
+        return getZonesForPosition(this.game(), cell.position)[0]?.element ?? null;
+    }
+
+    /**
+     * Suit driving the cell's vertical (column) axis rail — the column Crux in
+     * the `'cross'` model. Falls back to the row suit on Crux cells and in the
+     * `'region'` model (one Zone), so the axis cross renders monochrome there.
+     */
+    colElementFor(cell: BoardCellModel): Element | null {
         const zones = getZonesForPosition(this.game(), cell.position);
-        return zones.length > 1 ? zones[1].element : null;
+        return (zones[1] ?? zones[0])?.element ?? null;
     }
 
     isSelected(pos: Position): boolean {

@@ -5,21 +5,34 @@
     width: var(--rune-size, 2.2em);
     height: var(--rune-size, 2.2em);
     border-radius: 50%;
-    font-weight: 700;
+    font-weight: 800;
     font-size: 0.95em;
-    border: 2px solid currentColor;
-    background: var(--rune-bg, rgba(0, 0, 0, 0.45));
     line-height: 1;
+
+    /* Solid, opaque stones so the flux numeral reads cleanly over the dark board
+       and bright axis rails. Owner sets the fill, the contrasting numeral colour,
+       the inner ring and the outer glow. */
+    color: var(--rune-fg, #2a2208);
+    background: var(--rune-bg, radial-gradient(circle at 38% 30%, #ffffff 0%, #c9c9d2 80%));
+    box-shadow:
+        inset 0 1px 1px rgba(255, 255, 255, 0.55),
+        inset 0 0 0 2px var(--rune-ring, rgba(255, 255, 255, 0.5)),
+        0 0 14px var(--rune-glow, rgba(255, 255, 255, 0.3)),
+        0 2px 5px rgba(0, 0, 0, 0.45);
 }
 
 :host([data-owner="light"]) {
-    color: #f5efe0;
-    --rune-bg: rgba(255, 245, 220, 0.18);
+    --rune-fg: #2a2208;
+    --rune-bg: radial-gradient(circle at 38% 30%, #ffffff 0%, #ddca9b 78%);
+    --rune-ring: rgba(255, 255, 255, 0.65);
+    --rune-glow: rgba(255, 245, 210, 0.5);
 }
 
 :host([data-owner="dark"]) {
-    color: #b19cff;
-    --rune-bg: rgba(80, 50, 130, 0.35);
+    --rune-fg: #ece6ff;
+    --rune-bg: radial-gradient(circle at 38% 30%, #8268d6 0%, #2c1b52 82%);
+    --rune-ring: rgba(185, 158, 255, 0.6);
+    --rune-glow: rgba(130, 90, 210, 0.55);
 }
 
 .flux {
@@ -27,13 +40,15 @@
 }
 
 /* Showing a projected "current → next" flux while a move is being composed:
-   shrink to fit the transition and dot the border to read as uncommitted. */
+   keep the opaque fill, stretch to fit the transition, and dot the outline to
+   read as uncommitted. */
 :host(.preview) {
     width: auto;
     min-width: var(--rune-size, 2.2em);
-    padding: 0 0.35em;
+    padding: 0 0.4em;
     border-radius: 999px;
-    border-style: dotted;
+    border: 1.5px dotted var(--rune-fg);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.45);
     font-size: 0.8em;
     white-space: nowrap;
 }

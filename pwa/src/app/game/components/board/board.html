@@ -8,7 +8,8 @@
                     <app-board-cell
                         [cell]="cell"
                         [zone]="zoneFor(cell.zoneId)"
-                        [secondElement]="secondElementFor(cell)"
+                        [rowElement]="rowElementFor(cell)"
+                        [colElement]="colElementFor(cell)"
                         [selectable]="selectable() && cell.rune === null && !cell.hasCrux"
                         [selected]="isSelected(cell.position)"
                         [dim]="selectable() && !cell.hasCrux && !isAffordable(cell.position)"
