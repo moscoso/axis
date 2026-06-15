@@ -7,14 +7,33 @@ import { Rune as RuneModel } from 'axis-models';
     template: `<span class="flux" [attr.aria-label]="label()">{{ display() }}</span>`,
     styleUrls: ['./rune.scss'],
     changeDetection: ChangeDetectionStrategy.OnPush,
-    host: { '[attr.data-owner]': 'rune().owner' },
+    host: {
+        '[attr.data-owner]': 'rune().owner',
+        '[class.preview]': 'hasPreview()',
+    },
 })
 export class Rune {
     readonly rune = input.required<RuneModel>();
+    /** Projected flux after a pending move; when it differs, show "current → next". */
+    readonly previewFlux = input<number | null>(null);
 
-    readonly display = computed(() => (this.rune().flux === 0 ? '∅' : String(this.rune().flux)));
+    readonly hasPreview = computed(() => {
+        const next = this.previewFlux();
+        return next !== null && next !== this.rune().flux;
+    });
+
+    readonly display = computed(() => {
+        const current = Rune.fmt(this.rune().flux);
+        return this.hasPreview() ? `${current} → ${Rune.fmt(this.previewFlux()!)}` : current;
+    });
+
     readonly label = computed(() => {
         const { owner, flux } = this.rune();
-        return flux === 0 ? `${owner} null rune` : `${owner} rune, flux ${flux}`;
+        const base = flux === 0 ? `${owner} null rune` : `${owner} rune, flux ${flux}`;
+        return this.hasPreview() ? `${base}, charging to ${this.previewFlux()}` : base;
     });
+
+    private static fmt(flux: number): string {
+        return flux === 0 ? '∅' : String(flux);
+    }
 }

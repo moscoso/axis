@@ -16,6 +16,7 @@
                         [willCharge]="willCharge(cell.position)"
                         [cruxBadge]="cruxBadge(cell.position)"
                         [ghost]="ghostFor(cell.position)"
+                        [fluxPreview]="fluxPreview(cell.position)"
                         (click)="onCellClick(cell.position)"
                         (mouseenter)="onCellHover(cell.position)"
                         (mouseleave)="onCellLeave(cell.position)">

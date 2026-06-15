@@ -135,11 +135,14 @@ export class Board {
 
         const lead = (s: Game) =>
             getFluxTotalForCruxLines(s, pos, 'light') - getFluxTotalForCruxLines(s, pos, 'dark');
+        const fmt = (n: number) => (n > 0 ? `+${n}` : `${n}`);
 
         // Show the projected result when a pending placement changes this Crux's
         // lines; otherwise the live state. The preview flag drives the dotted style.
+        const current = lead(g);
         const sim = this.previewGame();
-        const preview = sim !== null && lead(sim) !== lead(g);
+        const next = sim ? lead(sim) : current;
+        const preview = sim !== null && next !== current;
         const state = preview ? sim : g;
 
         const zone = state.zones.find(
@@ -147,14 +150,28 @@ export class Board {
         );
         if (!zone) return null;
 
-        // A committed unbound Crux shows nothing; but a move that *contests* one
-        // into a tie surfaces a neutral dotted "0" so the change is still legible.
-        if (zone.control === 'unbound') {
-            return preview ? { text: '0', owner: 'unbound', preview: true } : null;
-        }
+        // A committed, untouched unbound Crux shows nothing; a move that *changes*
+        // the lead surfaces the transition (even to/from a tie) so it stays legible.
+        if (zone.control === 'unbound' && !preview) return null;
 
-        const diff = lead(state);
-        return { text: diff > 0 ? `+${diff}` : `${diff}`, owner: zone.control, preview };
+        const text = preview ? `${fmt(current)} → ${fmt(next)}` : fmt(current);
+        return { text, owner: zone.control, preview };
+    }
+
+    /**
+     * Projected flux for an already-placed rune that the composed inscribe would
+     * charge — a `+` charges every friendly rune sharing the placed rune's row or
+     * column. Returns the next flux when it differs from the live value (the cell
+     * then renders "current → next"), else null. The placed cell itself is skipped
+     * here; its ghost already shows the landing flux.
+     */
+    fluxPreview(pos: Position): number | null {
+        const sim = this.previewGame();
+        if (!sim) return null;
+        const live = this.game().board[pos.row]?.[pos.col]?.rune;
+        const next = sim.board[pos.row]?.[pos.col]?.rune;
+        if (!live || !next || live.flux === next.flux) return null;
+        return next.flux;
     }
 
     onCellClick(pos: Position): void {

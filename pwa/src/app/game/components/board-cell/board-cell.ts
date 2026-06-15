@@ -52,6 +52,8 @@ export class BoardCell {
     readonly cruxBadge = input<{ text: string; owner: 'light' | 'dark' | 'unbound'; preview: boolean } | null>(null);
     /** When set, render a semi-transparent preview rune — a "you can play here" ghost. */
     readonly ghost = input<RuneModel | null>(null);
+    /** Projected flux for the committed rune after a pending move; renders "current → next". */
+    readonly fluxPreview = input<number | null>(null);
 
     readonly element = computed<Element | null>(() => this.zone()?.element ?? null);
     readonly rune = computed(() => this.cell().rune);

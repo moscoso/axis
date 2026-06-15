@@ -25,3 +25,15 @@
 .flux {
     display: inline-block;
 }
+
+/* Showing a projected "current → next" flux while a move is being composed:
+   shrink to fit the transition and dot the border to read as uncommitted. */
+:host(.preview) {
+    width: auto;
+    min-width: var(--rune-size, 2.2em);
+    padding: 0 0.35em;
+    border-radius: 999px;
+    border-style: dotted;
+    font-size: 0.8em;
+    white-space: nowrap;
+}

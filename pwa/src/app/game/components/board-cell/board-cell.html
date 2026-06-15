@@ -14,7 +14,7 @@
 }
 
 @if (rune(); as r) {
-    <app-rune class="rune" [rune]="r"></app-rune>
+    <app-rune class="rune" [rune]="r" [previewFlux]="fluxPreview()"></app-rune>
 } @else if (ghost(); as g) {
     <app-rune class="rune ghost" [rune]="g"></app-rune>
 }
