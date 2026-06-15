@@ -7,7 +7,7 @@ import {
     getBaseCost,
     getCardValue,
     getBondElements,
-    getZoneForPosition,
+    getElementsForPosition,
 } from 'axis-models';
 import { Glyph } from '../glyph/glyph';
 
@@ -57,9 +57,9 @@ export class ActionPanel {
         const t = this.target();
         if (!t) return [];
         const g = this.game();
-        const targetElement = g.options.affinity === 'value' ? getZoneForPosition(g, t).element : null;
+        const targetElements = g.options.affinity === 'value' ? getElementsForPosition(g, t) : [];
         const controlled = this.controlledElements();
-        return this.paidCards().map(c => getCardValue(c, targetElement, controlled));
+        return this.paidCards().map(c => getCardValue(c, targetElements, controlled));
     });
 
     readonly paymentValue = computed(() => this.paidCardValues().reduce((sum, v) => sum + v, 0));

@@ -2,7 +2,7 @@ import { GameEvent, RuneInscribed } from '../../GameEvent/GameEvent';
 import { Game } from '../../Game';
 import { Glyph } from '../../../Glyph/Glyph';
 import { PlayerSide } from '../../../Player/Player';
-import { getZoneForPosition } from '../../../Selectors/GameSelectors';
+import { getElementsForPosition, getZonesForPosition } from '../../../Selectors/GameSelectors';
 
 export function riftReducer(event: GameEvent, state: Game): Game {
 	switch (event.type) {
@@ -27,9 +27,11 @@ export function riftReducer(event: GameEvent, state: Game): Game {
  * independent pulls:
  * - the inscriber's own ▲ activations;
  * - Affinity in `rift` mode — each home-Zone card paid pulls one step toward the
- *   inscriber (a ▲ baked into Affinity rather than a payment discount);
+ *   inscriber (a ▲ baked into Affinity rather than a payment discount). In the
+ *   cross model a cell has two home suits, so a card matching either one counts.
  * - the Crux Force tax — inscribing inside a Zone an OPPONENT controls tugs one
- *   step toward that owner, the price of trespassing.
+ *   step toward that owner, the price of trespassing. In the cross model a cell
+ *   sits in two Zones, so each opponent-controlled Zone levies the toll (up to 2).
  *
  * Zone geometry/control is read pre-inscribe (zonesReducer runs after this), so a
  * Rune that flips the Crux still pays the toll to the side it just dethroned.
@@ -40,13 +42,15 @@ function inscribeRiftDelta(state: Game, payload: RuneInscribed['payload']): numb
 	let delta = toward(player, activations.filter((a: Glyph) => a === '▲').length);
 
 	if (state.options.affinity === 'rift') {
-		const zoneElement = getZoneForPosition(state, position).element;
-		delta += toward(player, paidCards.filter(c => c.element === zoneElement).length);
+		const homeElements = getElementsForPosition(state, position);
+		delta += toward(player, paidCards.filter(c => homeElements.includes(c.element)).length);
 	}
 
 	if (state.options.cruxBonus.force) {
-		const owner = getZoneForPosition(state, position).control;
-		if (owner !== player && owner !== 'unbound') delta += toward(owner, 1);
+		for (const zone of getZonesForPosition(state, position)) {
+			const owner = zone.control;
+			if (owner !== player && owner !== 'unbound') delta += toward(owner, 1);
+		}
 	}
 
 	return delta;

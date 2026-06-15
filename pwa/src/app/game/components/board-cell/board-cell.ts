@@ -21,8 +21,10 @@ const ELEMENT_SYMBOL: Record<Element, string> = {
     changeDetection: ChangeDetectionStrategy.OnPush,
     host: {
         '[attr.data-element]': 'element()',
+        '[attr.data-element-2]': 'secondElement()',
         '[attr.data-has-crux]': 'cell().hasCrux',
         '[attr.data-has-rune]': '!!cell().rune',
+        '[class.two-tone]': '!!secondElement()',
         '[class.selectable]': 'selectable()',
         '[class.selected]': 'selected()',
         '[class.dim]': 'dim()',
@@ -34,6 +36,12 @@ const ELEMENT_SYMBOL: Record<Element, string> = {
 export class BoardCell {
     readonly cell = input.required<BoardCellModel>();
     readonly zone = input.required<Zone | undefined>();
+    /**
+     * The cell's second home suit in the `'cross'` zone model (a non-Crux cell
+     * belongs to its row Crux's Zone and its column Crux's Zone). Null in the
+     * region model and on Crux cells, where the cell renders a single tone.
+     */
+    readonly secondElement = input<Element | null>(null);
     readonly selectable = input<boolean>(false);
     readonly selected = input<boolean>(false);
     /** Fade the cell to signal that it's not a valid inscribe target right now. */

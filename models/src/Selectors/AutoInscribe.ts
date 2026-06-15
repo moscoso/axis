@@ -6,7 +6,7 @@ import {
 	getBaseCost,
 	getBondElements,
 	getCardValue,
-	getZoneForPosition,
+	getElementsForPosition,
 } from './GameSelectors';
 
 export interface AutoInscription {
@@ -33,9 +33,9 @@ export function autoSelectInscription(
 
 	const cost = getBaseCost(cell);
 
-	const targetElement = game.options.affinity === 'value' ? getZoneForPosition(game, target).element : null;
+	const targetElements = game.options.affinity === 'value' ? getElementsForPosition(game, target) : [];
 	const controlled = getBondElements(game, player);
-	const valueOf = (card: Card) => getCardValue(card, targetElement, controlled);
+	const valueOf = (card: Card) => getCardValue(card, targetElements, controlled);
 
 	const paidCards = selectCheapestPayment(game.players[player].hand, cost, valueOf);
 	if (paidCards === null) return null;

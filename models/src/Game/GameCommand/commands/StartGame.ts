@@ -2,6 +2,7 @@ import { UserID } from '@moscoso/models';
 import { Card } from '../../../Card/Card';
 import { ELEMENTS } from '../../../Element/Element';
 import { generateBoard } from '../../../Board/generateBoard';
+import { generateCrossBoard } from '../../../Board/generateCrossBoard';
 import { createSpellDeck } from '../../../Spell/createSpellDeck';
 import { GameSeed } from '../../GameSeed/GameSeed';
 import { shuffle } from '../../../Utility/shuffle';
@@ -46,7 +47,8 @@ export class StartGame implements GameCommand<StartGameParams> {
 			seatB.user.id, seatB.sidePreference,
 		);
 
-		const { board, zones } = generateBoard({ shiftGlyphs: table.options.shiftGlyphs });
+		const generate = table.options.zoneModel === 'cross' ? generateCrossBoard : generateBoard;
+		const { board, zones } = generate({ shiftGlyphs: table.options.shiftGlyphs });
 		const shuffledDeck    = shuffle(createDeck());
 		const display         = shuffledDeck.slice(0, 4);
 		const remainingDeck   = shuffledDeck.slice(4);

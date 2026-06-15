@@ -11,11 +11,16 @@ export interface Position {
 export interface Zone {
 	id: string;
 	element: Element;
-	topLeft: Position;
-	/** Cells spanned horizontally (zones are 2×3 rectangles, either orientation). */
-	width: number;
-	/** Cells spanned vertically. */
-	height: number;
+	/**
+	 * Rectangle bounds for the `'region'` board model only. Absent in the
+	 * `'cross'` model, where a Zone is its Crux's row + column rather than a
+	 * rectangle — membership is derived from {@link cruxPosition}.
+	 */
+	topLeft?: Position;
+	/** Cells spanned horizontally (region model: 2×3 rectangles, either orientation). */
+	width?: number;
+	/** Cells spanned vertically (region model only). */
+	height?: number;
 	cruxPosition: Position;
 	control: CruxControl;
 }

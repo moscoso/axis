@@ -4,13 +4,42 @@ import { PlayerSide } from '../Player/Player';
 import { CruxControl, Position, Zone } from '../Zone/Zone';
 import { BoardCell, Game } from '../Game/Game';
 
+/**
+ * The single Zone whose rectangle contains `position` — `'region'` model only.
+ * In the `'cross'` model use {@link getZonesForPosition} instead (a cell belongs
+ * to two Zones there).
+ */
 export function getZoneForPosition(state: Game, position: Position): Zone {
 	return state.zones.find(z =>
+		z.topLeft !== undefined &&
 		position.row >= z.topLeft.row &&
-		position.row < z.topLeft.row + z.height &&
+		position.row < z.topLeft.row + z.height! &&
 		position.col >= z.topLeft.col &&
-		position.col < z.topLeft.col + z.width
+		position.col < z.topLeft.col + z.width!
 	)!;
+}
+
+/**
+ * Every Zone a cell belongs to. In the `'region'` model that's exactly one (the
+ * containing rectangle). In the `'cross'` model a non-Crux cell belongs to two —
+ * the Crux on its row and the Crux on its column — while a Crux cell belongs to
+ * the one Zone it anchors. Order is [rowCrux, colCrux] when they differ.
+ */
+export function getZonesForPosition(state: Game, position: Position): Zone[] {
+	if (state.options.zoneModel === 'cross') {
+		const rowZone = state.zones.find(z => z.cruxPosition.row === position.row);
+		const colZone = state.zones.find(z => z.cruxPosition.col === position.col);
+		const zones: Zone[] = [];
+		if (rowZone) zones.push(rowZone);
+		if (colZone && colZone !== rowZone) zones.push(colZone);
+		return zones;
+	}
+	return [getZoneForPosition(state, position)];
+}
+
+/** The element(s) a cell sits in — its Affinity home suit(s). One or (cross) two. */
+export function getElementsForPosition(state: Game, position: Position): Element[] {
+	return getZonesForPosition(state, position).map(z => z.element);
 }
 
 export function getBaseCost(cell: BoardCell): number {
@@ -32,18 +61,20 @@ export function getBondElements(state: Game, player: PlayerSide): Element[] {
 }
 
 /**
- * A card's payment/activation value (capped at 2): worth 2 via Affinity (in its
- * home Zone — pass `null` `targetElement` to disable) or Bond (its element's Crux
- * controlled — pass `[]` `controlledElements` to disable, or {@link getBondElements}
- * to honor the toggle). Otherwise 1; the two never stack.
+ * A card's payment/activation value (capped at 2): worth 2 via Affinity (it
+ * matches one of the target cell's home suit(s) — pass `[]` `targetElements` to
+ * disable) or Bond (its element's Crux controlled — pass `[]` `controlledElements`
+ * to disable, or {@link getBondElements} to honor the toggle). Otherwise 1; the
+ * two never stack. `targetElements` holds one suit in the region model and up to
+ * two (the cell's row + column Cruxes) in the cross model.
  */
 export function getCardValue(
 	card: Card,
-	targetElement: Element | null,
+	targetElements: Element[],
 	controlledElements: Element[]
 ): 1 | 2 {
-	if (targetElement !== null && card.element === targetElement) return 2; // Affinity (home Zone)
-	if (controlledElements.includes(card.element)) return 2;                // Bond (controlled Crux, any Zone)
+	if (targetElements.includes(card.element)) return 2;     // Affinity (home Zone)
+	if (controlledElements.includes(card.element)) return 2; // Bond (controlled Crux, any Zone)
 	return 1;
 }
 
@@ -95,15 +126,41 @@ export function getTotalFluxScore(state: Game, player: PlayerSide): number {
 }
 
 export function getZoneAuraScore(state: Game, player: PlayerSide): number {
+	if (state.options.zoneModel === 'cross') return crossAuraScore(state, player);
+
 	let score = 0;
 	for (const zone of state.zones) {
 		if (zone.control !== player) continue;
-		for (let row = zone.topLeft.row; row < zone.topLeft.row + zone.height; row++) {
-			for (let col = zone.topLeft.col; col < zone.topLeft.col + zone.width; col++) {
+		for (let row = zone.topLeft!.row; row < zone.topLeft!.row + zone.height!; row++) {
+			for (let col = zone.topLeft!.col; col < zone.topLeft!.col + zone.width!; col++) {
 				const rune = state.board[row][col].rune;
 				// Every Null Rune (flux === 0) inside a controlled Zone scores +1
 				if (rune !== null && rune.flux === 0) score++;
 			}
+		}
+	}
+	return score;
+}
+
+/**
+ * Cross-model Aura: a Zone is its Crux's row + column, so we walk those lines for
+ * each Zone `player` controls and count Null Runes. Cells at the intersection of
+ * two controlled Zones score once per controlled Zone (up to +2) — owning both
+ * crossing Cruxes is rewarded.
+ */
+function crossAuraScore(state: Game, player: PlayerSide): number {
+	let score = 0;
+	for (const zone of state.zones) {
+		if (zone.control !== player) continue;
+		const { row: cruxRow, col: cruxCol } = zone.cruxPosition;
+		for (let col = 0; col < 6; col++) {
+			const rune = state.board[cruxRow][col].rune;
+			if (rune !== null && rune.flux === 0) score++;
+		}
+		for (let row = 0; row < 6; row++) {
+			if (row === cruxRow) continue; // crux row already counted above
+			const rune = state.board[row][cruxCol].rune;
+			if (rune !== null && rune.flux === 0) score++;
 		}
 	}
 	return score;
@@ -147,10 +204,11 @@ export function hasAnyLegalMove(state: Game, player: PlayerSide): boolean {
 			const cost = getBaseCost(cell);
 			if (cost === 0) return true;
 
-			// Card values are Zone-dependent (Affinity), so rank per target.
-			const targetElement = state.options.affinity === 'value' ? getZoneForPosition(state, position).element : null;
+			// Card values are Zone-dependent (Affinity), so rank per target. In the
+			// cross model a cell has two home suits, so any matching card scores 2.
+			const targetElements = state.options.affinity === 'value' ? getElementsForPosition(state, position) : [];
 			const sortedValues = hand
-				.map(card => getCardValue(card, targetElement, controlled))
+				.map(card => getCardValue(card, targetElements, controlled))
 				.sort((a, b) => b - a);
 
 			const limit = Math.min(cost, sortedValues.length);

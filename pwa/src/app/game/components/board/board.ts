@@ -1,5 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, input, output, signal } from '@angular/core';
 import {
+    BoardCell as BoardCellModel,
+    Element,
     Game,
     PlayerSide,
     Position,
@@ -9,6 +11,7 @@ import {
     autoSelectInscription,
     getFluxTotalForCruxLines,
     getSpellFootprint,
+    getZonesForPosition,
 } from 'axis-models';
 import { BoardCell } from '../board-cell/board-cell';
 
@@ -96,6 +99,18 @@ export class Board {
 
     zoneFor(zoneId: string): Zone | undefined {
         return this.zonesById().get(zoneId);
+    }
+
+    /**
+     * The cell's *second* home suit in the `'cross'` zone model — its column
+     * Crux's element, where {@link zoneFor} (keyed on `cell.zoneId`) supplies the
+     * row Crux's. Null in the region model and on Crux cells (which belong to a
+     * single Zone), so those render a single tone.
+     */
+    secondElementFor(cell: BoardCellModel): Element | null {
+        if (this.game().options.zoneModel !== 'cross') return null;
+        const zones = getZonesForPosition(this.game(), cell.position);
+        return zones.length > 1 ? zones[1].element : null;
     }
 
     isSelected(pos: Position): boolean {

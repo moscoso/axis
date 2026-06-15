@@ -7,7 +7,7 @@ import {
 	getBaseCost,
 	getCardValue,
 	getBondElements,
-	getZoneForPosition,
+	getElementsForPosition,
 } from './GameSelectors';
 import { getForceRoom, getSpellChargeTargets } from './SpellSelectors';
 import { Element } from '../Element/Element';
@@ -134,12 +134,12 @@ function enumerateInscribes(state: Game, side: PlayerSide): GameCommand[] {
 			}
 
 			// Otherwise: enumerate every hand subset (size ≤ cost) that covers the cost.
-			const targetElement = state.options.affinity === 'value' ? getZoneForPosition(state, position).element : null;
-			forEachPaymentSubset(hand, cost, targetElement, controlled, (subset, paymentValue) => {
+			const targetElements = state.options.affinity === 'value' ? getElementsForPosition(state, position) : [];
+			forEachPaymentSubset(hand, cost, targetElements, controlled, (subset, paymentValue) => {
 				if (paymentValue < cost) return;
 				// No wasted card: dropping the lowest-value card must fall below the
 				// cost, else a paid card buys nothing.
-				const minValue = Math.min(...subset.map(card => getCardValue(card, targetElement, controlled)));
+				const minValue = Math.min(...subset.map(card => getCardValue(card, targetElements, controlled)));
 				if (paymentValue - minValue >= cost) return;
 				moves.push(
 					clientGameCommand('InscribeRune', {
@@ -158,7 +158,7 @@ function enumerateInscribes(state: Game, side: PlayerSide): GameCommand[] {
 function forEachPaymentSubset(
 	hand: Card[],
 	maxSize: number,
-	targetElement: Element | null,
+	targetElements: Element[],
 	controlled: ReturnType<typeof getBondElements>,
 	visit: (subset: Card[], paymentValue: number) => void
 ): void {
@@ -170,7 +170,7 @@ function forEachPaymentSubset(
 		if (current.length === cap) return;
 		for (let i = start; i < n; i++) {
 			current.push(hand[i]);
-			recurse(i + 1, current, value + getCardValue(hand[i], targetElement, controlled));
+			recurse(i + 1, current, value + getCardValue(hand[i], targetElements, controlled));
 			current.pop();
 		}
 	}

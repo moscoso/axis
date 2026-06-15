@@ -20,7 +20,19 @@ export interface GameOptions {
 
 	/** Enable the Spell deck/display and the Cast a Spell action. */
 	spells: boolean;
+
+	/** Board topology. See {@link ZoneModel}. */
+	zoneModel: ZoneModel;
 }
+
+/**
+ * How the board is carved into Zones.
+ * - `'region'` — the classic six 2×3 rectangles; every cell belongs to one Zone.
+ * - `'cross'`  — a Zone is a Crux's full row + column. Each cell is a *hybrid* of
+ *                the two Cruxes intercepting it (the one on its row and the one on
+ *                its column), so non-Crux cells belong to two Zones / two suits.
+ */
+export type ZoneModel = 'region' | 'cross';
 
 /** 
  * What a card's Affinity (home-Zone match) does.
@@ -47,4 +59,5 @@ export const DEFAULT_OPTIONS: GameOptions = Object.freeze<GameOptions>({
 	baseRuneCharge: 0,
 	cruxBonus: Object.freeze({ bond: false, force: true }),
 	spells: false,
+	zoneModel: 'region',
 });

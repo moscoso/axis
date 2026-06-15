@@ -1,6 +1,6 @@
 import { PlayerSide } from '../../Player/Player';
 import { Position } from '../../Zone/Zone';
-import { getBaseCost, getCardValue, getBondElements, getZoneForPosition } from '../../Selectors/GameSelectors';
+import { getBaseCost, getCardValue, getBondElements, getElementsForPosition } from '../../Selectors/GameSelectors';
 import { Game } from '../Game';
 import { GameError } from '../GameError/GameError';
 import { GamePreconditionValidator } from './GamePrecondition';
@@ -32,8 +32,8 @@ export const CAN_PAY: GamePreconditionValidator = (
 	}
 
 	const controlledElements = getBondElements(game, player);
-	const targetElement = game.options.affinity === 'value' ? getZoneForPosition(game, target).element : null;
-	const cardValues = resolvedCards.map(card => getCardValue(card!, targetElement, controlledElements));
+	const targetElements = game.options.affinity === 'value' ? getElementsForPosition(game, target) : [];
+	const cardValues = resolvedCards.map(card => getCardValue(card!, targetElements, controlledElements));
 	const paymentValue = cardValues.reduce((sum, v) => sum + v, 0);
 
 	if (paymentValue < cost) {

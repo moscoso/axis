@@ -41,6 +41,8 @@ export class OptionsSelector {
     readonly spells = computed(() => this.current().spells);
     readonly bond = computed(() => this.current().cruxBonus.bond);
     readonly force = computed(() => this.current().cruxBonus.force);
+    readonly zoneModel = computed(() => this.current().zoneModel);
+    readonly crossZones = computed(() => this.zoneModel() === 'cross');
 
     readonly canDecCharge = computed(() => !this.disabled() && this.baseRuneCharge() > 0);
     readonly canIncCharge = computed(
@@ -54,6 +56,7 @@ export class OptionsSelector {
         this.patch({ affinity: next });
     }
     toggleSpells(): void { this.patch({ spells: !this.spells() }); }
+    toggleZoneModel(): void { this.patch({ zoneModel: this.crossZones() ? 'region' : 'cross' }); }
 
     stepBaseCharge(delta: number): void {
         const next = Math.max(0, Math.min(OptionsSelector.MAX_BASE_CHARGE, this.baseRuneCharge() + delta));

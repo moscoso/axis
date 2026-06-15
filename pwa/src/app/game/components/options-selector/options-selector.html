@@ -45,6 +45,15 @@
         Spells
         <span class="state">{{ spells() ? 'On' : 'Off' }}</span>
     </button>
+    <button type="button"
+            class="toggle"
+            [class.active]="crossZones()"
+            [disabled]="disabled()"
+            [attr.aria-pressed]="crossZones()"
+            (click)="toggleZoneModel()">
+        Zones
+        <span class="state">{{ crossZones() ? 'Cross' : 'Region' }}</span>
+    </button>
     <div class="stepper" [class.active]="baseRuneCharge() > 0">
         Base Charge
         <div class="stepper-controls">

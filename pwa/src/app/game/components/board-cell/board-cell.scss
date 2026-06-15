@@ -15,26 +15,53 @@
 :host([data-element="sun"]) {
     --cell-bg: radial-gradient(circle at 50% 50%, #5e4b12 0%, #2a2208 80%);
     --cell-accent: #f2c94c;
+    --cell-tone: #5e4b12;
 }
 :host([data-element="moon"]) {
     --cell-bg: radial-gradient(circle at 50% 50%, #2c4a66 0%, #101f2e 80%);
     --cell-accent: #8fd3ff;
+    --cell-tone: #2c4a66;
 }
 :host([data-element="star"]) {
     --cell-bg: radial-gradient(circle at 50% 50%, #5e2150 0%, #2a0d24 80%);
     --cell-accent: #ff6ad5;
+    --cell-tone: #5e2150;
 }
 :host([data-element="comet"]) {
     --cell-bg: radial-gradient(circle at 50% 50%, #5e2c14 0%, #2a1208 80%);
     --cell-accent: #ff7a45;
+    --cell-tone: #5e2c14;
 }
 :host([data-element="planet"]) {
     --cell-bg: radial-gradient(circle at 50% 50%, #1f4a2a 0%, #0a1c10 80%);
     --cell-accent: #6ed26a;
+    --cell-tone: #1f4a2a;
 }
 :host([data-element="black-hole"]) {
     --cell-bg: radial-gradient(circle at 50% 50%, #114a44 0%, #07201d 80%);
     --cell-accent: #3fd6c5;
+    --cell-tone: #114a44;
+}
+
+/* Second home suit (cross model). Mirrors the per-element tone so a two-tone
+   cell can split its background diagonally between its row + column suits. */
+:host([data-element-2="sun"])        { --cell-tone-2: #5e4b12; }
+:host([data-element-2="moon"])       { --cell-tone-2: #2c4a66; }
+:host([data-element-2="star"])       { --cell-tone-2: #5e2150; }
+:host([data-element-2="comet"])      { --cell-tone-2: #5e2c14; }
+:host([data-element-2="planet"])     { --cell-tone-2: #1f4a2a; }
+:host([data-element-2="black-hole"]) { --cell-tone-2: #114a44; }
+
+/* Hybrid cross cell: row-Crux suit fills the top-left triangle, column-Crux
+   suit the bottom-right, split on the leading diagonal. A hairline seam keeps
+   the two suits legible. Content (glyphs, rune) layers above this background. */
+:host(.two-tone) {
+    background:
+        linear-gradient(135deg,
+            transparent calc(50% - 0.5px),
+            rgba(255, 255, 255, 0.18) 50%,
+            transparent calc(50% + 0.5px)),
+        linear-gradient(135deg, var(--cell-tone) 0 50%, var(--cell-tone-2) 50% 100%);
 }
 
 :host([data-has-crux="true"]) {
