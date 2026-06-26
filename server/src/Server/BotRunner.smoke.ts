@@ -45,7 +45,7 @@ function smoke() {
 
 		// If it's the human's turn, simulate them by submitting a random legal
 		// move so the bot keeps getting opportunities to act.
-		const actingSide = state.phase === 'starting-draft' ? 'dark' : state.currentTurn;
+		const actingSide = state.currentTurn;
 		const actingUserId = state.playerIds?.[actingSide];
 
 		if (actingUserId === 'human-1') {
