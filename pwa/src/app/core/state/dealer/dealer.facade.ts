@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { Store } from '@ngrx/store';
 import {
-    Card,
+    Color,
     GameCommand,
     GameEvent,
     Game,
@@ -31,24 +31,18 @@ export class DealerFacade {
         return firstValueFrom(observable);
     }
 
-    cancelDeclare(): void {
-        this.store.dispatch(DealerActions.cancelDeclare());
-    }
-
     closeVictoryScreen(): void {
         this.store.dispatch(DealerActions.victoryScreenClosed());
     }
 
-    initiateAbility(card: Card): void {
-        this.store.dispatch(DealerActions.abilityInitiated({ card }));
+    /** Arm a die (by color) to inscribe with. */
+    selectDie(color: Color): void {
+        this.store.dispatch(DealerActions.dieSelected({ color }));
     }
 
-    selectCardForAttack(card: Card): void {
-        this.store.dispatch(DealerActions.selectAttacker({ card }));
-    }
-
-    unselectCardForAttack(card: Card): void {
-        this.store.dispatch(DealerActions.unselectAttacker({ card }));
+    /** Clear the armed die. */
+    unselectDie(): void {
+        this.store.dispatch(DealerActions.dieUnselected());
     }
 
     /** Dispatch a DeltaUpdated event to the store. */

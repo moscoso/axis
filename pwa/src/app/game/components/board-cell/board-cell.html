@@ -1,20 +1,15 @@
-@if (!rune()) {
-    <div class="glyphs">
-        @for (g of glyphs(); track $index) {
-            <app-glyph [symbol]="g"></app-glyph>
-        }
-    </div>
-}
-
 @if (cell().hasCrux) {
-    <div class="crux" [attr.aria-label]="'Crux of ' + element()">{{ cruxSymbol() }}</div>
-    @if (cruxBadge(); as badge) {
-        <div class="crux-badge" [class.preview]="badge.preview" [attr.data-owner]="badge.owner">{{ badge.text }}</div>
-    }
-}
+    <div class="crux" [attr.aria-label]="'Crux of ' + cell().cruxColor">{{ cruxSymbol() }}</div>
+} @else {
+    <!-- Two-color swatch: row color (top-left) and column color (bottom-right). -->
+    <div class="colors" aria-hidden="true">
+        <span class="row-color" [attr.data-color]="cell().rowColor">{{ rowSymbol() }}</span>
+        <span class="col-color" [attr.data-color]="cell().colColor">{{ colSymbol() }}</span>
+    </div>
 
-@if (rune(); as r) {
-    <app-rune class="rune" [rune]="r" [previewFlux]="fluxPreview()"></app-rune>
-} @else if (ghost(); as g) {
-    <app-rune class="rune ghost" [rune]="g"></app-rune>
+    @if (stone(); as s) {
+        <div class="stone" [attr.data-owner]="s.owner">
+            <app-glyph [symbol]="s.glyph"></app-glyph>
+        </div>
+    }
 }

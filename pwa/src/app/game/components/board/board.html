@@ -1,57 +1,21 @@
 @if (rows().length === 0) {
     <div class="empty">Awaiting setup…</div>
 } @else {
-    <div class="board" [class.no-guides]="!showGuides()">
+    <div class="board">
         <div class="grid">
             @for (row of rows(); track $index) {
                 @for (cell of row; track cell.position.col) {
                     <app-board-cell
                         [cell]="cell"
-                        [zone]="zoneFor(cell.zoneId)"
-                        [selectable]="selectable() && cell.rune === null && !cell.hasCrux"
+                        [selectable]="selectable() && cell.stone === null && !cell.hasCrux"
                         [selected]="isSelected(cell.position)"
-                        [dim]="selectable() && !cell.hasCrux && !isAffordable(cell.position)"
-                        [inCross]="isInCross(cell.position)"
-                        [inFootprint]="inFootprint(cell.position)"
-                        [willCharge]="willCharge(cell.position)"
-                        [cruxBadge]="cruxBadge(cell.position)"
-                        [ghost]="ghostFor(cell.position)"
-                        [fluxPreview]="fluxPreview(cell.position)"
-                        (click)="onCellClick(cell.position)"
-                        (mouseenter)="onCellHover(cell.position)"
-                        (mouseleave)="onCellLeave(cell.position)">
+                        [eligible]="eligible(cell.position)"
+                        [inCross]="inCross(cell.position)"
+                        [dim]="!!armedColor() && selectable() && cell.stone === null && !cell.hasCrux && !eligible(cell.position)"
+                        (click)="onCellClick(cell.position)">
                     </app-board-cell>
                 }
             }
         </div>
-
-        @if (showGuides()) {
-            <!--
-              Discount guides: friendly-rune tally per line, as thin overlay rails
-              aligned to the grid tracks. Seat-relative — the perspective player
-              owns bottom + left (nearest them), the opponent owns top + right.
-              Colour still encodes the actual side.
-            -->
-            <div class="rail top" aria-hidden="true">
-                @for (c of axis; track c) {
-                    <span class="tally" [class.light]="topSide() === 'light'" [class.dark]="topSide() === 'dark'" [class.zero]="colTally(c, topSide()) === 0">{{ colTally(c, topSide()) }}</span>
-                }
-            </div>
-            <div class="rail bottom" aria-hidden="true">
-                @for (c of axis; track c) {
-                    <span class="tally" [class.light]="bottomSide() === 'light'" [class.dark]="bottomSide() === 'dark'" [class.zero]="colTally(c, bottomSide()) === 0">{{ colTally(c, bottomSide()) }}</span>
-                }
-            </div>
-            <div class="rail left" aria-hidden="true">
-                @for (r of axis; track r) {
-                    <span class="tally" [class.light]="bottomSide() === 'light'" [class.dark]="bottomSide() === 'dark'" [class.zero]="rowTally(r, bottomSide()) === 0">{{ rowTally(r, bottomSide()) }}</span>
-                }
-            </div>
-            <div class="rail right" aria-hidden="true">
-                @for (r of axis; track r) {
-                    <span class="tally" [class.light]="topSide() === 'light'" [class.dark]="topSide() === 'dark'" [class.zero]="rowTally(r, topSide()) === 0">{{ rowTally(r, topSide()) }}</span>
-                }
-            </div>
-        }
     </div>
 }

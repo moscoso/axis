@@ -28,17 +28,10 @@ const dealerReducer = createReducer<DealerState>(
         game: game ?? state.game,
         table: table ?? state.table,
     })),
-    on(DealerActions.cancelDeclare, state => ({
-        ...state,
-        declaredCardToPlay: undefined,
-        resourceDiff: 0,
-    })),
-    on(DealerActions.playerSignaled, state => ({
-        ...state,
-        resourceDiff: 0,
-        cardContext: undefined,
-    })),
-    on(DealerActions.abilityCanceled, state => ({ ...state, selectedAbility: undefined })),
+    on(DealerActions.dieSelected, (state, { color }) => ({ ...state, selectedDieColor: color })),
+    on(DealerActions.dieUnselected, state => ({ ...state, selectedDieColor: undefined })),
+    // After a move is sent, disarm the die so the next turn starts clean.
+    on(DealerActions.playerSignaled, state => ({ ...state, selectedDieColor: undefined })),
     on(DealerActions.victoryScreenClosed, state => ({ ...state, victoryScreenClosed: true }))
 );
 
@@ -111,10 +104,7 @@ export const {
     selectDealerState,
     selectGame,
     selectTable,
-    selectCardContext,
-    selectDeclaredCardToPlay,
-    selectSelectedAbility,
-    selectResourceDiff,
+    selectSelectedDieColor,
     selectVictoryScreenClosed,
     selectEvents,
 } = dealerFeature;

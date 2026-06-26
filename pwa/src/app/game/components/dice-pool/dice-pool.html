@@ -1,0 +1,15 @@
+<div class="pool" [class.pickable]="pickable()">
+    @for (die of dice(); track die.color) {
+        <button
+            type="button"
+            class="die"
+            [attr.data-color]="die.color"
+            [class.armed]="armedColor() === die.color"
+            [disabled]="!pickable()"
+            [attr.aria-label]="die.color + ' die showing ' + die.face"
+            (click)="onPick(die.color)">
+            <span class="color-mark" aria-hidden="true">{{ colorSymbol[die.color] }}</span>
+            <span class="face"><app-glyph [symbol]="die.face"></app-glyph></span>
+        </button>
+    }
+</div>

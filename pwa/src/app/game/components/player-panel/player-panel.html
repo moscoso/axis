@@ -10,12 +10,7 @@
     </div>
 </header>
 
-<div class="cruxes">
-    @for (el of controlledElements(); track el) {
-        <span class="crux" [attr.data-element]="el" [attr.aria-label]="el + ' crux'">
-            {{ elementSymbol(el) }}
-        </span>
-    } @empty {
-        <span class="no-cruxes">no cruxes</span>
-    }
+<div class="score" [attr.aria-label]="side() + ' score'">
+    <span class="value">{{ score() }}</span>
+    <span class="label">pts</span>
 </div>

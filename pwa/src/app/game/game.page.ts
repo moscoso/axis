@@ -9,39 +9,27 @@ import {
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import {
-    Card as CardModel,
+    Color,
     INIT_GAME_STATE,
     INIT_TABLE_STATE,
     PlayerSide,
     Position,
     Seat,
-    SpellCard,
-    autoSelectInscription,
     clientGameCommand,
     clientTableCommand,
-    getForceRoom,
-    simulateGameCommand,
 } from 'axis-models';
-import { LogoutButton } from '../account/components/logout-button/logout-button';
-import { UiPreferencesService } from '../core/services/ui-preferences.service';
 import { AuthFacade } from '../core/state/auth/auth.facade';
 import { DealerFacade } from '../core/state/dealer/dealer.facade';
 import { ConnectionStatus } from '../core/websocket/connection-status/connection-status';
 import { WebsocketService } from '../core/websocket/websocket.service';
-import { HexGrid } from '../shared/hex-grid/hex-grid';
 import { UserBadge } from '../shared/user-badge/user-badge';
-import { ActionPanel } from './components/action-panel/action-panel';
 import { Board } from './components/board/board';
-import { CardDisplay } from './components/card-display/card-display';
-import { DraftOverlay } from './components/draft-overlay/draft-overlay';
+import { DicePool } from './components/dice-pool/dice-pool';
 import { EventLog } from './components/event-log/event-log';
-import { FluxScoreboard } from './components/flux-scoreboard/flux-scoreboard';
-import { Hand } from './components/hand/hand';
 import { Lobby } from './components/lobby/lobby';
 import { PlayerPanel } from './components/player-panel/player-panel';
 import { RiftTrack } from './components/rift-track/rift-track';
 import { Settings } from './components/settings/settings';
-import { SpellDisplay } from './components/spell-display/spell-display';
 import { TurnIndicator } from './components/turn-indicator/turn-indicator';
 import { VictoryModal } from './components/victory-modal/victory-modal';
 
@@ -49,22 +37,15 @@ import { VictoryModal } from './components/victory-modal/victory-modal';
     selector: 'app-game-page',
     standalone: true,
     imports: [
-        ActionPanel,
         Board,
-        CardDisplay,
         ConnectionStatus,
-        DraftOverlay,
+        DicePool,
         EventLog,
-        FluxScoreboard,
-        Hand,
-        HexGrid,
         Lobby,
-        LogoutButton,
         MatButtonModule,
         PlayerPanel,
         RiftTrack,
         Settings,
-        SpellDisplay,
         TurnIndicator,
         UserBadge,
         VictoryModal,
@@ -77,32 +58,21 @@ export class GamePage {
     private readonly dealer = inject(DealerFacade);
     private readonly auth = inject(AuthFacade);
     private readonly socket = inject(WebsocketService);
-    private readonly uiPrefs = inject(UiPreferencesService);
-
-    /** Whether the board's discount guideline edges are shown (user setting). */
-    readonly boardGuides = this.uiPrefs.boardGuides;
 
     /** Settings overlay visibility. */
     readonly settingsOpen = signal(false);
-    openSettings(): void {
-        this.settingsOpen.set(true);
-    }
-    closeSettings(): void {
-        this.settingsOpen.set(false);
-    }
+    openSettings(): void { this.settingsOpen.set(true); }
+    closeSettings(): void { this.settingsOpen.set(false); }
 
     /** Event log drawer visibility. */
     readonly eventLogOpen = signal(false);
-    openEventLog(): void {
-        this.eventLogOpen.set(true);
-    }
-    closeEventLog(): void {
-        this.eventLogOpen.set(false);
-    }
+    openEventLog(): void { this.eventLogOpen.set(true); }
+    closeEventLog(): void { this.eventLogOpen.set(false); }
 
     readonly game = toSignal(this.dealer.selectGame(), { requireSync: false, initialValue: INIT_GAME_STATE });
     readonly table = toSignal(this.dealer.selectState('table'), { requireSync: false, initialValue: INIT_TABLE_STATE });
     readonly userId = toSignal(this.auth.selectUserID(), { initialValue: 'unknown' });
+    readonly armedColor = toSignal(this.dealer.selectState('selectedDieColor'), { initialValue: undefined });
 
     /** Joins the shared room as soon as the authed user's id is known. */
     private readonly joinedOnce = signal(false);
@@ -114,42 +84,19 @@ export class GamePage {
     });
 
     readonly tableStatus = computed(() => this.table().status);
-
     readonly phase = computed(() => this.game().phase);
 
-    /**
-     * Show the lobby until the game's own `phase` moves off 'setup'. The
-     * table's status lags (it stays 'ready' after StartGame fires), so `phase`
-     * is the reliable signal that the game has actually begun.
-     */
+    /** Show the lobby until the game's own `phase` moves off 'setup'. */
     readonly inLobby = computed(() => this.phase() === 'setup');
     readonly currentTurn = computed(() => this.game().currentTurn);
     readonly rift = computed(() => this.game().rift);
-    readonly zones = computed(() => this.game().zones);
-    readonly display = computed(() => this.game().display);
-    readonly deckSize = computed(() => this.game().deck.length);
-    readonly discardSize = computed(() => this.game().discard.length);
-    readonly lightPlayer = computed(() => this.game().players.light);
-    readonly darkPlayer = computed(() => this.game().players.dark);
-    readonly pendingDraws = computed(() => this.game().pendingDraws);
-    readonly pendingStartOfTurnDraws = computed(() => this.game().pendingStartOfTurnDraws);
-    /** Total cards the active player must draw before they may inscribe. */
-    readonly requiredDraws = computed(() => this.pendingDraws() + this.pendingStartOfTurnDraws());
+    readonly dice = computed(() => this.game().dice);
+    readonly score = computed(() => this.game().score);
+    readonly lightScore = computed(() => this.score().light);
+    readonly darkScore = computed(() => this.score().dark);
 
-    /** Opponent of mySide — used for the top-hand perspective. */
-    readonly opponentSide = computed<PlayerSide>(() =>
-        this.mySide() === 'light' ? 'dark' : 'light'
-    );
+    readonly opponentSide = computed<PlayerSide>(() => (this.mySide() === 'light' ? 'dark' : 'light'));
 
-    /** The player shown on the BOTTOM of the board — always the user. */
-    readonly bottomPlayer = computed(() => this.game().players[this.mySide()]);
-    /** The player shown on the TOP of the board — always the opponent. */
-    readonly topPlayer = computed(() => this.game().players[this.opponentSide()]);
-
-    /**
-     * Map each side to a table Seat via `game.playerIds`. Until StartGame runs
-     * playerIds is null, so we fall back to the raw seats in their table order.
-     */
     readonly lightSeat = computed<Seat | null>(() => this.seatForSide('light'));
     readonly darkSeat = computed<Seat | null>(() => this.seatForSide('dark'));
     readonly bottomSeat = computed<Seat | null>(() => this.seatForSide(this.mySide()));
@@ -162,17 +109,15 @@ export class GamePage {
             const userId = ids[side];
             return seats.find(s => s?.user.id === userId) ?? null;
         }
-        // Pre-game fallback: put seat[0] at the bottom of the perspective side.
         return side === 'light' ? seats[0] : seats[1];
     }
 
     /**
-     * The side the user is playing as. Resolved from `game.playerIds` once the
-     * game has started. Falls back to `currentTurn` when playerIds is still
-     * null (dev without server) and pins to 'dark' during starting-draft.
+     * The side the user is playing. Resolved from `game.playerIds` once the game
+     * has started; falls back to `currentTurn` when playerIds is still null
+     * (dev without server).
      */
     readonly mySide = computed<PlayerSide>(() => {
-        if (this.phase() === 'starting-draft') return 'dark';
         const ids = this.game().playerIds;
         const uid = this.userId();
         if (ids?.light === uid) return 'light';
@@ -180,233 +125,53 @@ export class GamePage {
         return this.currentTurn();
     });
 
-    readonly isDrafting = computed(() => this.phase() === 'starting-draft');
-
     readonly winner = computed(() => this.game()?.winner ?? null);
     readonly winReason = computed(() => this.game()?.winReason ?? null);
-    /**
-     * True once the game has resolved one way or another — including a
-     * last-rune tie, where `winner` is `null` but `winReason` is set.
-     * Driven by `winReason` rather than `winner` so the victory modal
-     * (and the game-over header buttons) fire on ties too.
-     */
-    readonly isGameOver = computed(
-        () => this.phase() === 'game-over' && this.winReason() !== null
-    );
+    readonly isGameOver = computed(() => this.phase() === 'game-over' && this.winReason() !== null);
 
-    readonly victoryClosed = toSignal(this.dealer.selectState('victoryScreenClosed'), {
-        initialValue: false,
-    });
-
+    readonly victoryClosed = toSignal(this.dealer.selectState('victoryScreenClosed'), { initialValue: false });
     readonly showVictory = computed(() => this.isGameOver() && !this.victoryClosed());
 
-    readonly lightFlux = computed(() => this.totalFluxFor('light'));
-    readonly darkFlux = computed(() => this.totalFluxFor('dark'));
-
-    readonly myHand = computed(() => this.game()?.players[this.mySide()]?.hand ?? []);
     readonly isMyTurn = computed(() => this.currentTurn() === this.mySide());
     readonly inMainTurn = computed(() => this.phase() === 'main-turn');
-    readonly mustDraw = computed(
-        () => this.pendingDraws() > 0 || this.pendingStartOfTurnDraws() > 0
-    );
+    readonly canInscribe = computed(() => this.isMyTurn() && this.inMainTurn());
 
-    readonly canInscribe = computed(
-        () => this.isMyTurn() && this.inMainTurn() && !this.mustDraw()
-    );
-    /**
-     * Drawing is always available during your main turn — either as the
-     * standalone main action ("Draw a Card" per the rulebook, pendingDraws
-     * === 0) or as a resolution of an activated ◇ (pendingDraws > 0). The
-     * `mustDraw` state only restricts Inscribe, not Draw itself.
-     */
-    readonly canDraw = computed(() => this.isMyTurn() && this.inMainTurn());
+    // ─── Interaction ────────────────────────────────────────────────────────────
 
-    readonly selectedCell = signal<Position | null>(null);
-    readonly paidCardIds = signal<Set<string>>(new Set());
-
-    // ─── Spells ────────────────────────────────────────────────────────────────
-    readonly spellsEnabled = computed(() => this.game().options.spells);
-    readonly spellDisplay = computed(() => this.game().spellDisplay);
-    readonly spellDeckSize = computed(() => this.game().spellDeck.length);
-    /** Force the active player can spend on Spells right now (Rift room). */
-    readonly forceRoom = computed(() => getForceRoom(this.game(), this.mySide()));
-    /** Casting is available under the same conditions as inscribing, plus the option. */
-    readonly canCast = computed(() => this.canInscribe() && this.spellsEnabled());
-    /** The Spell currently selected for targeting, or null. */
-    readonly selectedSpell = signal<SpellCard | null>(null);
-    readonly castShape = computed(() => this.selectedSpell()?.shape ?? null);
-
-    /**
-     * What-if outcome of the move currently being composed, run through the
-     * pure simulator so the UI can preview results (rift shift, draws, crux
-     * flips) without re-deriving any rules in Angular. Null when there's no
-     * target or the current payment/activations aren't yet a legal inscribe —
-     * previews simply hide until the move is confirmable.
-     */
-    readonly previewState = computed(() => {
-        const target = this.selectedCell();
-        if (!target || !this.canInscribe()) return null;
-        // A preview must NEVER break core play: the simulator runs follow-up
-        // commands (EndTurn → refill/reshuffle) that could throw on some states,
-        // and this computed is read inline in the game view — an uncaught throw
-        // here would abort change detection and hide the action panel itself.
-        try {
-            const command = clientGameCommand('InscribeRune', {
-                player: this.mySide(),
-                target,
-                paidCardIds: Array.from(this.paidCardIds()),
-            });
-            const result = simulateGameCommand(this.game(), command);
-            return result.ok ? result.state : null;
-        } catch {
-            return null;
-        }
-    });
-
-    /**
-     * Rift after the pending action: the Force cost of a selected Spell (slides
-     * toward the opponent), else the composed inscribe's result, else null.
-     */
-    readonly previewRift = computed(() => {
-        const spell = this.selectedSpell();
-        if (spell) {
-            const delta = this.mySide() === 'light' ? -spell.forceCost : spell.forceCost;
-            return Math.max(-8, Math.min(8, this.game().rift + delta));
-        }
-        return this.previewState()?.rift ?? null;
-    });
-
-    /** The rune as it would land on the selected cell (carrying any charged flux). */
-    readonly previewRune = computed(() => {
-        const state = this.previewState();
-        const target = this.selectedCell();
-        if (!state || !target) return null;
-        return state.board[target.row]?.[target.col]?.rune ?? null;
-    });
-
-    /** Cards the composed move would queue to draw (◇ activations); 0 when no preview. */
-    readonly previewDraws = computed(() => this.previewState()?.pendingDraws ?? 0);
-
-    /** Stable empty set passed to the opposite-side hand to avoid identity churn. */
-    readonly emptyIds: ReadonlySet<string> = new Set();
-
-    onCellClick(pos: Position): void {
+    /** Arm (or toggle off) a die by color. */
+    onDieSelected(color: Color): void {
         if (!this.canInscribe()) return;
+        if (this.armedColor() === color) {
+            this.dealer.unselectDie();
+        } else {
+            this.dealer.selectDie(color);
+        }
+    }
+
+    /** Inscribe the armed die on a clicked eligible cell. */
+    onCellClick(pos: Position): void {
+        const color = this.armedColor();
+        if (!color || !this.canInscribe()) return;
         const cell = this.game().board[pos.row]?.[pos.col];
-        if (cell?.rune !== null) return;
-        // Affordability is the engine's call: autoSelectInscription returns null
-        // when no legal, non-wasteful payment exists (honoring Affinity/Bond from
-        // game options). A null here means the cell can't be played — don't select
-        // it, matching the board's dimmed/blocked state.
-        const auto = autoSelectInscription(this.game(), this.mySide(), pos);
-        if (auto === null) return;
-        this.selectedSpell.set(null); // inscribing and casting are mutually exclusive
-        this.selectedCell.set(pos);
-        // Pre-fill the cheapest legal payment so the player can confirm in one
-        // click — still editable below. Every symbol activates automatically.
-        this.paidCardIds.set(new Set(auto.paidCardIds));
-    }
-
-    /** Select (or toggle off) a Spell from the display, entering targeting mode. */
-    onSpellPicked(spell: SpellCard): void {
-        if (!this.canCast() || this.forceRoom() < spell.forceCost) return;
-        this.clearSelection(); // leaving any inscribe composition
-        this.selectedSpell.update(prev => (prev?.id === spell.id ? null : spell));
-    }
-
-    /** Cast the selected Spell at the chosen anchor. */
-    onCastAnchor(anchor: Position): void {
-        const spell = this.selectedSpell();
-        if (!spell) return;
+        if (!cell || cell.hasCrux || cell.stone !== null) return;
+        if (cell.rowColor !== color && cell.colColor !== color) return;
         this.dealer.signalAsPlayer(
-            clientGameCommand('CastSpell', { player: this.mySide(), spellId: spell.id, anchor })
+            clientGameCommand('InscribeGlyph', { player: this.mySide(), dieColor: color, target: pos })
         );
-        this.selectedSpell.set(null);
-    }
-
-    onHandCardPicked(card: CardModel): void {
-        if (!this.canInscribe() || this.selectedCell() === null) return;
-        this.paidCardIds.update(prev => {
-            const next = new Set(prev);
-            if (next.has(card.id)) next.delete(card.id);
-            else next.add(card.id);
-            return next;
-        });
-    }
-
-    onConfirmInscribe(): void {
-        const target = this.selectedCell();
-        if (!target) return;
-        const command = clientGameCommand('InscribeRune', {
-            player: this.mySide(),
-            target,
-            paidCardIds: Array.from(this.paidCardIds()),
-        });
-        this.dealer.signalAsPlayer(command);
-        this.clearSelection();
-    }
-
-    onCancelInscribe(): void {
-        this.clearSelection();
-    }
-
-    onDisplayCardPicked(card: CardModel): void {
-        if (!this.canDraw()) return;
-        const params = { player: this.mySide(), from: 'display', cardId: card.id } as const;
-        this.dealer.signalAsPlayer(clientGameCommand('DrawCard', params));
-    }
-
-    onDrawFromDeck(): void {
-        if (!this.canDraw()) return;
-        const params = { player: this.mySide(), from: 'deck' } as const;
-        this.dealer.signalAsPlayer(clientGameCommand('DrawCard', params));
-    }
-
-    onDraftSubmitted(cardIds: [string, string]): void {
-        const command = clientGameCommand('DraftCards', { player: 'dark', cardIds });
-        this.dealer.signalAsPlayer(command);
+        // playerSignaled disarms the die in the reducer.
     }
 
     onDismissVictory(): void {
         this.dealer.closeVictoryScreen();
     }
 
-    /**
-     * Reset the current game and immediately start a fresh one with the same
-     * seats / side preferences. This is a lifecycle signal, not a game
-     * command — the server's dealer dereferences the current game aggregate,
-     * builds a fresh one, then fires StartGame against the live table.
-     */
     onPlayAgain(): void {
         this.socket.emitRestart(this.socket.getCurrentRoomID());
         this.dealer.closeVictoryScreen();
     }
 
-    /**
-     * Empty the table — kicks every seated player (including bots) back to
-     * the lobby. The previous game state is reset by the existing Table
-     * Cleaned trigger so the fresh group can play immediately when the
-     * seats fill up again.
-     */
     onNewGame(): void {
         this.dealer.signalAsHost(clientTableCommand('VacateTable', {}));
         this.dealer.closeVictoryScreen();
-    }
-
-    private totalFluxFor(side: PlayerSide): number {
-        const board = this.game()?.board;
-        if (!board) return 0;
-        let total = 0;
-        for (const row of board) {
-            for (const cell of row) {
-                if (cell.rune?.owner === side) total += cell.rune.flux;
-            }
-        }
-        return total;
-    }
-
-    private clearSelection(): void {
-        this.selectedCell.set(null);
-        this.paidCardIds.set(new Set());
     }
 }

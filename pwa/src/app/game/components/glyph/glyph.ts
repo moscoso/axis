@@ -2,23 +2,21 @@ import { ChangeDetectionStrategy, Component, computed, input } from '@angular/co
 import { Glyph as GlyphSymbol } from 'axis-models';
 
 const GLYPH_LABEL: Record<GlyphSymbol, string> = {
-    '+': 'Flux',
-    '▲': 'Force',
-    '◇': 'Draw',
-    '↑': 'Shift Up',
-    '→': 'Shift Right',
-    '↓': 'Shift Down',
-    '←': 'Shift Left',
+    '+': 'Pulse',
+    'X': 'Cross',
+    '▲': 'Drift',
+    '↔': 'Row Repeater',
+    '↕': 'Column Repeater',
+    '■': 'Block',
 };
 
 const GLYPH_CLASS: Record<GlyphSymbol, string> = {
-    '+': 'flux',
-    '▲': 'force',
-    '◇': 'draw',
-    '↑': 'shift-up',
-    '→': 'shift-right',
-    '↓': 'shift-down',
-    '←': 'shift-left',
+    '+': 'pulse',
+    'X': 'cross',
+    '▲': 'drift',
+    '↔': 'row-repeater',
+    '↕': 'col-repeater',
+    '■': 'block',
 };
 
 @Component({

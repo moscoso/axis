@@ -1,21 +1,14 @@
-<app-hex-grid class="bg"></app-hex-grid>
-
 <header class="top">
     <h1>AXIS</h1>
     @if (!inLobby()) {
-        <app-turn-indicator [currentTurn]="currentTurn()" [phase]="phase()" [drawsRequired]="requiredDraws()"></app-turn-indicator>
+        <app-turn-indicator [currentTurn]="currentTurn()" [phase]="phase()"></app-turn-indicator>
     }
     <div class="top-actions">
         @if (isGameOver()) {
-            <button mat-flat-button
-                    color="accent"
-                    type="button"
-                    (click)="onPlayAgain()">
+            <button mat-flat-button color="accent" type="button" (click)="onPlayAgain()">
                 Play Again
             </button>
-            <button mat-stroked-button
-                    type="button"
-                    (click)="onNewGame()">
+            <button mat-stroked-button type="button" (click)="onNewGame()">
                 New Game
             </button>
         }
@@ -23,7 +16,6 @@
         <button type="button" class="icon-btn settings-btn" aria-label="Settings" title="Settings" (click)="openSettings()">⚙</button>
         <app-user-badge></app-user-badge>
         <app-connection-status></app-connection-status>
-        <app-logout-button></app-logout-button>
     </div>
 </header>
 
@@ -39,99 +31,40 @@
             <app-player-panel
                 [side]="opponentSide()"
                 [seat]="topSeat()"
-                [zones]="zones()"
+                [score]="opponentSide() === 'light' ? lightScore() : darkScore()"
                 [isActive]="currentTurn() === opponentSide() && inMainTurn()">
             </app-player-panel>
-            <app-rift-track [value]="rift()" [preview]="previewRift()" [perspective]="mySide()"></app-rift-track>
+            <app-rift-track [value]="rift()" [perspective]="mySide()"></app-rift-track>
             <app-player-panel
                 [side]="mySide()"
                 [seat]="bottomSeat()"
-                [zones]="zones()"
+                [score]="mySide() === 'light' ? lightScore() : darkScore()"
                 [isActive]="isMyTurn() && inMainTurn()">
             </app-player-panel>
         </aside>
 
         <main class="arena">
-            <section class="top-hand">
-                @if (topPlayer(); as p) {
-                    <app-hand
-                        [player]="p"
-                        [selectable]="false"
-                        [selectedIds]="emptyIds"
-                        (cardSelected)="onHandCardPicked($event)">
-                    </app-hand>
-                }
-            </section>
-
             <section class="board-stage">
                 <app-board
                     [game]="g"
-                    [player]="mySide()"
+                    [armedColor]="armedColor() ?? null"
                     [selectable]="canInscribe()"
-                    [selectedCell]="selectedCell()"
-                    [previewRune]="previewRune()"
-                    [previewGame]="previewState()"
-                    [castShape]="castShape()"
-                    [showGuides]="boardGuides()"
-                    (cellClicked)="onCellClick($event)"
-                    (anchorPicked)="onCastAnchor($event)">
+                    (cellClicked)="onCellClick($event)">
                 </app-board>
             </section>
 
-            <section class="bottom-hand">
-                @if (bottomPlayer(); as p) {
-                    <app-hand
-                        [player]="p"
-                        [selectable]="canInscribe()"
-                        [selectedIds]="paidCardIds()"
-                        [ghostDraws]="previewDraws()"
-                        (cardSelected)="onHandCardPicked($event)">
-                    </app-hand>
-                }
+            <section class="dice-tray">
+                <app-dice-pool
+                    [dice]="dice()"
+                    [armedColor]="armedColor() ?? null"
+                    [pickable]="canInscribe()"
+                    (diePicked)="onDieSelected($event)">
+                </app-dice-pool>
             </section>
         </main>
-
-        <aside class="side-rail">
-            <app-card-display
-                [cards]="display()"
-                [deckSize]="deckSize()"
-                [discardSize]="discardSize()"
-                [selectable]="canDraw()"
-                [compact]="true"
-                (cardSelected)="onDisplayCardPicked($event)"
-                (drawFromDeck)="onDrawFromDeck()">
-            </app-card-display>
-            @if (spellsEnabled()) {
-                <app-spell-display
-                    [spells]="spellDisplay()"
-                    [deckSize]="spellDeckSize()"
-                    [forceRoom]="forceRoom()"
-                    [castable]="canCast()"
-                    [selectedId]="selectedSpell()?.id ?? null"
-                    (spellSelected)="onSpellPicked($event)">
-                </app-spell-display>
-            }
-            <app-flux-scoreboard [game]="g"></app-flux-scoreboard>
-            <app-action-panel
-                [game]="g"
-                [player]="mySide()"
-                [target]="selectedCell()"
-                [paidCardIds]="paidCardIds()"
-                (confirm)="onConfirmInscribe()"
-                (cancel)="onCancelInscribe()">
-            </app-action-panel>
-        </aside>
     </div>
 } @else {
     <div class="loading">Loading game…</div>
-}
-
-@if (isDrafting() && game()) {
-    <app-draft-overlay
-        [cards]="display()"
-        [mySide]="mySide()"
-        (draftSubmitted)="onDraftSubmitted($event)">
-    </app-draft-overlay>
 }
 
 @if (settingsOpen()) {
@@ -147,8 +80,8 @@
         <app-victory-modal
             [winner]="winner()"
             [reason]="reason"
-            [lightFlux]="lightFlux()"
-            [darkFlux]="darkFlux()"
+            [lightScore]="lightScore()"
+            [darkScore]="darkScore()"
             (close)="onDismissVictory()"
             (playAgain)="onPlayAgain()"
             (newGame)="onNewGame()">
