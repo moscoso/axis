@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import { resolveChain } from './resolveChain';
-import { BoardCell, Stone } from '../Game/Game';
+import { BoardCell } from '../Game/Game';
 import { Crux, Position } from '../Zone/Zone';
 import { Color, COLORS } from '../Element/Element';
 import { Glyph } from '../Glyph/Glyph';

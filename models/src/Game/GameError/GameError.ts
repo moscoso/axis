@@ -3,7 +3,7 @@ import { AppError } from '@moscoso/models';
 export enum GameErrorType {
 	CellHasCrux = 'A Crux stands on this cell — it cannot be inscribed',
 	CellIsOccupied = 'Cell is already occupied',
-	ColorMismatch = "The die's color does not match this cell",
+	ColorMismatch = 'The die color does not match this cell',
 	GameIsOver = 'The game is already over',
 	InvalidPhase = 'Invalid game phase for this action',
 	NoSuchDie = 'No die of that color is in the pool',

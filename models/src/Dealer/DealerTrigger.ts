@@ -11,8 +11,6 @@ type DealerFn    = (dealer: Dealer) => void;
 export type DealerTrigger = {
 	/** Table or game event types that activate this trigger, or `'*'` for all events. */
 	on:            (GameEventType | TableEventType)[] | '*';
-	/** Game command to execute when triggered — game state is auto-injected. */
-	gameCommand?:  string;
 	/** Table command to execute when triggered — table state is auto-injected. */
 	tableCommand?: string;
 	/** Optional condition — trigger only fires if this returns true. */
@@ -56,7 +54,7 @@ export const DEALER_TRIGGERS: DealerTrigger[] = [
 		on:    ['Game Ended'],
 		if:    dealer => dealer.gameState.playerIds !== null,
 		effect: dealer => {
-			const { playerIds, winner, winReason } = dealer.gameState;
+			const { playerIds } = dealer.gameState;
 			if (!playerIds) return;
 			dealer.executeTableCommand(
 				clientTableCommand('RecordGame', {

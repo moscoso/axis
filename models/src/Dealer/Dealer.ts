@@ -2,7 +2,6 @@ import { Aggregate } from '@moscoso/models';
 import {
 	clientGameCommand,
 	GameCommand,
-	GameCommandFactory,
 	GameCommandResult,
 	GameEvent,
 	INIT_GAME_STATE,
@@ -139,13 +138,6 @@ export class Dealer {
 				if (!matches || !passes) return;
 
 				trigger.effect?.(this);
-
-				if (trigger.gameCommand) {
-					const commandClass = GameCommandFactory.getType(trigger.gameCommand);
-					if (commandClass) {
-						this.executeGameCommand(GameCommandFactory.get(commandClass, { game: this.gameState }));
-					}
-				}
 
 				if (trigger.tableCommand) {
 					const commandClass = TableCommandFactory.getType(trigger.tableCommand);
