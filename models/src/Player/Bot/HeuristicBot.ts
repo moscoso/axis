@@ -84,45 +84,29 @@ export class HeuristicBot implements Bot {
 }
 
 /**
- * Lifts a {@link PublicGameState} back into a {@link Game} shape for
- * simulation. Opponent hand is stubbed as empty. The deck is stubbed with
- * `deckSize` opaque placeholder cards — real identities are hidden, but
- * their presence keeps DrawCard-from-deck and RefillDisplay simulations from
- * failing on an empty deck. The evaluator only reads hand *sizes* and public
- * board state, so placeholder cards don't corrupt scoring.
+ * Lifts a {@link PublicGameState} back into a {@link Game} shape for simulation.
+ * The dice game has no hidden state, so this is a faithful rehydration — only
+ * the RNG seed is hidden and stubbed to 0. Reroll outcomes during lookahead are
+ * therefore arbitrary, which is fine: the evaluator ignores dice faces.
  */
 function toSimulationState(publicState: PublicGameState): Game {
 	const opp: PlayerSide = publicState.side === 'light' ? 'dark' : 'light';
-	const deck = Array.from({ length: publicState.deckSize }, (_, i) => ({
-		id: `__sim-deck-${i}__`,
-		element: 'sun' as const,
-	}));
 	return {
 		id: publicState.id,
 		phase: publicState.phase,
 		board: publicState.board,
-		zones: publicState.zones,
+		cruxes: publicState.cruxes,
+		dice: publicState.dice,
 		players: {
-			[publicState.side]: { side: publicState.side, hand: publicState.ownHand },
-			[opp]:              { side: opp,              hand: [] },
+			[publicState.side]: { side: publicState.side },
+			[opp]:              { side: opp },
 		} as Game['players'],
 		playerIds: null,
 		currentTurn: publicState.currentTurn,
 		rift: publicState.rift,
-		deck,
-		discard: publicState.discard,
-		display: publicState.display,
-		spellDeck: Array.from({ length: publicState.spellDeckSize }, (_, i) => ({
-			id: `__sim-spell-${i}__`,
-			name: 'placeholder',
-			shape: 'single' as const,
-			effect: 'charge' as const,
-			forceCost: 1,
-		})),
-		spellDisplay: publicState.spellDisplay,
-		spellDiscard: publicState.spellDiscard,
-		pendingDraws: publicState.pendingDraws,
-		pendingStartOfTurnDraws: publicState.pendingStartOfTurnDraws,
+		score: publicState.score,
+		rngSeed: 0,
+		rngCursor: 0,
 		options: publicState.options,
 		winner: publicState.winner,
 		winReason: publicState.winReason,

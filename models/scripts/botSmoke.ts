@@ -29,6 +29,7 @@ function bench(
 	console.log(`    B wins:    ${bWins} / ${total}`);
 	console.log(`    draws:     ${draws}`);
 	console.log(`    aborted:   ${aborted}`);
+	console.log(`    avg moves: ${forward.avgMoves.toFixed(1)}`);
 
 	return {
 		games: [...forward.games, ...reverse.games],
@@ -50,17 +51,9 @@ bench(
 );
 
 bench(
-	'Heuristic vs Random — Affinity ON (target: >55% for Heuristic)',
+	'Heuristic vs Random (stub heuristic — should beat random)',
 	() => new HeuristicBot({ name: 'Heur' }),
 	() => new RandomBot({ name: 'Rand' }),
-	{ ...DEFAULT_OPTIONS, affinity: 'value' },
-);
-
-bench(
-	'Heuristic vs Random — Affinity OFF (isolates Affinity\'s effect)',
-	() => new HeuristicBot({ name: 'Heur' }),
-	() => new RandomBot({ name: 'Rand' }),
-	{ ...DEFAULT_OPTIONS, affinity: 'off' },
 );
 
 console.log();

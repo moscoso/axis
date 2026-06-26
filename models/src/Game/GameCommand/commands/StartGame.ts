@@ -1,10 +1,9 @@
 import { UserID } from '@moscoso/models';
-import { Card } from '../../../Card/Card';
-import { ELEMENTS } from '../../../Element/Element';
+import { COLORS } from '../../../Element/Element';
 import { generateBoard } from '../../../Board/generateBoard';
-import { createSpellDeck } from '../../../Spell/createSpellDeck';
+import { Die } from '../../../Die/Die';
+import { rollFaces } from '../../../Utility/rng';
 import { GameSeed } from '../../GameSeed/GameSeed';
-import { shuffle } from '../../../Utility/shuffle';
 import { Table, SidePreference } from '../../../Table/Table';
 import { GameCommand, GameCommandResult, okGameCommand, failGameCommand } from '..';
 import { Game } from '../../Game';
@@ -18,10 +17,9 @@ export type StartGameParams = {
 };
 
 /**
- * Sets up a new AXIS game from the current table state.
- * Resolves side preferences, generates the board, builds and shuffles the
- * deck, deals the initial 4-card display for the draft, and emits a
- * {@link GameSeed}.
+ * Sets up a new AXIS game from the current table state: resolves side
+ * preferences, generates the board and Cruxes, rolls the six pool dice from a
+ * fresh seed, and emits a {@link GameSeed}.
  *
  * Side resolution rules:
  * - One player picks 'light' and the other picks 'dark' → respect both choices.
@@ -46,49 +44,27 @@ export class StartGame implements GameCommand<StartGameParams> {
 			seatB.user.id, seatB.sidePreference,
 		);
 
-		const { board, zones } = generateBoard({ shiftGlyphs: table.options.shiftGlyphs });
-		const shuffledDeck    = shuffle(createDeck());
-		const display         = shuffledDeck.slice(0, 4);
-		const remainingDeck   = shuffledDeck.slice(4);
+		const { board, cruxes } = generateBoard();
 
-		// Spell piles — only dealt when the option is on; otherwise left empty.
-		const shuffledSpells  = table.options.spells ? shuffle(createSpellDeck()) : [];
-		const spellDisplay    = shuffledSpells.slice(0, SPELL_DISPLAY_SIZE);
-		const spellDeck       = shuffledSpells.slice(SPELL_DISPLAY_SIZE);
+		// Seed the dice PRNG, then roll one face per color for the initial pool.
+		const rngSeed = (Math.floor(Math.random() * 0xffffffff)) >>> 0;
+		const faces   = rollFaces(rngSeed, 0, COLORS.length);
+		const dice: Die[] = COLORS.map((color, i) => ({ color, face: faces[i] }));
 
 		const seed: GameSeed = {
 			board,
-			zones,
-			deck:        remainingDeck,
-			display,
-			spellDeck,
-			spellDisplay,
+			cruxes,
+			dice,
+			rngSeed,
+			rngCursor: COLORS.length,
 			lightPlayer,
 			darkPlayer,
-			options:     table.options,
-			createdAt:   Date.now(),
+			options:   table.options,
+			createdAt: Date.now(),
 		};
 
 		return okGameCommand([new GameStarted(seed)]);
 	}
-}
-
-/**
- * 6 suits × 5 = a 30-card deck, mirroring the 30 inscribable cells (the four-
- * zone game kept the same invariant: 32 cards for 32 cells). Tunable.
- */
-const CARDS_PER_ELEMENT = 5;
-const SPELL_DISPLAY_SIZE = 3;
-
-/** Builds the 30-card AXIS deck: 5 of each suit, id'd by suit + index. */
-function createDeck(): Card[] {
-	const deck: Card[] = [];
-	for (const element of ELEMENTS) {
-		for (let i = 0; i < CARDS_PER_ELEMENT; i++) {
-			deck.push({ id: `${element}-${i}`, element });
-		}
-	}
-	return deck;
 }
 
 function resolveSides(

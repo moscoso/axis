@@ -8,6 +8,6 @@ export const IS_CELL_EMPTY: GamePreconditionValidator = (
 ) => {
 	const cell = game.board[target.row]?.[target.col];
 	if (cell?.hasCrux)       return GameError.CellHasCrux();
-	if (cell?.rune !== null)  return GameError.CellIsOccupied();
+	if (cell?.stone != null) return GameError.CellIsOccupied();
 	return null;
 };

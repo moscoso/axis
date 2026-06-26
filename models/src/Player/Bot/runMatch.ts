@@ -130,7 +130,6 @@ function startGame(gameOptions: GameOptions): Game {
 }
 
 function whoActs(state: Game): PlayerSide {
-	if (state.phase === 'starting-draft') return 'dark';
 	return state.currentTurn;
 }
 

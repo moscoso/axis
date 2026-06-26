@@ -134,9 +134,8 @@ export class BotRunner {
 	}
 }
 
-/** The side whose turn it is to act, accounting for the draft phase. */
+/** The side whose turn it is to act, or null when no one acts (setup/game-over). */
 function whoActs(state: Game): PlayerSide | null {
-	if (state.phase === 'starting-draft') return 'dark';
 	if (state.phase === 'main-turn') return state.currentTurn;
 	return null;
 }

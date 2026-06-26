@@ -1,130 +1,63 @@
 import { expect } from 'chai';
 import { generateBoard } from './generateBoard';
-import { ELEMENTS } from '../Element/Element';
-import { Glyph, ShiftGlyph, SHIFT_GLYPHS, isShiftGlyph } from '../Glyph/Glyph';
+import { COLORS } from '../Element/Element';
 
-describe('generateBoard — six 2×3 zones, constrained 120-glyph distribution', () => {
-	const RUNS = 50;
-
-	it('produces exactly 120 glyphs across all non-crux cells', () => {
-		for (let i = 0; i < RUNS; i++) {
-			const { board } = generateBoard();
-			const total = board.flat().reduce((sum, cell) => sum + cell.glyphs.length, 0);
-			expect(total).to.equal(120);
+describe('generateBoard', () => {
+	it('places six Cruxes, one per color', () => {
+		const { cruxes } = generateBoard();
+		expect(cruxes.length).to.equal(6);
+		expect(new Set(cruxes.map(c => c.color)).size).to.equal(6);
+		for (const color of COLORS) {
+			expect(cruxes.some(c => c.color === color)).to.equal(true);
 		}
 	});
 
-	it('places 32 of each non-shift glyph and 6 of each shift direction', () => {
-		for (let i = 0; i < RUNS; i++) {
-			const { board } = generateBoard();
-			const counts: Partial<Record<Glyph, number>> = {};
-			for (const cell of board.flat()) {
-				for (const g of cell.glyphs) {
-					counts[g] = (counts[g] ?? 0) + 1;
-				}
-			}
-			expect(counts['+'], 'flux count').to.equal(32);
-			expect(counts['▲'], 'force count').to.equal(32);
-			expect(counts['◇'], 'draw count').to.equal(32);
-			for (const dir of SHIFT_GLYPHS) {
-				expect(counts[dir], `shift '${dir}' count`).to.equal(6);
-			}
+	it('obeys Crux Exclusivity — distinct rows and distinct columns', () => {
+		const { cruxes } = generateBoard();
+		expect(new Set(cruxes.map(c => c.position.row)).size).to.equal(6);
+		expect(new Set(cruxes.map(c => c.position.col)).size).to.equal(6);
+	});
+
+	it('marks exactly six Crux cells, each on its own color', () => {
+		const { board, cruxes } = generateBoard();
+		const cruxCells = board.flat().filter(c => c.hasCrux);
+		expect(cruxCells.length).to.equal(6);
+		for (const crux of cruxes) {
+			const cell = board[crux.position.row][crux.position.col];
+			expect(cell.hasCrux).to.equal(true);
+			expect(cell.cruxColor).to.equal(crux.color);
+			expect(cell.rowColor).to.equal(crux.color);
+			expect(cell.colColor).to.equal(crux.color);
 		}
 	});
 
-	it('never mixes two shift directions on the same cell', () => {
-		for (let i = 0; i < RUNS; i++) {
-			const { board } = generateBoard();
-			for (const cell of board.flat()) {
-				const dirsHere = new Set<ShiftGlyph>();
-				for (const g of cell.glyphs) {
-					if (isShiftGlyph(g)) dirsHere.add(g);
-				}
-				expect(dirsHere.size, `cell (${cell.position.row},${cell.position.col})`).to.be.lessThan(2);
+	it('gives every non-Crux cell two DISTINCT colors and no stone', () => {
+		const { board } = generateBoard();
+		for (const row of board) {
+			for (const cell of row) {
+				if (cell.hasCrux) continue;
+				expect(cell.rowColor).to.not.equal(cell.colColor);
+				expect(cell.stone).to.equal(null);
+				expect(cell.cruxColor).to.equal(null);
 			}
 		}
 	});
 
-	it('leaves Crux cells empty of glyphs', () => {
-		for (let i = 0; i < RUNS; i++) {
-			const { board } = generateBoard();
-			for (const cell of board.flat()) {
-				if (cell.hasCrux) {
-					expect(cell.glyphs).to.have.length(0);
-				}
+	it('derives a cell\'s colors from its row-Crux and column-Crux', () => {
+		const { board, cruxes } = generateBoard();
+		const byRow = new Map(cruxes.map(c => [c.position.row, c.color]));
+		const byCol = new Map(cruxes.map(c => [c.position.col, c.color]));
+		for (let r = 0; r < 6; r++) {
+			for (let c = 0; c < 6; c++) {
+				expect(board[r][c].rowColor).to.equal(byRow.get(r));
+				expect(board[r][c].colColor).to.equal(byCol.get(c));
 			}
 		}
 	});
 
-	it('produces no shift glyphs when shiftGlyphs is off, but still 120 glyphs total', () => {
-		for (let i = 0; i < RUNS; i++) {
-			const { board } = generateBoard({ shiftGlyphs: false });
-			const all = board.flat().flatMap(cell => cell.glyphs);
-			expect(all).to.have.length(120);
-			expect(all.some(isShiftGlyph), 'no shift glyphs present').to.equal(false);
-		}
-	});
-
-	it('carves six 2×3 zones (one orientation per game) that tile the board', () => {
-		for (let i = 0; i < RUNS; i++) {
-			const { board, zones } = generateBoard();
-			expect(zones).to.have.length(6);
-
-			const dims = new Set(zones.map(z => `${z.width}x${z.height}`));
-			expect(dims.size, 'single orientation per game').to.equal(1);
-			expect(['3x2', '2x3']).to.include([...dims][0]);
-
-			// Every cell belongs to exactly one zone (zoneIds cover the board).
-			const cellsPerZone = new Map<string, number>();
-			for (const cell of board.flat()) {
-				expect(cell.zoneId).to.not.equal('');
-				cellsPerZone.set(cell.zoneId, (cellsPerZone.get(cell.zoneId) ?? 0) + 1);
-			}
-			expect(cellsPerZone.size).to.equal(6);
-			for (const count of cellsPerZone.values()) expect(count).to.equal(6);
-		}
-	});
-
-	it('assigns each of the six suits to exactly one zone', () => {
-		for (let i = 0; i < RUNS; i++) {
-			const { zones } = generateBoard();
-			const suits = zones.map(z => z.element).sort();
-			expect(suits).to.deep.equal([...ELEMENTS].sort());
-		}
-	});
-
-	it('places six Cruxes obeying Cross Exclusivity (distinct rows and columns)', () => {
-		for (let i = 0; i < RUNS; i++) {
-			const { board, zones } = generateBoard();
-			const rows = new Set(zones.map(z => z.cruxPosition.row));
-			const cols = new Set(zones.map(z => z.cruxPosition.col));
-			expect(rows.size, 'distinct crux rows').to.equal(6);
-			expect(cols.size, 'distinct crux cols').to.equal(6);
-
-			for (const zone of zones) {
-				const { row, col } = zone.cruxPosition;
-				// The crux sits inside its own zone.
-				expect(row).to.be.at.least(zone.topLeft.row);
-				expect(row).to.be.below(zone.topLeft.row + zone.height);
-				expect(col).to.be.at.least(zone.topLeft.col);
-				expect(col).to.be.below(zone.topLeft.col + zone.width);
-				expect(board[row][col].hasCrux).to.equal(true);
-			}
-		}
-	});
-
-	it('gives each zone 5 non-crux cells with costs 2..6 exactly once', () => {
-		for (let i = 0; i < RUNS; i++) {
-			const { board, zones } = generateBoard();
-			for (const zone of zones) {
-				const costs: number[] = [];
-				for (let r = zone.topLeft.row; r < zone.topLeft.row + zone.height; r++) {
-					for (let c = zone.topLeft.col; c < zone.topLeft.col + zone.width; c++) {
-						if (!board[r][c].hasCrux) costs.push(board[r][c].glyphs.length);
-					}
-				}
-				expect(costs.sort((a, b) => a - b)).to.deep.equal([2, 3, 4, 5, 6]);
-			}
-		}
+	it('leaves 30 inscribable cells (36 − 6 Cruxes)', () => {
+		const { board } = generateBoard();
+		const inscribable = board.flat().filter(c => !c.hasCrux);
+		expect(inscribable.length).to.equal(30);
 	});
 });

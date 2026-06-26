@@ -55,10 +55,10 @@ export function simulateGameCommand(state: Game, command: GameCommand<any>): Com
 	}
 
 	for (const followUp of result.value.commands) {
-		// A winning command (InscribeRune producing fluxmate, rift-break, or
-		// last-rune) leaves the state in game-over. Subsequent auto-queued
-		// commands like EndTurn would then fail IS_NOT_GAME_OVER. Skip them —
-		// the primary command's events have already decided the outcome.
+		// A winning command (InscribeGlyph producing rift-break or end-score)
+		// leaves the state in game-over. Subsequent auto-queued commands like
+		// EndTurn would then fail IS_NOT_GAME_OVER. Skip them — the primary
+		// command's events have already decided the outcome.
 		if (nextState.winner !== null || nextState.phase === 'game-over') break;
 
 		const sub = simulateGameCommand(nextState, followUp);

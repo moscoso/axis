@@ -28,7 +28,7 @@ type GameRecordedPayload = {
 	lightId: UserID;
 	darkId: UserID;
 	winner: PlayerSide | null;
-	reason: 'rift-break' | 'fluxmate' | 'last-rune' | null;
+	reason: 'rift-break' | 'end-score' | null;
 };
 export class GameRecorded extends TableEvents<GameRecordedPayload> {
 	override readonly type = 'Game Recorded';

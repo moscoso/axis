@@ -6,24 +6,33 @@ the experience and strategic tensions the game exists to create. Use it to judge
 new mechanics, spaces, and balance changes — if an idea doesn't serve a pillar
 (or actively fights one), that's the conversation to have.
 
-**Source of truth:** [`AXIS_Rulebook_v16.md`](./AXIS_Rulebook_v16.md). Where this
-file states *intent* beyond the rules, it's marked 🅘 (interpretive) — those are
-the lines to argue with.
+**Source of truth:** [`AXIS_Rulebook_v18.md`](./AXIS_Rulebook_v18.md) — the
+**dice & chains** ruleset. Where this file states *intent* beyond the rules, it's
+marked 🅘 (interpretive) — those are the lines to argue with.
+
+> ⚠️ **v18 transition.** AXIS was rebuilt from a card/Flux game to a dice/chain
+> game. The 30-second model below is updated for v18, but the seven pillars that
+> follow were written for the v16/v17 *card* game and still reference Flux, Bond,
+> Affinity, Zones, the Draw action, and Fluxmate. Treat them as **historical
+> design intent pending a v18 rewrite**: the durable themes (no safe lead,
+> position over accumulation, a transparent board, a clean mirror) carry over;
+> the specific mechanics they cite do not. Revising these pillars for dice &
+> chains is a deliberate follow-up (good use of the `game-designer` skill).
 
 ---
 
-## The 30-second model
+## The 30-second model (v18)
 
-Two mirror-image sides, **Light** and **Dark**, alternate turns. Each turn you do
-**exactly one** thing: **Inscribe a Rune** (pay its card cost, activate its
-rewards) or **Draw a card** from the 2-card display. A space's cost is its
-printed symbol count (1–7), reduced by 1 for each friendly Rune already in its
-row or column (floor 0). The three symbols are **+** (Flux on the Rune), **▲**
-(push the **Rift** toward your end), and **■** (Draw). Flux in a **Crux's** row +
-column decides who **controls** that Zone; control grants **Bond** (matching
-cards pay and activate as 2). Win three ways: drive the **Rift** to your ±8
-(Rift Break), hold **all four Cruxes** at once (Fluxmate), or own the most Flux
-when the board fills (Last Rune). *Victory can come at any moment.*
+Two mirror-image sides, **Light** and **Dark**, alternate turns. There is a
+public pool of **six dice**, one per color, each face a glyph. On your turn you
+do **exactly one** thing: **pick a die** and **inscribe** its current face onto
+an empty cell whose row or column color matches the die. That fires the matched
+**Crux's cross** (its whole row + column): every glyph the chain reaches resolves
+for its own owner — **`+`/`X`** score points, **`▲`** pushes the **Rift**,
+**`↔`/`↕`** repeat to neighbors, **`■`** blocks enemy chains. Then you **reroll**
+the two dice matching the cell's two colors. Win two ways: drive the **Rift** to
+your **±6** (Rift Break), or hold the **higher score** when the board's 30 cells
+fill (End Score). *Victory can come at any moment.*
 
 ---
 

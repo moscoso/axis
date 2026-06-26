@@ -1,20 +1,11 @@
-import { GameEvent, RuneInscribed } from '../../GameEvent/GameEvent';
-import { Game } from '../../Game';
-import { Glyph } from '../../../Glyph/Glyph';
-import { PlayerSide } from '../../../Player/Player';
-import { getZoneForPosition } from '../../../Selectors/GameSelectors';
+import { GameEvent } from '../../GameEvent/GameEvent';
+import { Game, RIFT_TERMINAL } from '../../Game';
 
 export function riftReducer(event: GameEvent, state: Game): Game {
 	switch (event.type) {
-		case 'Rune Inscribed': {
-			const delta = inscribeRiftDelta(state, event.payload);
+		case 'Glyph Inscribed': {
+			const delta = event.payload.riftDelta;
 			return delta === 0 ? state : { ...state, rift: clampRift(state.rift + delta) };
-		}
-
-		case 'Spell Cast': {
-			// Casting spends Force: the Rift slides toward the caster's opponent.
-			const { player, spell } = event.payload;
-			return { ...state, rift: clampRift(state.rift - toward(player, spell.forceCost)) };
 		}
 
 		default:
@@ -22,38 +13,5 @@ export function riftReducer(event: GameEvent, state: Game): Game {
 	}
 }
 
-/**
- * Net Rift shift from an inscription (signed light-positive), summing three
- * independent pulls:
- * - the inscriber's own ▲ activations;
- * - Affinity in `rift` mode — each home-Zone card paid pulls one step toward the
- *   inscriber (a ▲ baked into Affinity rather than a payment discount);
- * - the Crux Force tax — inscribing inside a Zone an OPPONENT controls tugs one
- *   step toward that owner, the price of trespassing.
- *
- * Zone geometry/control is read pre-inscribe (zonesReducer runs after this), so a
- * Rune that flips the Crux still pays the toll to the side it just dethroned.
- */
-function inscribeRiftDelta(state: Game, payload: RuneInscribed['payload']): number {
-	const { player, position, activations, paidCards } = payload;
-
-	let delta = toward(player, activations.filter((a: Glyph) => a === '▲').length);
-
-	if (state.options.affinity === 'rift') {
-		const zoneElement = getZoneForPosition(state, position).element;
-		delta += toward(player, paidCards.filter(c => c.element === zoneElement).length);
-	}
-
-	if (state.options.cruxBonus.force) {
-		const owner = getZoneForPosition(state, position).control;
-		if (owner !== player && owner !== 'unbound') delta += toward(owner, 1);
-	}
-
-	return delta;
-}
-
-/** A signed step count toward `player` — light pulls positive, dark negative. */
-const toward = (player: PlayerSide, steps: number): number => (player === 'light' ? steps : -steps);
-
-/** Keep the Rift inside its ±8 Rift-Break bounds. */
-const clampRift = (value: number): number => Math.max(-8, Math.min(8, value));
+/** Keep the Rift inside its ±RIFT_TERMINAL Rift-Break bounds. */
+const clampRift = (value: number): number => Math.max(-RIFT_TERMINAL, Math.min(RIFT_TERMINAL, value));

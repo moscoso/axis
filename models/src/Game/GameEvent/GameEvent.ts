@@ -1,23 +1,18 @@
 import { AppEvent } from '@moscoso/models';
-import { Card } from '../../Card/Card';
 import { PlayerSide } from '../../Player/Player';
 import { Position } from '../../Zone/Zone';
+import { Color } from '../../Element/Element';
 import { Glyph } from '../../Glyph/Glyph';
-import { SpellCard } from '../../Spell/Spell';
-import { Rune } from '../Game';
+import { Die } from '../../Die/Die';
+import { Score } from '../Game';
 import { GameSeed } from '../GameSeed/GameSeed';
 
 export const GAME_EVENT_TYPES = [
-	'Card Drawn',
-	'Deck Reshuffled',
-	'Display Refilled',
-	'Draft Completed',
-	'Game Ended',
 	'Game Started',
-	'Rune Inscribed',
-	'Spell Cast',
-	'Spell Display Refilled',
-	'Turn Ended'
+	'Glyph Inscribed',
+	'Dice Rerolled',
+	'Turn Ended',
+	'Game Ended',
 ] as const;
 
 export type GameEventType = typeof GAME_EVENT_TYPES[number];
@@ -33,70 +28,38 @@ export abstract class GameEvents<P> extends AppEvent<GameEventType, P> {
 	}
 }
 
-// ─── Card Drawn ───────────────────────────────────────────────────────────────
-type CardDrawnPayload = PlayerPayload & { card: Card; from: 'display' | 'deck' };
-export class CardDrawn extends GameEvents<CardDrawnPayload> {
-	override readonly type = 'Card Drawn';
-}
-
-// ─── Deck Reshuffled ─────────────────────────────────────────────────────────
-type DeckReshuffledPayload = { newDeck: Card[] };
-export class DeckReshuffled extends GameEvents<DeckReshuffledPayload> {
-	override readonly type = 'Deck Reshuffled';
-}
-
-// ─── Display Refilled ────────────────────────────────────────────────────────
-type DisplayRefilledPayload = { card: Card };
-export class DisplayRefilled extends GameEvents<DisplayRefilledPayload> {
-	override readonly type = 'Display Refilled';
-}
-
-// ─── Draft Completed ─────────────────────────────────────────────────────────
-/** Dark's 2 picks, Light's 2 remainder, and the 2 fresh display cards — all in one shot. */
-type DraftCompletedPayload = { darkCards: Card[]; lightCards: Card[]; displayCards: Card[] };
-export class DraftCompleted extends GameEvents<DraftCompletedPayload> {
-	override readonly type = 'Draft Completed';
-}
-
 // ─── Game Started ────────────────────────────────────────────────────────────
 export class GameStarted extends GameEvents<GameSeed> {
 	override readonly type = 'Game Started';
 }
 
-// ─── Game Ended ──────────────────────────────────────────────────────────────
-type GameEndedPayload = {
-	winner: PlayerSide | null;
-	reason: 'rift-break' | 'fluxmate' | 'last-rune';
+// ─── Glyph Inscribed ─────────────────────────────────────────────────────────
+/**
+ * A die is inscribed and its Crux's cross fires. The chain is resolved up front
+ * by the command, so the payload carries the placement plus the already-computed
+ * fired cells and score/rift deltas; reducers just apply them.
+ */
+type GlyphInscribedPayload = PlayerPayload & PositionPayload & {
+	/** The matched die color (decides which Crux fires). */
+	color: Color;
+	/** The glyph face that was inscribed. */
+	glyph: Glyph;
+	/** Cells that fired during the chain, in resolution order (placed cell first). */
+	firedCells: Position[];
+	/** Points gained by each side this chain. */
+	scoreDelta: Score;
+	/** Signed Rift movement this chain (+ toward Light, − toward Dark). */
+	riftDelta: number;
 };
-export class GameEnded extends GameEvents<GameEndedPayload> {
-	override readonly type = 'Game Ended';
+export class GlyphInscribed extends GameEvents<GlyphInscribedPayload> {
+	override readonly type = 'Glyph Inscribed';
 }
 
-// ─── Rune Inscribed ──────────────────────────────────────────────────────────
-type RuneInscribedPayload = PlayerPayload & PositionPayload & {
-	rune: Rune;
-	paidCards: Card[];
-	activations: Glyph[];
-};
-export class RuneInscribed extends GameEvents<RuneInscribedPayload> {
-	override readonly type = 'Rune Inscribed';
-}
-
-// ─── Spell Cast ──────────────────────────────────────────────────────────────
-type SpellCastPayload = PlayerPayload & {
-	spell: SpellCard;
-	anchor: Position;
-	/** On-board cells the footprint covers (already clipped to the board). */
-	footprint: Position[];
-};
-export class SpellCast extends GameEvents<SpellCastPayload> {
-	override readonly type = 'Spell Cast';
-}
-
-// ─── Spell Display Refilled ──────────────────────────────────────────────────
-type SpellDisplayRefilledPayload = { spell: SpellCard };
-export class SpellDisplayRefilled extends GameEvents<SpellDisplayRefilledPayload> {
-	override readonly type = 'Spell Display Refilled';
+// ─── Dice Rerolled ───────────────────────────────────────────────────────────
+/** The full post-reroll dice pool and the advanced RNG cursor. */
+type DiceRerolledPayload = { dice: Die[]; rngCursor: number };
+export class DiceRerolled extends GameEvents<DiceRerolledPayload> {
+	override readonly type = 'Dice Rerolled';
 }
 
 // ─── Turn Ended ──────────────────────────────────────────────────────────────
@@ -105,14 +68,18 @@ export class TurnEnded extends GameEvents<TurnEndedPayload> {
 	override readonly type = 'Turn Ended';
 }
 
+// ─── Game Ended ──────────────────────────────────────────────────────────────
+type GameEndedPayload = {
+	winner: PlayerSide | null;
+	reason: 'rift-break' | 'end-score';
+};
+export class GameEnded extends GameEvents<GameEndedPayload> {
+	override readonly type = 'Game Ended';
+}
+
 export type GameEvent =
-	CardDrawn |
-	DeckReshuffled |
-	DisplayRefilled |
-	DraftCompleted |
-	GameEnded |
 	GameStarted |
-	RuneInscribed |
-	SpellCast |
-	SpellDisplayRefilled |
-	TurnEnded;
+	GlyphInscribed |
+	DiceRerolled |
+	TurnEnded |
+	GameEnded;

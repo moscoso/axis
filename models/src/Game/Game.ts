@@ -1,24 +1,36 @@
 import { UserID } from '@moscoso/models';
-import { Card } from '../Card/Card';
 import { PlayerMap, PlayerSide } from '../Player/Player';
-import { Position, Zone } from '../Zone/Zone';
+import { Color } from '../Element/Element';
+import { Position, Crux } from '../Zone/Zone';
 import { Glyph } from '../Glyph/Glyph';
-import { SpellCard } from '../Spell/Spell';
+import { Die } from '../Die/Die';
 import { DEFAULT_OPTIONS, GameOptions } from './GameOptions';
 
-export type GamePhase = 'setup' | 'starting-draft' | 'main-turn' | 'game-over';
+export type GamePhase = 'setup' | 'main-turn' | 'game-over';
 
-export interface Rune {
+/** A placed marker: a player's stone stamped with the inscribed glyph face. */
+export interface Stone {
 	owner: PlayerSide;
-	flux: number; // starts at 0 (Null Rune)
+	glyph: Glyph;
 }
 
 export interface BoardCell {
 	position: Position;
-	zoneId: string;
-	glyphs: Glyph[];
-	rune: Rune | null;
+	/** Color of the Crux owning this cell's row. */
+	rowColor: Color;
+	/** Color of the Crux owning this cell's column. Equals rowColor only on a Crux cell. */
+	colColor: Color;
+	/** The inscribed stone, or null while empty. Crux cells stay null forever. */
+	stone: Stone | null;
 	hasCrux: boolean;
+	/** The Crux's color when `hasCrux`, else null. */
+	cruxColor: Color | null;
+}
+
+/** Per-side running point totals (from `+` Pulse and `X` Cross firings). */
+export interface Score {
+	light: number;
+	dark: number;
 }
 
 /**
@@ -34,10 +46,13 @@ export interface Game {
 	/** 6×6 grid of BoardCells, indexed as board[row][col] */
 	board: BoardCell[][];
 
-	/** The four elemental Zones, each holding a Crux */
-	zones: Zone[];
+	/** The six Cruxes, one per color, on distinct rows and columns. */
+	cruxes: Crux[];
 
-	/** Hand and identity for both players */
+	/** The public pool of six dice (one per color). Never consumed; rerolled in place. */
+	dice: Die[];
+
+	/** Identity for both players (hands removed — there are no cards). */
 	players: PlayerMap;
 
 	/** The user IDs mapped to their side — set on Game Started, null before setup. */
@@ -48,42 +63,22 @@ export interface Game {
 
 	/**
 	 * The Rift track value.
-	 * +8 = Light wins via Rift Break.
-	 * −8 = Dark wins via Rift Break.
+	 * +6 = Light wins via Rift Break.
+	 * −6 = Dark wins via Rift Break.
 	 */
 	rift: number;
 
-	/** Draw pile (ordered; index 0 = top of deck) */
-	deck: Card[];
+	/** Running point totals for both sides. */
+	score: Score;
 
-	/** Public discard pile */
-	discard: Card[];
-
-	/** The two face-up cards available for the Draw action */
-	display: Card[];
-
-	/** Spell draw pile (index 0 = top). Empty when spells are disabled. */
-	spellDeck: SpellCard[];
-
-	/** Face-up Spells either player may cast on their turn. */
-	spellDisplay: SpellCard[];
-
-	/** Spent Spells. A finite resource — never reshuffled back into the deck. */
-	spellDiscard: SpellCard[];
+	/** Seed for the deterministic dice PRNG (carried from the {@link GameSeed}). */
+	rngSeed: number;
 
 	/**
-	 * Number of ◇ activation draws the active player still needs to resolve,
-	 * queued by {@link RuneInscribed}. Decremented on {@link CardDrawn}.
+	 * Number of dice rolls performed so far. Combined with the seed it makes
+	 * every roll/reroll reproducible for deterministic replay.
 	 */
-	pendingDraws: number;
-
-	/**
-	 * Draws that were granted to the active player at the START of their turn
-	 * (see {@link GameOptions.startOfTurnDraws}). Resolved the same way as
-	 * `pendingDraws` but via a separate counter so the "end-turn after last
-	 * draw" logic only triggers on the ◇-activation branch.
-	 */
-	pendingStartOfTurnDraws: number;
+	rngCursor: number;
 
 	/** The frozen-in options this game was started with. */
 	options: GameOptions;
@@ -92,7 +87,7 @@ export interface Game {
 	winner: PlayerSide | null;
 
 	/** Reason the game ended */
-	winReason: 'rift-break' | 'fluxmate' | 'last-rune' | null;
+	winReason: 'rift-break' | 'end-score' | null;
 
 	createdAt: number;
 	updatedAt: number;
@@ -102,28 +97,27 @@ const INIT_STATE: Game = {
 	id: '',
 	phase: 'setup',
 	board: [],
-	zones: [],
+	cruxes: [],
+	dice: [],
 	players: {
-		light: { side: 'light', hand: [] },
-		dark:  { side: 'dark',  hand: [] }
+		light: { side: 'light' },
+		dark:  { side: 'dark' }
 	},
 	playerIds: null,
 	currentTurn: 'light',
 	rift: 0,
-	deck: [],
-	discard: [],
-	display: [],
-	spellDeck: [],
-	spellDisplay: [],
-	spellDiscard: [],
-	pendingDraws: 0,
-	pendingStartOfTurnDraws: 0,
+	score: { light: 0, dark: 0 },
+	rngSeed: 0,
+	rngCursor: 0,
 	options: DEFAULT_OPTIONS,
 	winner: null,
 	winReason: null,
 	createdAt: 0,
 	updatedAt: 0
 };
+
+/** Light wins Rift Break at +6, Dark at −6. */
+export const RIFT_TERMINAL = 6;
 
 /** The initial (empty) state of a {@link Game} before setup runs. */
 export const INIT_GAME_STATE: Game = Object.freeze<Game>(INIT_STATE);
