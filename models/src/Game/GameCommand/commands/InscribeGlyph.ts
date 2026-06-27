@@ -50,10 +50,13 @@ export class InscribeGlyph implements GameCommand<InscribeGlyphParams> {
 		board[target.row][target.col] = { ...board[target.row][target.col], stone };
 		const chain = resolveChain(board, game.cruxes, dieColor, target, player);
 
-		// Reroll the two dice matching the inscribed cell's row + column colors.
+		// Reroll the used die only — or both of the cell's color dice when the
+		// rerollBothColors option is on.
 		const cell = game.board[target.row][target.col];
-		const faces = rollFaces(game.rngSeed, game.rngCursor, 2);
-		const rerollColors = [cell.rowColor, cell.colColor];
+		const rerollColors = game.options.rerollBothColors
+			? [cell.rowColor, cell.colColor]
+			: [dieColor];
+		const faces = rollFaces(game.rngSeed, game.rngCursor, rerollColors.length);
 		const dice: Die[] = game.dice.map(d => {
 			const idx = rerollColors.indexOf(d.color);
 			return idx === -1 ? d : { ...d, face: faces[idx] };
@@ -69,7 +72,7 @@ export class InscribeGlyph implements GameCommand<InscribeGlyphParams> {
 				scoreDelta: chain.scoreDelta,
 				riftDelta: chain.riftDelta,
 			}),
-			new DiceRerolled({ dice, rngCursor: game.rngCursor + 2 }),
+			new DiceRerolled({ dice, rngCursor: game.rngCursor + rerollColors.length }),
 		];
 
 		// The turn ends immediately — there are no follow-up choices.
