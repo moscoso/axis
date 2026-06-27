@@ -6,7 +6,10 @@
 }
 
 .board {
-    --pad: 14px;
+    --pad: 8px;
+    /* Reserved band for the coordinate rails. Collapses to 0 when guides are off. */
+    --edge: clamp(0.85rem, 2.3cqw, 1.3rem);
+
     position: relative;
     width: 100%;
     height: 100%;
@@ -21,16 +24,58 @@
         inset 0 0 50px rgba(0, 0, 0, 0.7);
 }
 
-/* The 6×6 play surface. A 2px gap keeps cells distinct as tiles; the row/column
-   lines run through each tile's centre and their glow bridges the gap so the
-   tracks still read as continuous across the board. */
+.board.no-guides { --edge: 0px; }
+
+/* The 6×6 play surface, inset by the padding + rail band. A 2px gap keeps cells
+   distinct as tiles; the row/column lines run through each tile and their glow
+   bridges the gap so the tracks still read as continuous. */
 .grid {
     position: absolute;
-    inset: var(--pad);
+    inset: calc(var(--pad) + var(--edge));
     display: grid;
     grid-template-columns: repeat(6, 1fr);
     grid-template-rows: repeat(6, 1fr);
     gap: 2px;
+}
+
+/* Coordinate rails: four thin label strips in the reserved margin, aligned to
+   the grid tracks. */
+.rail {
+    position: absolute;
+    display: grid;
+    gap: 2px;
+    pointer-events: none;
+}
+.rail.top,
+.rail.bottom {
+    left: calc(var(--pad) + var(--edge));
+    right: calc(var(--pad) + var(--edge));
+    height: var(--edge);
+    grid-template-columns: repeat(6, 1fr);
+}
+.rail.left,
+.rail.right {
+    top: calc(var(--pad) + var(--edge));
+    bottom: calc(var(--pad) + var(--edge));
+    width: var(--edge);
+    grid-template-rows: repeat(6, 1fr);
+}
+.rail.top { top: var(--pad); }
+.rail.bottom { bottom: var(--pad); }
+.rail.left { left: var(--pad); }
+.rail.right { right: var(--pad); }
+
+.coord {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-display, sans-serif);
+    font-size: clamp(0.5rem, 1.5cqw, 0.78rem);
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: 0.05em;
+    color: rgba(255, 255, 255, 0.4);
+    user-select: none;
 }
 
 .empty {

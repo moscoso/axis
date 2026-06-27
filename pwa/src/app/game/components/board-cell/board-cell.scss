@@ -1,5 +1,3 @@
-@use 'sass:map';
-
 /* Neon accent per celestial color. */
 $colors: (
     sun:    #f2c94c,
@@ -16,44 +14,51 @@ $colors: (
     aspect-ratio: 1;
     border-radius: 6px;
     box-sizing: border-box;
-    background: #0b0f1a;
+    background: radial-gradient(circle at 50% 45%, #16203a 0%, #090d18 82%);
     overflow: hidden;
     box-shadow:
         inset 0 0 0 1px rgba(255, 255, 255, 0.08),
-        inset 0 0 16px rgba(0, 0, 0, 0.4);
-    transition: transform 150ms ease, filter 150ms ease, box-shadow 150ms ease;
+        inset 0 0 16px rgba(0, 0, 0, 0.45);
+    transition: transform 150ms ease, box-shadow 150ms ease, filter 150ms ease;
 }
 
-/* ── Row / column lines ──────────────────────────────────────────────────── */
+/* ── Row / column lines (the connecting color tracks) ────────────────────── */
 .line {
     position: absolute;
     pointer-events: none;
     border-radius: 2px;
-    opacity: 0.9;
+    opacity: 0.95;
 }
 .line.row {
     left: 0;
     right: 0;
     top: 50%;
-    height: clamp(3px, 0.9cqw, 6px);
+    height: clamp(3px, 1cqw, 6px);
     transform: translateY(-50%);
 }
 .line.col {
     top: 0;
     bottom: 0;
     left: 50%;
-    width: clamp(3px, 0.9cqw, 6px);
+    width: clamp(3px, 1cqw, 6px);
     transform: translateX(-50%);
 }
 
 @each $name, $hex in $colors {
     .line.row[data-color="#{$name}"] {
-        background: linear-gradient(90deg, rgba($hex, 0.35), #{$hex} 50%, rgba($hex, 0.35));
-        box-shadow: 0 0 8px rgba($hex, 0.7);
+        background: linear-gradient(90deg, rgba($hex, 0.4), #{$hex} 50%, rgba($hex, 0.4));
+        box-shadow: 0 0 8px rgba($hex, 0.75);
     }
     .line.col[data-color="#{$name}"] {
-        background: linear-gradient(180deg, rgba($hex, 0.35), #{$hex} 50%, rgba($hex, 0.35));
-        box-shadow: 0 0 8px rgba($hex, 0.7);
+        background: linear-gradient(180deg, rgba($hex, 0.4), #{$hex} 50%, rgba($hex, 0.4));
+        box-shadow: 0 0 8px rgba($hex, 0.75);
+    }
+    /* Crux cell glows in its own color (host frame + the icon). */
+    :host([data-has-crux="true"][data-row-color="#{$name}"]) {
+        box-shadow:
+            inset 0 0 0 2px rgba($hex, 0.7),
+            inset 0 0 24px rgba($hex, 0.3),
+            0 0 20px rgba($hex, 0.22);
     }
     :host([data-has-crux="true"][data-row-color="#{$name}"]) .crux {
         filter: drop-shadow(0 0 10px #{$hex}) drop-shadow(0 0 20px rgba($hex, 0.6));
@@ -67,7 +72,7 @@ $colors: (
     left: 50%;
     transform: translate(-50%, -50%);
     z-index: 2;
-    font-size: clamp(1.4rem, 5cqw, 2.4rem);
+    font-size: clamp(1.6rem, 5cqw, 2.8rem);
     line-height: 1;
     pointer-events: none;
 }
@@ -105,42 +110,47 @@ $colors: (
     pointer-events: none;
 }
 
-/* ── Interaction states ──────────────────────────────────────────────────── */
+/* ── Interaction states (ported from main) ───────────────────────────────── */
 :host(.selectable) { cursor: pointer; }
 
 /* A legal target for the armed die — ringed and lit. */
+:host(.eligible) { cursor: pointer; }
 :host(.eligible)::after {
     content: '';
     position: absolute;
     inset: 8%;
-    border-radius: 8px;
+    border-radius: 6px;
     border: 2px solid rgba(255, 255, 255, 0.85);
     box-shadow: 0 0 16px rgba(255, 255, 255, 0.4), inset 0 0 12px rgba(255, 255, 255, 0.2);
     pointer-events: none;
     z-index: 1;
 }
-:host(.eligible) { cursor: pointer; }
 :host(.eligible:hover),
 :host(.eligible.drag-over) {
-    transform: scale(1.05);
-    filter: brightness(1.3);
+    filter: brightness(1.5);
+    transform: scale(1.04);
     z-index: 4;
 }
 
-/* Cells on the armed cross — brighten their lines. */
-:host(.in-cross) .line { opacity: 1; filter: brightness(1.4) saturate(1.2); }
+/* Cells on the armed cross — brighten their lines + a soft frame. */
+:host(.in-cross) {
+    box-shadow:
+        inset 0 0 0 2px rgba(255, 255, 255, 0.28),
+        inset 0 0 18px rgba(255, 255, 255, 0.12);
+    filter: brightness(1.18);
+}
+:host(.in-cross) .line { opacity: 1; filter: brightness(1.35) saturate(1.2); }
 
 /* Pending placement target. */
-:host(.selected)::after,
-:host(.has-ghost)::after {
-    content: '';
-    position: absolute;
-    inset: 6%;
-    border-radius: 8px;
-    border: 3px solid #fff;
-    box-shadow: 0 0 22px rgba(255, 255, 255, 0.5);
-    pointer-events: none;
-    z-index: 1;
+:host(.selected),
+:host(.has-ghost) {
+    box-shadow:
+        inset 0 0 0 3px #fff,
+        0 0 28px rgba(255, 255, 255, 0.4);
+    z-index: 3;
 }
 
-:host(.dim) { filter: brightness(0.5) saturate(0.7); }
+:host(.dim) {
+    filter: brightness(0.45) saturate(0.6);
+    cursor: not-allowed;
+}

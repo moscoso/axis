@@ -1,7 +1,7 @@
 @if (rows().length === 0) {
     <div class="empty">Awaiting setup…</div>
 } @else {
-    <div class="board">
+    <div class="board" [class.no-guides]="!showGuides()">
         <div class="grid">
             @for (row of rows(); track $index) {
                 @for (cell of row; track cell.position.col) {
@@ -23,5 +23,21 @@
                 }
             }
         </div>
+
+        @if (showGuides()) {
+            <!-- Chess-style coordinate rails: A–F across the columns, 1–6 down the rows. -->
+            <div class="rail top" aria-hidden="true">
+                @for (c of axis; track c) { <span class="coord">{{ colLabel(c) }}</span> }
+            </div>
+            <div class="rail bottom" aria-hidden="true">
+                @for (c of axis; track c) { <span class="coord">{{ colLabel(c) }}</span> }
+            </div>
+            <div class="rail left" aria-hidden="true">
+                @for (r of axis; track r) { <span class="coord">{{ rowLabel(r) }}</span> }
+            </div>
+            <div class="rail right" aria-hidden="true">
+                @for (r of axis; track r) { <span class="coord">{{ rowLabel(r) }}</span> }
+            </div>
+        }
     </div>
 }

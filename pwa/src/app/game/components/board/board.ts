@@ -22,11 +22,20 @@ export class Board {
     readonly pendingGlyph = input<Glyph | null>(null);
     /** Side that owns the pending placement. */
     readonly pendingOwner = input<PlayerSide | null>(null);
+    /** Show the A–F × 1–6 coordinate rails framing the grid. */
+    readonly showGuides = input<boolean>(true);
 
     /** A cell was chosen as the target (via click or drop). */
     readonly cellChosen = output<Position>();
 
     readonly rows = computed(() => this.game().board);
+
+    /** Static [0..5] index list for iterating the coordinate rails. */
+    readonly axis = [0, 1, 2, 3, 4, 5];
+
+    /** Column letter (A–F) and row number (1–6) for the chess-style rails. */
+    colLabel(c: number): string { return String.fromCharCode(65 + c); }
+    rowLabel(r: number): string { return String(r + 1); }
 
     private readonly dragOver = signal<string | null>(null);
 
