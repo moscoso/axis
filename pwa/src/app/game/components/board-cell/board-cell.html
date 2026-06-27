@@ -11,6 +11,9 @@
 } @else if (stone(); as s) {
     <div class="stone" [attr.data-owner]="s.owner">
         <app-glyph [symbol]="s.glyph"></app-glyph>
+        @if (scoreBadge(); as pts) {
+            <span class="score-badge" [attr.data-owner]="s.owner" aria-label="points scored">{{ pts }}</span>
+        }
     </div>
 } @else if (ghost(); as g) {
     <div class="stone ghost" [attr.data-owner]="g.owner">

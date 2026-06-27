@@ -46,7 +46,7 @@ export class InscribeGlyph implements GameCommand<InscribeGlyphParams> {
 
 		// Resolve the chain against the board AS IF the stone were already placed.
 		const board = cloneBoard(game.board);
-		const stone: Stone = { owner: player, glyph };
+		const stone: Stone = { owner: player, glyph, score: 0 };
 		board[target.row][target.col] = { ...board[target.row][target.col], stone };
 		const chain = resolveChain(board, game.cruxes, dieColor, target, player);
 
@@ -71,6 +71,7 @@ export class InscribeGlyph implements GameCommand<InscribeGlyphParams> {
 				firedCells: chain.firedCells,
 				scoreDelta: chain.scoreDelta,
 				riftDelta: chain.riftDelta,
+				firedScores: chain.firedScores,
 			}),
 			new DiceRerolled({ dice, rngCursor: game.rngCursor + rerollColors.length }),
 		];

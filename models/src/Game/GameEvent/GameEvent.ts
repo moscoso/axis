@@ -5,6 +5,7 @@ import { Color } from '../../Element/Element';
 import { Glyph } from '../../Glyph/Glyph';
 import { Die } from '../../Die/Die';
 import { Score } from '../Game';
+import { FiredScore } from '../../Chain/resolveChain';
 import { GameSeed } from '../GameSeed/GameSeed';
 
 export const GAME_EVENT_TYPES = [
@@ -44,12 +45,14 @@ type GlyphInscribedPayload = PlayerPayload & PositionPayload & {
 	color: Color;
 	/** The glyph face that was inscribed. */
 	glyph: Glyph;
-	/** Cells that fired during the chain, in resolution order (placed cell first). */
+	/** Cells that fired during the chain, in resolution order. */
 	firedCells: Position[];
 	/** Points gained by each side this chain. */
 	scoreDelta: Score;
 	/** Signed Rift movement this chain (+ toward Light, − toward Dark). */
 	riftDelta: number;
+	/** Per-stone point contributions, for the running per-stone badge. */
+	firedScores: FiredScore[];
 };
 export class GlyphInscribed extends GameEvents<GlyphInscribedPayload> {
 	override readonly type = 'Glyph Inscribed';

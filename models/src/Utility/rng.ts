@@ -1,4 +1,4 @@
-import { Glyph, GLYPHS } from '../Glyph/Glyph';
+import { Glyph } from '../Glyph/Glyph';
 
 /**
  * Deterministic PRNG (mulberry32). Same seed → same stream. Used for every
@@ -16,16 +16,22 @@ export function mulberry32(seed: number): () => number {
 }
 
 /**
- * Reproducibly rolls `count` glyph faces from `seed`, skipping the first
- * `cursor` draws already consumed by earlier rolls this game. Returns the faces;
- * the caller advances the cursor by `count`.
+ * The six die faces. `▲` Drift appears twice (weighting the Rift track); the
+ * other glyphs once each. Rolls draw uniformly from this list.
+ */
+export const DIE_FACES: Glyph[] = ['+', 'X', '▲', '▲', '↔', '↕'];
+
+/**
+ * Reproducibly rolls `count` die faces from `seed`, skipping the first `cursor`
+ * draws already consumed by earlier rolls this game. Returns the faces; the
+ * caller advances the cursor by `count`.
  */
 export function rollFaces(seed: number, cursor: number, count: number): Glyph[] {
 	const rng = mulberry32(seed);
 	for (let i = 0; i < cursor; i++) rng();
 	const faces: Glyph[] = [];
 	for (let i = 0; i < count; i++) {
-		faces.push(GLYPHS[Math.floor(rng() * GLYPHS.length)]);
+		faces.push(DIE_FACES[Math.floor(rng() * DIE_FACES.length)]);
 	}
 	return faces;
 }

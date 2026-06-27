@@ -26,8 +26,8 @@ Win the war by pushing the **Rift** to your side, or by holding the higher
 - 6 **Crux** markers — one each: Sun, Moon, Star, Planet, Comet, Spiral
 - 1 **Rift** marker
 - Light stones (enough to cover 15 cells) and Dark stones (15 cells)
-- **6 dice** — one per color. Each die's six faces show the six glyphs:
-  `+`, `X`, `▲`, `↔`, `↕`, `■`
+- **6 dice** — one per color. The six die faces are `+`, `X`, `▲`, `▲`, `↔`, `↕`
+  — five glyphs, with **`▲` Drift appearing on two faces** (weighting the Rift).
 
 ## Setup
 
@@ -50,7 +50,8 @@ On your turn, in order:
 1. **Pick a die** from the public pool.
 2. **Inscribe** the die's glyph on an empty cell whose color matches the die.
 3. **Fire the chain** — the matched Crux's full cross activates.
-4. **Reroll** the two dice whose colors match the inscribed cell.
+4. **Reroll** the die you used. *(Option: reroll both of the inscribed cell's
+   color dice.)*
 
 You must take a turn. Passing is not allowed. (A legal move always exists while
 any cell is empty: every empty cell has two colors, and both of those dice are
@@ -70,52 +71,50 @@ A cell has two colors, so each inscription is a real choice: which Crux to ignit
 
 ## The Chain
 
-A Crux's **cross** is its full row + full column (11 cells, Crux at the center).
-Inscribing fires that cross.
+A Crux's **cross** is its full row + full column. Inscribing a cell of the
+Crux's color fires that cross: the chain **emanates from the Crux outward along
+all four arms**.
 
-- The inscribed cell fires first; the chain spreads outward along the cross.
-- Each inscribed cell fires its glyph as the chain reaches it. Empty cells are
-  passed through silently.
-- The **Crux is a junction**: the chain passes straight through it *and* turns
-  into the perpendicular arm. The Crux cell itself does not fire.
-- A direction **stops** when it reaches an **enemy `■`**, the board's edge, or
-  the end of the cross's arm.
+- Each arm runs cell by cell from the Crux outward. **Your own stones fire** as
+  the chain reaches them; empty cells are passed through.
+- An arm **stops** when it reaches an **opponent stone** (a pure wall — it does
+  not fire) or the board's edge.
+- The **Crux divides opposite arms** — a chain never carries through the Crux
+  from one arm to the other. The Crux cell itself does not fire.
 - Each cell fires **at most once** per chain.
 
-### Glyph Ownership
+There is no Block glyph and no friendly-fire: a chain only ever fires the
+initiator's own stones, and every opponent stone (and the Crux) interrupts it.
 
-Each inscribed glyph stays owned by the player who placed it. When it fires:
+### Glyph effects
 
-- `+` and `X` **score for their inscriber**, regardless of who triggered the chain.
-- `▲` pushes the **Rift** toward **its inscriber**.
-- `↔` / `↕` trigger their neighbors **only for chains owned by their inscriber**.
-- `■` blocks chains **initiated by the opponent**. Friendly `■` does not block
-  your own chains.
+When one of your stones fires:
 
-So a chain you initiate passes through your opponent's glyphs (unless stopped by
-their `■`), and their `+`/`X` score for them and their `▲` pulls the Rift toward
-them — choose your crosses with care.
+- `+` Pulse **scores 1 per orthogonally-adjacent friendly stone**.
+- `X` Cross **scores 1 per diagonally-adjacent friendly stone**.
+- `▲` Drift pushes the **Rift** one step toward you.
+- `↔` / `↕` Repeaters trigger their neighbors (see below).
 
 ### Repeaters
 
-When a `↔` fires (and it's your chain), it triggers its two row neighbors as if
-the chain had reached them; `↕` triggers its two column neighbors. If a triggered
-neighbor is another of your Repeaters, it triggers its neighbors in turn —
-cascades carry the chain past where the cross would naturally reach. The
+When a `↔` fires it triggers its two row neighbors as if the chain had reached
+them; `↕` triggers its two column neighbors. A triggered **friendly** stone
+fires (an opponent stone walls the trigger); if it's another Repeater it
+triggers its neighbors in turn — cascades carry the chain off the cross. The
 once-per-cell rule prevents loops.
 
-## The Six Glyphs
+## The Five Glyphs
 
 | Symbol | Name | Effect |
 |---|---|---|
 | `+` | Pulse | Inscriber scores 1 per orthogonally-adjacent friendly stone. |
 | `X` | Cross | Inscriber scores 1 per diagonally-adjacent friendly stone. |
-| `▲` | Drift | Push the Rift 1 toward the glyph's inscriber. |
+| `▲` | Drift | Push the Rift 1 toward the inscriber. (On two die faces.) |
 | `↔` | Row Repeater | Triggers its two row neighbors (cascades through Repeaters). |
 | `↕` | Column Repeater | Triggers its two column neighbors (cascades through Repeaters). |
-| `■` | Block | Stops opponent chains in this cell's direction; no other effect. |
 
-*Orthogonal* = up/down/left/right; *diagonal* = the four corners.
+*Orthogonal* = up/down/left/right; *diagonal* = the four corners. There is no
+Block glyph — every opponent stone interrupts a chain.
 
 ## The Rift
 

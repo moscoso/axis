@@ -53,6 +53,12 @@ export class BoardCell {
         const g = this.ghostGlyph();
         return this.stone() === null && g ? { glyph: g, owner: this.ghostOwner() ?? 'light' } : null;
     });
+    /** Running points scored by a placed +/X stone, for the badge. Null otherwise. */
+    readonly scoreBadge = computed(() => {
+        const s = this.stone();
+        if (!s || (s.glyph !== '+' && s.glyph !== 'X') || s.score <= 0) return null;
+        return s.score;
+    });
     readonly cruxSymbol = computed(() => {
         const color = this.cell().cruxColor;
         return color ? COLOR_SYMBOL[color] : '';

@@ -12,6 +12,11 @@ export type GamePhase = 'setup' | 'main-turn' | 'game-over';
 export interface Stone {
 	owner: PlayerSide;
 	glyph: Glyph;
+	/**
+	 * Points this stone has scored so far (a `+`/`X` running tally). Purely for
+	 * UI feedback — the authoritative score lives in {@link Game.score}.
+	 */
+	score: number;
 }
 
 export interface BoardCell {

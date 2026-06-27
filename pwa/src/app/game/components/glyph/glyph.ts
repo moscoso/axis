@@ -7,7 +7,6 @@ const GLYPH_LABEL: Record<GlyphSymbol, string> = {
     '▲': 'Drift',
     '↔': 'Row Repeater',
     '↕': 'Column Repeater',
-    '■': 'Block',
 };
 
 const GLYPH_CLASS: Record<GlyphSymbol, string> = {
@@ -16,7 +15,6 @@ const GLYPH_CLASS: Record<GlyphSymbol, string> = {
     '▲': 'drift',
     '↔': 'row-repeater',
     '↕': 'col-repeater',
-    '■': 'block',
 };
 
 @Component({
