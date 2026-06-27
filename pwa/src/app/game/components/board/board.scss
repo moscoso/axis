@@ -21,15 +21,16 @@
         inset 0 0 50px rgba(0, 0, 0, 0.7);
 }
 
-/* The 6×6 play surface. No gap — cells abut so the row/column lines join into
-   continuous tracks across the board. */
+/* The 6×6 play surface. A 2px gap keeps cells distinct as tiles; the row/column
+   lines run through each tile's centre and their glow bridges the gap so the
+   tracks still read as continuous across the board. */
 .grid {
     position: absolute;
     inset: var(--pad);
     display: grid;
     grid-template-columns: repeat(6, 1fr);
     grid-template-rows: repeat(6, 1fr);
-    gap: 0;
+    gap: 2px;
 }
 
 .empty {
