@@ -6,6 +6,9 @@
     height: 1em;
     font-size: var(--glyph-size, 1rem);
     line-height: 1;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-user-drag: none;
 }
 
 :host([data-kind="pulse"])        { color: #8fe1ff; }  /* + score (orthogonal) */

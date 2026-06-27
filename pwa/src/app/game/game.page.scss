@@ -139,14 +139,14 @@
 }
 
 .side-rail {
-    flex: 0 1 300px;
-    max-width: 340px;
+    flex: 0 1 260px;
+    max-width: 300px;
     display: flex;
     flex-direction: column;
     gap: 0.75rem;
     overflow-y: auto;
     overflow-x: hidden;
-    padding: 0.25rem 0.25rem 160px 0.25rem;  /* bottom space for draft bar */
+    padding: 0.25rem;
     /* Scoring/info widgets resize together, independently of the hands. */
     zoom: var(--scoring-scale, 1);
 }

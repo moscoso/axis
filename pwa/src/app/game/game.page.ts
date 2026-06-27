@@ -31,6 +31,7 @@ import { EventLog } from './components/event-log/event-log';
 import { Lobby } from './components/lobby/lobby';
 import { PlayerPanel } from './components/player-panel/player-panel';
 import { RiftTrack } from './components/rift-track/rift-track';
+import { ScoreBoard } from './components/score-board/score-board';
 import { Settings } from './components/settings/settings';
 import { TurnIndicator } from './components/turn-indicator/turn-indicator';
 import { VictoryModal } from './components/victory-modal/victory-modal';
@@ -48,6 +49,7 @@ import { VictoryModal } from './components/victory-modal/victory-modal';
         MatButtonModule,
         PlayerPanel,
         RiftTrack,
+        ScoreBoard,
         Settings,
         TurnIndicator,
         UserBadge,
