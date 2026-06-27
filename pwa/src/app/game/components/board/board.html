@@ -8,11 +8,17 @@
                     <app-board-cell
                         [cell]="cell"
                         [selectable]="selectable() && cell.stone === null && !cell.hasCrux"
-                        [selected]="isSelected(cell.position)"
+                        [selected]="isPending(cell.position)"
                         [eligible]="eligible(cell.position)"
                         [inCross]="inCross(cell.position)"
                         [dim]="!!armedColor() && selectable() && cell.stone === null && !cell.hasCrux && !eligible(cell.position)"
-                        (click)="onCellClick(cell.position)">
+                        [ghostGlyph]="ghostGlyphFor(cell.position)"
+                        [ghostOwner]="pendingOwner()"
+                        [class.drag-over]="isDragOver(cell.position)"
+                        (click)="onChoose(cell.position)"
+                        (dragover)="onDragOver(cell.position, $event)"
+                        (dragleave)="onDragLeave(cell.position)"
+                        (drop)="onDrop(cell.position, $event)">
                     </app-board-cell>
                 }
             }

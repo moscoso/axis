@@ -1,180 +1,141 @@
+@use 'sass:map';
+
+/* Neon accent per celestial color. */
+$colors: (
+    sun:    #f2c94c,
+    moon:   #8fd3ff,
+    star:   #ff6ad5,
+    comet:  #ff7a45,
+    planet: #6ed26a,
+    spiral: #6f7bff,
+);
+
 :host {
     position: relative;
     display: block;
     aspect-ratio: 1;
-    border-radius: 6px;
     box-sizing: border-box;
-    background: var(--cell-bg, #0b0f1a);
-    overflow: hidden;
-    box-shadow:
-        inset 0 0 0 1px rgba(255, 255, 255, 0.08),
-        inset 0 0 16px rgba(0, 0, 0, 0.4);
-    transition: transform 150ms ease, box-shadow 150ms ease, filter 150ms ease;
+    background: transparent;
+    transition: transform 150ms ease, filter 150ms ease;
 }
 
-:host([data-element="sun"]) {
-    --cell-bg: radial-gradient(circle at 50% 50%, #5e4b12 0%, #2a2208 80%);
-    --cell-accent: #f2c94c;
-}
-:host([data-element="moon"]) {
-    --cell-bg: radial-gradient(circle at 50% 50%, #2c4a66 0%, #101f2e 80%);
-    --cell-accent: #8fd3ff;
-}
-:host([data-element="star"]) {
-    --cell-bg: radial-gradient(circle at 50% 50%, #5e2150 0%, #2a0d24 80%);
-    --cell-accent: #ff6ad5;
-}
-:host([data-element="comet"]) {
-    --cell-bg: radial-gradient(circle at 50% 50%, #5e2c14 0%, #2a1208 80%);
-    --cell-accent: #ff7a45;
-}
-:host([data-element="planet"]) {
-    --cell-bg: radial-gradient(circle at 50% 50%, #1f4a2a 0%, #0a1c10 80%);
-    --cell-accent: #6ed26a;
-}
-:host([data-element="black-hole"]) {
-    --cell-bg: radial-gradient(circle at 50% 50%, #114a44 0%, #07201d 80%);
-    --cell-accent: #3fd6c5;
-}
-
-:host([data-has-crux="true"]) {
-    box-shadow:
-        inset 0 0 0 2px rgba(255, 240, 180, 0.55),
-        inset 0 0 24px rgba(255, 240, 180, 0.15),
-        0 0 20px rgba(255, 240, 180, 0.1);
-}
-
-:host(.selectable) {
-    cursor: pointer;
-}
-
-:host(.selectable:hover) {
-    filter: brightness(1.5);
-    transform: scale(1.03);
-}
-
-:host(.selected) {
-    box-shadow:
-        inset 0 0 0 3px #fff,
-        0 0 28px rgba(255, 255, 255, 0.35);
-    z-index: 1;
-}
-
-:host(.dim) {
-    filter: brightness(0.45) saturate(0.6);
-    cursor: not-allowed;
-}
-:host(.dim.selectable:hover) {
-    filter: brightness(0.5) saturate(0.65);
-    transform: none;
-}
-
-:host(.in-cross) {
-    box-shadow:
-        inset 0 0 0 2px rgba(255, 255, 255, 0.35),
-        inset 0 0 18px rgba(255, 255, 255, 0.15);
-    filter: brightness(1.25);
-}
-
-/* Spell casting: cells the hovered footprint covers, and (stronger) the runes it
-   would charge. */
-:host(.in-footprint) {
-    box-shadow:
-        inset 0 0 0 2px rgba(175, 169, 236, 0.6),
-        inset 0 0 18px rgba(120, 100, 220, 0.25);
-    cursor: pointer;
-}
-
-:host(.will-charge) {
-    box-shadow:
-        inset 0 0 0 3px #afa9ec,
-        inset 0 0 22px rgba(120, 100, 220, 0.45);
-    filter: brightness(1.3);
-}
-
-.glyphs {
+/* ── Row / column lines ──────────────────────────────────────────────────── */
+.line {
     position: absolute;
-    inset: 0;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 3px;
-    padding: 6px;
-    align-content: flex-start;
-    opacity: 0.7;
-    --glyph-size: 1.1rem;
+    pointer-events: none;
+    border-radius: 2px;
+    opacity: 0.9;
+}
+.line.row {
+    left: 0;
+    right: 0;
+    top: 50%;
+    height: clamp(3px, 0.9cqw, 6px);
+    transform: translateY(-50%);
+}
+.line.col {
+    top: 0;
+    bottom: 0;
+    left: 50%;
+    width: clamp(3px, 0.9cqw, 6px);
+    transform: translateX(-50%);
 }
 
+@each $name, $hex in $colors {
+    .line.row[data-color="#{$name}"] {
+        background: linear-gradient(90deg, rgba($hex, 0.35), #{$hex} 50%, rgba($hex, 0.35));
+        box-shadow: 0 0 8px rgba($hex, 0.7);
+    }
+    .line.col[data-color="#{$name}"] {
+        background: linear-gradient(180deg, rgba($hex, 0.35), #{$hex} 50%, rgba($hex, 0.35));
+        box-shadow: 0 0 8px rgba($hex, 0.7);
+    }
+    :host([data-has-crux="true"][data-row-color="#{$name}"]) .crux {
+        filter: drop-shadow(0 0 10px #{$hex}) drop-shadow(0 0 20px rgba($hex, 0.6));
+    }
+}
+
+/* ── Crux marker ─────────────────────────────────────────────────────────── */
 .crux {
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    font-size: clamp(2rem, 5cqw, 3rem);
+    z-index: 2;
+    font-size: clamp(1.4rem, 5cqw, 2.4rem);
     line-height: 1;
     pointer-events: none;
-    filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.5))
-            drop-shadow(0 0 14px rgba(255, 240, 180, 0.35));
 }
 
-.rune {
+/* ── Stones ──────────────────────────────────────────────────────────────── */
+.stone {
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    --rune-size: 3em;
-    font-size: 1.1rem;
-}
-
-/* Ghost preview: the stone you'd place here, showing its previewed flux. Faint,
-   dotted, click-through so it never blocks the cell. */
-.rune.ghost {
-    opacity: 0.4;
-    border-style: dotted;
-    pointer-events: none;
-}
-
-/**
- * Crux control badge: signed flux lead on the Crux's lines, colored by the
- * controlling side (matching rune colors). Pinned bottom-center, below the
- * centered Crux glyph. Only rendered for controlled (non-unbound) Cruxes.
- */
-.crux-badge {
-    position: absolute;
-    left: 50%;
-    bottom: 5px;
-    transform: translateX(-50%);
-    min-width: 1.5em;
-    padding: 0.1em 0.4em;
+    z-index: 2;
+    width: 70%;
+    height: 70%;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-family: var(--font-display, sans-serif);
+    border-radius: 50%;
+    border: 2px solid currentColor;
     font-weight: 800;
-    font-size: clamp(0.65rem, 2.2cqw, 1rem);
-    line-height: 1;
-    border-radius: 999px;
-    border: 1.5px solid currentColor;
-    background: rgba(0, 0, 0, 0.5);
+    --glyph-size: clamp(0.9rem, 4cqw, 1.6rem);
+    box-shadow: 0 0 12px currentColor, inset 0 0 10px rgba(0, 0, 0, 0.55);
+}
+.stone[data-owner="light"] {
+    color: #f5efe0;
+    background: radial-gradient(circle at 35% 30%, rgba(255, 245, 220, 0.45), rgba(40, 36, 24, 0.85));
+}
+.stone[data-owner="dark"] {
+    color: #b19cff;
+    background: radial-gradient(circle at 35% 30%, rgba(130, 100, 230, 0.55), rgba(26, 18, 48, 0.9));
+}
+.stone.ghost {
+    opacity: 0.6;
+    border-style: dashed;
+    box-shadow: 0 0 8px currentColor;
     pointer-events: none;
 }
 
-.crux-badge[data-owner="light"] {
-    color: #f5efe0;
-    background: rgba(255, 245, 220, 0.2);
+/* ── Interaction states ──────────────────────────────────────────────────── */
+:host(.selectable) { cursor: pointer; }
+
+/* A legal target for the armed die — ringed and lit. */
+:host(.eligible)::after {
+    content: '';
+    position: absolute;
+    inset: 8%;
+    border-radius: 8px;
+    border: 2px solid rgba(255, 255, 255, 0.85);
+    box-shadow: 0 0 16px rgba(255, 255, 255, 0.4), inset 0 0 12px rgba(255, 255, 255, 0.2);
+    pointer-events: none;
+    z-index: 1;
+}
+:host(.eligible) { cursor: pointer; }
+:host(.eligible:hover),
+:host(.eligible.drag-over) {
+    transform: scale(1.05);
+    filter: brightness(1.3);
+    z-index: 4;
 }
 
-.crux-badge[data-owner="dark"] {
-    color: #b19cff;
-    background: rgba(80, 50, 130, 0.4);
+/* Cells on the armed cross — brighten their lines. */
+:host(.in-cross) .line { opacity: 1; filter: brightness(1.4) saturate(1.2); }
+
+/* Pending placement target. */
+:host(.selected)::after,
+:host(.has-ghost)::after {
+    content: '';
+    position: absolute;
+    inset: 6%;
+    border-radius: 8px;
+    border: 3px solid #fff;
+    box-shadow: 0 0 22px rgba(255, 255, 255, 0.5);
+    pointer-events: none;
+    z-index: 1;
 }
 
-/* Neutral — only seen as a projection where a move would contest a Crux to a tie. */
-.crux-badge[data-owner="unbound"] {
-    color: rgba(255, 255, 255, 0.7);
-    background: rgba(0, 0, 0, 0.5);
-}
-
-/* Projected result while composing a move: dotted to read as "not yet committed". */
-.crux-badge.preview {
-    border-style: dotted;
-}
+:host(.dim) { filter: brightness(0.5) saturate(0.7); }

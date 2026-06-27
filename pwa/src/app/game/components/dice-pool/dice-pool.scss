@@ -1,3 +1,14 @@
+@use 'sass:map';
+
+$colors: (
+    sun:    #f2c94c,
+    moon:   #8fd3ff,
+    star:   #ff6ad5,
+    comet:  #ff7a45,
+    planet: #6ed26a,
+    spiral: #6f7bff,
+);
+
 :host {
     display: block;
 }
@@ -5,43 +16,52 @@
 .pool {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.5rem;
+    gap: 0.6rem;
     justify-content: center;
 }
 
 .die {
+    position: relative;
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: center;
     gap: 0.15rem;
-    width: 3.25rem;
-    height: 3.25rem;
+    width: 3.5rem;
+    height: 3.5rem;
     padding: 0.25rem;
     border: 2px solid rgba(255, 255, 255, 0.25);
-    border-radius: 0.6rem;
-    background: rgba(255, 255, 255, 0.06);
-    color: inherit;
+    border-radius: 0.7rem;
+    background: rgba(10, 14, 26, 0.9);
+    color: #fff;
     cursor: default;
     transition: transform 0.1s ease, border-color 0.1s ease, box-shadow 0.1s ease;
 }
 
-.pool.pickable .die:not([disabled]) {
-    cursor: pointer;
+@each $name, $hex in $colors {
+    .die[data-color="#{$name}"] {
+        border-color: rgba($hex, 0.6);
+        box-shadow: inset 0 0 14px rgba($hex, 0.18);
+        --accent: #{$hex};
+    }
+    .die[data-color="#{$name}"] .color-mark { filter: drop-shadow(0 0 5px rgba($hex, 0.8)); }
 }
 
+.pool.pickable .die:not([disabled]) { cursor: grab; }
+.pool.pickable .die:not([disabled]):active { cursor: grabbing; }
+
 .pool.pickable .die:not([disabled]):hover {
-    transform: translateY(-2px);
-    border-color: rgba(255, 255, 255, 0.6);
+    transform: translateY(-3px);
+    border-color: #fff;
 }
 
 .die.armed {
-    border-color: gold;
-    box-shadow: 0 0 0 2px gold, 0 0 12px rgba(255, 215, 0, 0.6);
+    border-color: var(--accent, gold);
+    box-shadow: 0 0 0 2px var(--accent, gold), 0 0 16px var(--accent, gold);
+    transform: translateY(-3px);
 }
 
-.die[disabled] {
-    opacity: 0.6;
-}
+.die[disabled] { opacity: 0.55; }
 
 .color-mark {
     font-size: 1rem;
@@ -49,7 +69,8 @@
 }
 
 .face {
-    font-size: 1.4rem;
+    font-size: 1.5rem;
     line-height: 1;
-    font-weight: 700;
+    font-weight: 800;
+    --glyph-size: 1.5rem;
 }

@@ -182,6 +182,58 @@
     container-name: board-stage;
 }
 
+/* ───── Dice tray + action bar (below the board) ───────────────────────── */
+.dice-tray {
+    flex: 0 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    width: 100%;
+    padding: 0.25rem 0;
+    zoom: var(--scoring-scale, 1);
+}
+
+.action-bar {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    min-height: 2.2rem;
+    flex-wrap: wrap;
+    justify-content: center;
+
+    .hint {
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 0.9rem;
+        letter-spacing: 0.02em;
+    }
+
+    button {
+        padding: 0.4rem 1rem;
+        border-radius: 0.5rem;
+        font-family: var(--font-display);
+        font-size: 0.85rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        cursor: pointer;
+        border: 1px solid transparent;
+        transition: filter 0.1s ease, transform 0.1s ease;
+    }
+    button:hover { filter: brightness(1.2); transform: translateY(-1px); }
+
+    .confirm {
+        background: linear-gradient(180deg, #6ed26a, #3a9e57);
+        color: #06210f;
+        border-color: rgba(110, 210, 106, 0.6);
+        box-shadow: 0 0 16px rgba(110, 210, 106, 0.4);
+    }
+    .cancel {
+        background: rgba(255, 255, 255, 0.06);
+        color: rgba(255, 255, 255, 0.8);
+        border-color: rgba(255, 255, 255, 0.2);
+    }
+}
+
 .loading {
     flex: 1 1 auto;
     display: flex;

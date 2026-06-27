@@ -1,8 +1,8 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
-import { BoardCell as BoardCellModel, Color } from 'axis-models';
+import { BoardCell as BoardCellModel, Color, Glyph as GlyphSymbol, PlayerSide } from 'axis-models';
 import { Glyph } from '../glyph/glyph';
 
-/** Emoji marker per celestial color, shown on Crux cells and color swatches. */
+/** Emoji marker per celestial color, shown on Crux cells. */
 export const COLOR_SYMBOL: Record<Color, string> = {
     sun: '☀️',
     moon: '🌙',
@@ -30,6 +30,7 @@ export const COLOR_SYMBOL: Record<Color, string> = {
         '[class.eligible]': 'eligible()',
         '[class.dim]': 'dim()',
         '[class.in-cross]': 'inCross()',
+        '[class.has-ghost]': '!!ghost()',
     },
 })
 export class BoardCell {
@@ -42,12 +43,18 @@ export class BoardCell {
     readonly dim = input<boolean>(false);
     /** On the cross that the armed die would fire. */
     readonly inCross = input<boolean>(false);
+    /** Glyph of the pending (not-yet-confirmed) placement on this cell, if any. */
+    readonly ghostGlyph = input<GlyphSymbol | null>(null);
+    /** Owner of the pending placement (drives the ghost color). */
+    readonly ghostOwner = input<PlayerSide | null>(null);
 
     readonly stone = computed(() => this.cell().stone);
+    readonly ghost = computed(() => {
+        const g = this.ghostGlyph();
+        return this.stone() === null && g ? { glyph: g, owner: this.ghostOwner() ?? 'light' } : null;
+    });
     readonly cruxSymbol = computed(() => {
         const color = this.cell().cruxColor;
         return color ? COLOR_SYMBOL[color] : '';
     });
-    readonly rowSymbol = computed(() => COLOR_SYMBOL[this.cell().rowColor]);
-    readonly colSymbol = computed(() => COLOR_SYMBOL[this.cell().colColor]);
 }

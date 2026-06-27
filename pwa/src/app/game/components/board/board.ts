@@ -1,5 +1,5 @@
-import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
-import { Color, Game, Position, getCrux } from 'axis-models';
+import { ChangeDetectionStrategy, Component, computed, input, output, signal } from '@angular/core';
+import { Color, Game, Glyph, PlayerSide, Position, getCrux } from 'axis-models';
 import { BoardCell } from '../board-cell/board-cell';
 
 @Component({
@@ -12,15 +12,23 @@ import { BoardCell } from '../board-cell/board-cell';
 })
 export class Board {
     readonly game = input.required<Game>();
-    readonly selectedCell = input<Position | null>(null);
     /** Whether cells can be inscribed this turn. */
     readonly selectable = input<boolean>(false);
     /** The armed die color — drives eligible-cell + cross highlighting. */
     readonly armedColor = input<Color | null>(null);
+    /** The cell holding the pending (not-yet-confirmed) placement, if any. */
+    readonly pendingTarget = input<Position | null>(null);
+    /** The glyph face that would land (armed die's face). */
+    readonly pendingGlyph = input<Glyph | null>(null);
+    /** Side that owns the pending placement. */
+    readonly pendingOwner = input<PlayerSide | null>(null);
 
-    readonly cellClicked = output<Position>();
+    /** A cell was chosen as the target (via click or drop). */
+    readonly cellChosen = output<Position>();
 
     readonly rows = computed(() => this.game().board);
+
+    private readonly dragOver = signal<string | null>(null);
 
     /** The cells of the armed color's cross (full row + column), as a key set. */
     private readonly crossCells = computed<Set<string>>(() => {
@@ -34,9 +42,13 @@ export class Board {
         return set;
     });
 
-    isSelected(pos: Position): boolean {
-        const sel = this.selectedCell();
-        return sel !== null && sel.row === pos.row && sel.col === pos.col;
+    isPending(pos: Position): boolean {
+        const p = this.pendingTarget();
+        return p !== null && p.row === pos.row && p.col === pos.col;
+    }
+
+    ghostGlyphFor(pos: Position): Glyph | null {
+        return this.isPending(pos) ? this.pendingGlyph() : null;
     }
 
     /** An empty non-Crux cell matching the armed die color — a legal target. */
@@ -52,8 +64,28 @@ export class Board {
         return this.crossCells().has(`${pos.row},${pos.col}`);
     }
 
-    onCellClick(pos: Position): void {
+    isDragOver(pos: Position): boolean {
+        return this.dragOver() === `${pos.row},${pos.col}`;
+    }
+
+    onChoose(pos: Position): void {
         if (!this.eligible(pos)) return;
-        this.cellClicked.emit(pos);
+        this.cellChosen.emit(pos);
+    }
+
+    onDragOver(pos: Position, event: DragEvent): void {
+        if (!this.eligible(pos)) return;
+        event.preventDefault(); // allow drop
+        this.dragOver.set(`${pos.row},${pos.col}`);
+    }
+
+    onDragLeave(pos: Position): void {
+        if (this.isDragOver(pos)) this.dragOver.set(null);
+    }
+
+    onDrop(pos: Position, event: DragEvent): void {
+        event.preventDefault();
+        this.dragOver.set(null);
+        this.onChoose(pos);
     }
 }

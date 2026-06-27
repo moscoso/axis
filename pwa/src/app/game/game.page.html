@@ -1,3 +1,5 @@
+<app-hex-grid class="bg"></app-hex-grid>
+
 <header class="top">
     <h1>AXIS</h1>
     @if (!inLobby()) {
@@ -49,7 +51,10 @@
                     [game]="g"
                     [armedColor]="armedColor() ?? null"
                     [selectable]="canInscribe()"
-                    (cellClicked)="onCellClick($event)">
+                    [pendingTarget]="pendingTarget()"
+                    [pendingGlyph]="armedGlyph()"
+                    [pendingOwner]="mySide()"
+                    (cellChosen)="onCellChosen($event)">
                 </app-board>
             </section>
 
@@ -58,8 +63,24 @@
                     [dice]="dice()"
                     [armedColor]="armedColor() ?? null"
                     [pickable]="canInscribe()"
-                    (diePicked)="onDieSelected($event)">
+                    (diePicked)="onDieSelected($event)"
+                    (dragStarted)="onDieDragStart($event)">
                 </app-dice-pool>
+
+                @if (canInscribe()) {
+                    <div class="action-bar">
+                        @if (pending(); as p) {
+                            <span class="hint">Inscribe {{ armedGlyph() }} on ({{ p.target.row }},{{ p.target.col }})?</span>
+                            <button type="button" class="confirm" (click)="onConfirm()">Inscribe</button>
+                            <button type="button" class="cancel" (click)="onCancel()">Cancel</button>
+                        } @else if (armedColor()) {
+                            <span class="hint">Drag the die onto a highlighted cell, or tap a cell.</span>
+                            <button type="button" class="cancel" (click)="onCancel()">Clear</button>
+                        } @else {
+                            <span class="hint">Pick a die to inscribe.</span>
+                        }
+                    </div>
+                }
             </section>
         </main>
     </div>

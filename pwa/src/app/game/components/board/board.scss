@@ -1,10 +1,4 @@
 :host {
-    /**
-     * The board-stage parent is a size container. Using container-query units
-     * we can pick the smaller of the container's width and height and build a
-     * square from it — so the board always fills the available space without
-     * spilling over vertically into the hands above/below.
-     */
     display: block;
     aspect-ratio: 1;
     width: min(100cqw, 100cqh, 820px);
@@ -12,92 +6,31 @@
 }
 
 .board {
-    --pad: 10px;
-    /* Thickness of the guide rails. Kept slim so a tally is a thin strip, not a
-       cell-sized box. Collapses to 0 when guides are off (see .no-guides). */
-    --edge: clamp(0.85rem, 2.3cqw, 1.35rem);
-
+    --pad: 14px;
     position: relative;
     width: 100%;
     height: 100%;
     box-sizing: border-box;
-    border-radius: 14px;
-    border: 2px solid rgba(255, 255, 255, 0.2);
+    border-radius: 16px;
+    border: 2px solid rgba(255, 255, 255, 0.18);
     background:
-        radial-gradient(circle at center, rgba(80, 70, 140, 0.25) 0%, rgba(0, 0, 0, 0.8) 70%),
-        #000;
+        radial-gradient(circle at center, rgba(70, 60, 130, 0.25) 0%, rgba(0, 0, 0, 0.85) 70%),
+        #04060d;
     box-shadow:
-        0 0 60px rgba(120, 100, 220, 0.15),
-        inset 0 0 40px rgba(0, 0, 0, 0.6);
+        0 0 60px rgba(120, 100, 220, 0.18),
+        inset 0 0 50px rgba(0, 0, 0, 0.7);
 }
 
-/* Guides off: no reserved edge band — the grid fills the whole frame. */
-.board.no-guides {
-    --edge: 0px;
-}
-
-/**
- * The play surface: a plain 6×6 grid, inset by the padding plus the guide band.
- * It never changes shape when guides toggle — only the inset does.
- */
+/* The 6×6 play surface. No gap — cells abut so the row/column lines join into
+   continuous tracks across the board. */
 .grid {
     position: absolute;
-    inset: calc(var(--pad) + var(--edge));
+    inset: var(--pad);
     display: grid;
     grid-template-columns: repeat(6, 1fr);
     grid-template-rows: repeat(6, 1fr);
-    gap: 2px;
+    gap: 0;
 }
-
-/**
- * Guide rails: four thin overlays in the reserved margin. Each uses the same
- * `repeat(6, 1fr)` + gap over the same span as the grid, so its tallies line up
- * under the columns / beside the rows without sharing the cell grid.
- */
-.rail {
-    position: absolute;
-    display: grid;
-    gap: 2px;
-    pointer-events: none;
-}
-
-.rail.top,
-.rail.bottom {
-    left: calc(var(--pad) + var(--edge));
-    right: calc(var(--pad) + var(--edge));
-    height: var(--edge);
-    grid-template-columns: repeat(6, 1fr);
-}
-
-.rail.left,
-.rail.right {
-    top: calc(var(--pad) + var(--edge));
-    bottom: calc(var(--pad) + var(--edge));
-    width: var(--edge);
-    grid-template-rows: repeat(6, 1fr);
-}
-
-.rail.top { top: var(--pad); }
-.rail.bottom { bottom: var(--pad); }
-.rail.left { left: var(--pad); }
-.rail.right { right: var(--pad); }
-
-.tally {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-family: var(--font-display, sans-serif);
-    font-size: clamp(0.5rem, 1.5cqw, 0.8rem);
-    font-weight: 700;
-    line-height: 1;
-    user-select: none;
-}
-
-.tally.light { color: #f5efe0; }
-.tally.dark { color: #b19cff; }
-
-/* Empty lines fade out so the active discount lines are the signal. */
-.tally.zero { opacity: 0.22; }
 
 .empty {
     display: flex;

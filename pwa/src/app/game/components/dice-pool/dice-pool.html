@@ -6,8 +6,11 @@
             [attr.data-color]="die.color"
             [class.armed]="armedColor() === die.color"
             [disabled]="!pickable()"
+            [draggable]="pickable()"
             [attr.aria-label]="die.color + ' die showing ' + die.face"
-            (click)="onPick(die.color)">
+            (click)="onPick(die.color)"
+            (dragstart)="onDragStart(die.color, $event)"
+            (dragend)="onDragEnd()">
             <span class="color-mark" aria-hidden="true">{{ colorSymbol[die.color] }}</span>
             <span class="face"><app-glyph [symbol]="die.face"></app-glyph></span>
         </button>

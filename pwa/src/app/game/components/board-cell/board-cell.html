@@ -1,15 +1,19 @@
+<!--
+  Each cell draws its row line (horizontal, row color) and column line (vertical,
+  column color) through its centre. Spanning edge-to-edge with no grid gap, the
+  lines join across cells into continuous tracks that meet at the Cruxes.
+-->
+<span class="line row" [attr.data-color]="cell().rowColor" aria-hidden="true"></span>
+<span class="line col" [attr.data-color]="cell().colColor" aria-hidden="true"></span>
+
 @if (cell().hasCrux) {
     <div class="crux" [attr.aria-label]="'Crux of ' + cell().cruxColor">{{ cruxSymbol() }}</div>
-} @else {
-    <!-- Two-color swatch: row color (top-left) and column color (bottom-right). -->
-    <div class="colors" aria-hidden="true">
-        <span class="row-color" [attr.data-color]="cell().rowColor">{{ rowSymbol() }}</span>
-        <span class="col-color" [attr.data-color]="cell().colColor">{{ colSymbol() }}</span>
+} @else if (stone(); as s) {
+    <div class="stone" [attr.data-owner]="s.owner">
+        <app-glyph [symbol]="s.glyph"></app-glyph>
     </div>
-
-    @if (stone(); as s) {
-        <div class="stone" [attr.data-owner]="s.owner">
-            <app-glyph [symbol]="s.glyph"></app-glyph>
-        </div>
-    }
+} @else if (ghost(); as g) {
+    <div class="stone ghost" [attr.data-owner]="g.owner">
+        <app-glyph [symbol]="g.glyph"></app-glyph>
+    </div>
 }

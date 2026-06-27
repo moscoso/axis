@@ -10,6 +10,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import {
     Color,
+    Glyph,
     INIT_GAME_STATE,
     INIT_TABLE_STATE,
     PlayerSide,
@@ -22,6 +23,7 @@ import { AuthFacade } from '../core/state/auth/auth.facade';
 import { DealerFacade } from '../core/state/dealer/dealer.facade';
 import { ConnectionStatus } from '../core/websocket/connection-status/connection-status';
 import { WebsocketService } from '../core/websocket/websocket.service';
+import { HexGrid } from '../shared/hex-grid/hex-grid';
 import { UserBadge } from '../shared/user-badge/user-badge';
 import { Board } from './components/board/board';
 import { DicePool } from './components/dice-pool/dice-pool';
@@ -41,6 +43,7 @@ import { VictoryModal } from './components/victory-modal/victory-modal';
         ConnectionStatus,
         DicePool,
         EventLog,
+        HexGrid,
         Lobby,
         MatButtonModule,
         PlayerPanel,
@@ -136,29 +139,69 @@ export class GamePage {
     readonly inMainTurn = computed(() => this.phase() === 'main-turn');
     readonly canInscribe = computed(() => this.isMyTurn() && this.inMainTurn());
 
+    /** The cell chosen for the pending placement (not yet confirmed). */
+    readonly pendingTarget = signal<Position | null>(null);
+
+    /** The glyph face the armed die currently shows. */
+    readonly armedGlyph = computed<Glyph | null>(() => {
+        const color = this.armedColor();
+        if (!color) return null;
+        return this.dice().find(d => d.color === color)?.face ?? null;
+    });
+
+    /** A complete, confirmable move: an armed die AND a chosen target. */
+    readonly pending = computed(() => {
+        const color = this.armedColor();
+        const target = this.pendingTarget();
+        return color && target ? { color, target } : null;
+    });
+
     // ─── Interaction ────────────────────────────────────────────────────────────
 
-    /** Arm (or toggle off) a die by color. */
+    /** Tap a die to arm it (or toggle it off). Clears any chosen target. */
     onDieSelected(color: Color): void {
         if (!this.canInscribe()) return;
-        if (this.armedColor() === color) {
-            this.dealer.unselectDie();
-        } else {
-            this.dealer.selectDie(color);
-        }
+        this.pendingTarget.set(null);
+        if (this.armedColor() === color) this.dealer.unselectDie();
+        else this.dealer.selectDie(color);
     }
 
-    /** Inscribe the armed die on a clicked eligible cell. */
-    onCellClick(pos: Position): void {
+    /** Dragging a die arms it so eligible cells light up as drop targets. */
+    onDieDragStart(color: Color): void {
+        if (!this.canInscribe()) return;
+        this.pendingTarget.set(null);
+        this.dealer.selectDie(color);
+    }
+
+    /** Choose a target cell (via click or drop) for the armed die. */
+    onCellChosen(pos: Position): void {
         const color = this.armedColor();
         if (!color || !this.canInscribe()) return;
         const cell = this.game().board[pos.row]?.[pos.col];
         if (!cell || cell.hasCrux || cell.stone !== null) return;
         if (cell.rowColor !== color && cell.colColor !== color) return;
+        this.pendingTarget.set(pos);
+    }
+
+    /** Commit the pending placement. */
+    onConfirm(): void {
+        const move = this.pending();
+        if (!move) return;
         this.dealer.signalAsPlayer(
-            clientGameCommand('InscribeGlyph', { player: this.mySide(), dieColor: color, target: pos })
+            clientGameCommand('InscribeGlyph', {
+                player: this.mySide(),
+                dieColor: move.color,
+                target: move.target,
+            })
         );
+        this.pendingTarget.set(null);
         // playerSignaled disarms the die in the reducer.
+    }
+
+    /** Abandon the pending placement and disarm. */
+    onCancel(): void {
+        this.pendingTarget.set(null);
+        this.dealer.unselectDie();
     }
 
     onDismissVictory(): void {
